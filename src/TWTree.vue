@@ -5,17 +5,23 @@
         <li
           v-if="item.__.isVisible"
           :class="{
-            node: true, selected: item.__.isSelected,
+            node:               true, 
+            selected:           item.__.isSelected,
             'drag-over-top':    item.__.dragOverState == 'top',
             'drag-over-bottom': item.__.dragOverState == 'bottom',
-            'drag-over-body':   item.__.dragOverState == 'body'
+            'drag-over-body':   item.__.dragOverState == 'body',
+            'not-droppable':    item.__.dragOverState == null && item == dragAndDrop.hoverNode
           }"
-          :style="{'text-indent': (item.__.level - 1) * 20 + 'px'}"
+          :style="{
+            'text-indent': (item.__.level - 1) * 20 + 'px',
+            '--height': item.__.height + 'px'
+          }"
           @click = "open(item)"
           :draggable="item.__.isDraggable"
           @dragstart="dragStart(item, $event)"
           @dragover="dragOver(item, $event)"
           @dragend="dragEnd()"
+          @drop="drop()"
           :ref="'node-' + item.id"
           :key="item.id">
           <div class="switcher" @click.stop="switchState(item)">
@@ -26,17 +32,22 @@
               <path d="M10 17l5-5-5-5v10z"/>
             </svg>
           </div>
-          <img src="./folder.svg"      class="icon" v-if="item.hasChild === true && item.__.directoryState == 'collapsed'"/>
-          <img src="./folder-open.svg" class="icon" v-else-if="item.hasChild === true && item.__.directoryState == 'expanded'"/>
-          <img src="./file.svg"        class="icon" v-else/>
-          <span 
-            :class="{title:true, editing:item.__.isEditing}" 
-            :ref="'tw-title-' + item.id" 
-            :contenteditable="item.__.isEditing" 
-            @blur="inputBlur(item)">{{item.title}}</span>
-          <div v-if="item.__.dragOverState !== null" class="drag-over-back">
+          <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
+            <img src="./folder.svg"      class="icon" v-if="item.hasChild === true && item.__.directoryState == 'collapsed'"/>
+            <img src="./folder-open.svg" class="icon" v-else-if="item.hasChild === true && item.__.directoryState == 'expanded'"/>
+            <img src="./file.svg"        class="icon" v-else/>
+            <span 
+              :class="{title:true, editing:item.__.isEditing}" 
+              :ref="'title-' + item.id" 
+              :contenteditable="item.__.isEditing" 
+              @blur="inputBlur(item)">
+              {{item.title}}
+            </span>
+          </span>
+          <div v-if="item.__.dragOverState !== null" class="drag-arrow-wrapper">
             <svg class="arrow" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/>
+              <path fill="none" d="M0 0h24v24H0z"/>
+              <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
             </svg>
           </div>
         </li>
@@ -81,7 +92,8 @@ export default {
         isEditing: false,
         indent: '20px',
         isDraggable: true,
-        dragOverState: null
+        dragOverState: null,
+        height: 24,
       },
       dragAndDrop: {
         isOnGoing: false,
@@ -198,7 +210,7 @@ export default {
       this.setAttr(node, 'isEditing', false)
     },
     getTitleElement(node) {
-      let refId = 'tw-title-' + node.id
+      let refId = 'title-' + node.id
       if (this.$refs.hasOwnProperty(refId)) {
         return this.$refs[refId][0]
       }
@@ -246,7 +258,7 @@ export default {
     notDraggable(node) {
       this.setAttr(node, 'isDraggable', false)
     },
-    create(parentNode, node, pos) {
+    create(node, parentNode, pos) {
       if (parentNode === null) {
         if (typeof(pos) === 'undefined') {
           this.nodes.push(node)
@@ -282,6 +294,14 @@ export default {
       }
 
       this.refreshItems()
+    },
+    move(node, toParentNode, toPos) {
+      this.remove(node)
+
+      if (node.parent == toParentNode && this.getAttr(node, 'pos') < toPos) {
+        toPos -= 1
+      }
+      this.create(node, toParentNode, toPos)
     },
     expand(node) {
       if (node.hasChild != true) {
@@ -361,9 +381,12 @@ export default {
       return offsetTop
     },
     dragStart(node, event) {
+      let refId = 'icon-and-title-' + node.id
+      let ghostElement = this.$refs[refId][0]
+
       this.dragAndDrop.srcNode = node
-      event.dataTransfer.setData("node", node);
-      event.dataTransfer.setDragImage()
+      event.dataTransfer.setDragImage(ghostElement, -20, 0)
+      event.dataTransfer.dropEffect = 'move'
     },
     dragOver(node, event) {
       if (this.dragAndDrop.hoverNode !== node) {
@@ -372,6 +395,7 @@ export default {
       }
 
       if (this.dragAndDrop.srcNode == node) {
+        this.setAttr(node, 'dragOverState', null)
         return
       }
 
@@ -389,7 +413,17 @@ export default {
         dragOverState = 'body'
       }
 
+      let nodePos = this.getAttr(node, 'pos')
+      let srcNodePos = this.getAttr(this.dragAndDrop.srcNode, 'pos')
+      if (dragOverState == 'top' && this.dragAndDrop.srcNode.parent == node.parent && nodePos == srcNodePos + 1) {
+        dragOverState = null
+      }
+      if (dragOverState == 'bottom' && this.dragAndDrop.srcNode.parent == node.parent && nodePos == srcNodePos - 1) {
+        dragOverState = null
+      }
+
       this.setAttr(node, 'dragOverState', dragOverState)
+      event.preventDefault()
     },
     dragEnter(node) {
       this.dragAndDrop.hoverNode = node
@@ -403,6 +437,33 @@ export default {
       if (this.dragAndDrop.hoverNode !== null) {
         this.dragLeave(this.dragAndDrop.hoverNode)
         this.dragAndDrop.hoverNode = null
+      }
+    },
+    drop() {
+      console.log('-----drop------')
+
+      let srcNode = this.dragAndDrop.srcNode
+      let desNode = this.dragAndDrop.hoverNode
+      let desNodePos = this.getAttr(desNode, 'pos')
+      let desParentNode = this.getAttr(desNode, 'parent')
+      let dragOverState = this.getAttr(desNode, 'dragOverState')
+
+      if (dragOverState == null) {
+        return
+      }
+
+      switch (dragOverState) {
+        case 'top':
+          this.move(srcNode, desParentNode, desNodePos)
+          break
+
+        case 'bottom':
+          this.move(srcNode, desParentNode, desNodePos + 1)
+          break
+
+        case 'body':
+          this.move(srcNode, desNode)
+          break
       }
     },
     switchState(node) {
@@ -431,6 +492,7 @@ export default {
         this.setAttr(node, 'isEditing',      this.getAttr(node, 'isEditing'))
         this.setAttr(node, 'isDraggable',    this.getAttr(node, 'isDraggable'))
         this.setAttr(node, 'dragOverState',  this.getAttr(node, 'dragOverState'))
+        this.setAttr(node, 'height',         this.getAttr(node, 'height'))
 
         items.push(node)
       }.bind(this))
@@ -454,49 +516,29 @@ export default {
   padding-inline-start: 0;
   text-align: left;
   list-style: none;
+  overflow: visible;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .node {
   cursor: pointer;
   position: relative;
-  height: 2em;
-  line-height: 2em;
+  height: var(--height);
+  line-height: var(--height);
   font-size: 12px;
 }
 .node:hover {
   background-color: #e7f4f9;
 }
 .node.selected {
-  background: linear-gradient(to bottom, #beebff 0, #a8e4ff 100%);
+  background-color: #bae7ff;
 }
-.node .drag-over-back {
-  width: 100%;
-  height: 2px;
-  border: 0;
-  position: absolute;
-  left: 0;
-  background-color: blue;
-  display: none;
-  overflow: visible;
-}
-.node .drag-over-back .arrow {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  top: -5px;
-}
-.node.drag-over-top .drag-over-back {
-  display: block;
-  top: 0;
-}
-.node.drag-over-bottom .drag-over-back {
-  display: block;
-  bottom: 0;
-}
-.node.drag-over-body .drag-over-back {
-  display: none;
-}
-.node.drag-over-body {
-  background: linear-gradient(to bottom, #beebff 0, #a8e4ff 100%);
+.node .icon-and-title {
+  display: inline-block;
+  text-indent: 0;
+  padding-left: 2px;
+  padding-right: 5px;
+  border-radius: 2px;
 }
 .node .title {
   width: auto;
@@ -521,5 +563,36 @@ export default {
   height: 1.3em;
   margin-right: 5px;
   vertical-align: middle;
+}
+.node .drag-arrow-wrapper {
+  width: 100%;
+  height: 0;
+  border: 0;
+  position: absolute;
+  left: 0;
+  display: none;
+  overflow: visible;
+}
+.node .drag-arrow-wrapper .arrow {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  top: -10px;
+  left: -8px;
+}
+.node.drag-over-top .drag-arrow-wrapper {
+  display: block;
+  top: 0;
+}
+.node.drag-over-bottom .drag-arrow-wrapper {
+  display: block;
+  bottom: 0;
+}
+.node.drag-over-body .drag-arrow-wrapper {
+  display: block;
+  top: 50%;
+}
+.node.drag-over-body .icon-and-title {
+  background-color: #bae7ff;
 }
 </style>

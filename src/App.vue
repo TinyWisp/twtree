@@ -77,7 +77,7 @@ export default {
         title: 'hello, world!' + this.counter,
         hasChild: false
       }
-      tree.create(node, child)
+      tree.create(child, node)
     },
     remove() {
       let tree = this.$refs.tree
