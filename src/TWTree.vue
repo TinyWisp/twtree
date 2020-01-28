@@ -32,6 +32,18 @@
                 <path d="M10 17l5-5-5-5v10z"/>
               </svg>
             </div>
+            <span class="checkbox-wrapper" v-if="item.__.showCheckbox">
+              <span
+                :class="{
+                  checkbox:     true,
+                  checked:      item.__.checkboxState === 'checked',
+                  unchecked:    item.__.checkboxState === 'unchecked',
+                  undetermined: item.__.checkboxState === 'undetermined',
+                  disabled:     item.__.isCheckboxDisabled
+                }"
+                @click.stop="toggleCheckbox(item)">
+              </span>
+            </span>
             <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
               <img src="./folder.svg"      class="icon" v-if="item.hasChild === true && item.__.directoryState == 'collapsed'"/>
               <img src="./folder-open.svg" class="icon" v-else-if="item.hasChild === true && item.__.directoryState == 'expanded'"/>
@@ -94,12 +106,13 @@ export default {
         isDraggable: true,
         dragOverState: null,
         height: 24,
+        showCheckbox: false,
+        checkboxState: 'unchecked',
+        isCheckboxDisabled: false
       },
       dragAndDrop: {
-        isOnGoing: false,
         srcNode: null,
         hoverNode: null,
-        hoverState: null,
       }
     }
   },
@@ -117,6 +130,7 @@ export default {
         this.setAttr(node, 'parent', null)
         this.setAttr(node, 'path',   [])
         this.setAttr(node, 'pos',    i)
+        this.setAttr(node, 'gpos',   i)
         stack.push(node)
       }
 
@@ -130,6 +144,7 @@ export default {
             this.setAttr(child, 'parent', node)
             this.setAttr(child, 'path',   [...this.getAttr(node, 'path'), node])
             this.setAttr(child, 'pos',    i)
+            this.setAttr(child, 'gpos',   this.getAttr(node, 'gpos') + i + 1)
             stack.push(child)
           }
         }
@@ -484,6 +499,113 @@ export default {
         }
       }
     },
+    check(node) {
+      let gpos = this.getAttr(node, 'gpos')
+      let level = this.getAttr(node, 'level')
+      for (let i=gpos; i<this.items.length; i++) {
+        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+          break
+        }
+        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
+          this.setAttr(this.items[i], 'checkboxState', 'checked')
+        }
+      }
+
+      for (let i=gpos; i<this.items.length; i++) {
+        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+          break
+        }
+
+        if (this.items[i].hasChild) {
+          this.setAttr(this.items[i], 'checkboxState', this.getCheckboxState(this.items[i]))
+        }
+      }
+
+      let path = this.getAttr(node, 'path')
+      for (let tnode of path) {
+        this.setAttr(tnode, 'checkboxState', this.getCheckboxState(tnode))
+      }
+    },
+    uncheck(node) {
+      let gpos = this.getAttr(node, 'gpos')
+      let level = this.getAttr(node, 'level')
+      for (let i=gpos; i<this.items.length; i++) {
+        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+          break
+        }
+        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
+          this.setAttr(this.items[i], 'checkboxState', 'unchecked')
+        }
+      }
+
+      for (let i=gpos; i<this.items.length; i++) {
+        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+          break
+        }
+
+        if (this.items[i].hasChild) {
+          this.setAttr(this.items[i], 'checkboxState', this.getCheckboxState(this.items[i]))
+        }
+      }
+
+      let path = this.getAttr(node, 'path')
+      for (let tnode of path) {
+        this.setAttr(tnode, 'checkboxState', this.getCheckboxState(tnode))
+      }
+    },
+    toggleCheckbox(node) {
+      let checkboxState = this.getAttr(node, 'checkboxState')
+
+      switch (checkboxState) {
+        case 'checked':
+          this.uncheck(node)
+          break
+
+        case 'unchecked':
+          this.check(node)
+          break
+
+        case 'undetermined':
+          this.uncheck(node)
+          break
+      }
+    },
+    getCheckboxState(node) {
+      if (!node.hasChild) {
+        return this.getAttr(node, 'checkboxState')
+      }
+
+      let gpos = this.getAttr(node, 'gpos');
+      let level = this.getAttr(node, 'level')
+
+      let hasChecked = false
+      let hasUnchecked = false
+      for (let i=gpos+1; i<this.items.length; i++) {
+        if (this.getAttr(this.items[i], 'level') <= level) {
+          break
+        }
+
+        if (!this.items[i].hasChild) {
+          if (this.getAttr(this.items[i], 'checkboxState') === 'checked') {
+            hasChecked = true
+          } else {
+            hasUnchecked = true
+          }
+        }
+
+        if (hasChecked && hasUnchecked) {
+          return 'undetermined'
+        }
+      }
+
+      if (!hasChecked) {
+        return 'unchecked'
+      }
+
+      if (!hasUnchecked) {
+        return 'checked'
+      }
+    },
     switchState(node) {
         let state = this.getDirectoryState(node)
         if (state === 'expanded') {
@@ -505,12 +627,15 @@ export default {
             break
           }
         }
-        this.setAttr(node, 'isVisible',      isVisible)
-        this.setAttr(node, 'directoryState', this.getDirectoryState(node))
-        this.setAttr(node, 'isEditing',      this.getAttr(node, 'isEditing'))
-        this.setAttr(node, 'isDraggable',    this.getAttr(node, 'isDraggable'))
-        this.setAttr(node, 'dragOverState',  this.getAttr(node, 'dragOverState'))
-        this.setAttr(node, 'height',         this.getAttr(node, 'height'))
+        this.setAttr(node, 'isVisible',          isVisible)
+        this.setAttr(node, 'directoryState',     this.getDirectoryState(node))
+        this.setAttr(node, 'isEditing',          this.getAttr(node, 'isEditing'))
+        this.setAttr(node, 'isDraggable',        this.getAttr(node, 'isDraggable'))
+        this.setAttr(node, 'dragOverState',      this.getAttr(node, 'dragOverState'))
+        this.setAttr(node, 'height',             this.getAttr(node, 'height'))
+        this.setAttr(node, 'showCheckbox',       this.getAttr(node, 'showCheckbox'))
+        this.setAttr(node, 'checkboxState',      this.getAttr(node, 'checkboxState'))
+        this.setAttr(node, 'isCheckboxDisabled', this.getAttr(node, 'isCheckboxDisabled'))
 
         items.push(node)
       }.bind(this))
@@ -625,5 +750,76 @@ export default {
 }
 .node.drag-over-self .icon-and-title {
   background-color: #bae7ff;
+}
+.node .checkbox-wrapper {
+  display: inline-block;
+  text-indent: 0;
+}
+.node .checkbox-wrapper .checkbox {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 1px solid #dcdee2;
+  border-radius: 2px;
+  text-indent: 0;
+  vertical-align: middle;
+  position: relative;
+}
+.node .checkbox-wrapper .checkbox.checked:after {
+  content: "";
+  background-color: transparent;
+  position: absolute;
+  left: 0.32em;
+  top: 0.1em;
+  width: 0.2em;
+  border-bottom: 2px solid white;
+  height: 0.5em;
+  border-right: 2px solid white;
+  transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+.node .checkbox-wrapper .checkbox.checked {
+  color: white;
+  background-color: #2d8cf0;
+  border-color: #2d8cf0;
+}
+.node .checkbox-wrapper .checkbox.checked.disabled {
+  border-color: #dcdee2;
+  background-color: #f5f5f5;
+}
+.node .checkbox-wrapper .checkbox.checked.disabled:after {
+  border-color: #a6a6a6;
+}
+.node .checkbox-wrapper .checkbox.unchecked {
+  background-color: white;
+}
+.node .checkbox-wrapper .checkbox.unchecked.disabled {
+  background-color: #f5f5f5;
+}
+.node .checkbox-wrapper .checkbox.undetermined:after{
+  content: '';
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 0.7em;
+  height: 2px;
+  position: absolute;
+  left: 0.15em;
+  top: calc(50% - 1px);
+  background-color: white;
+}
+.node .checkbox-wrapper .checkbox.undetermined{
+  color: white;
+  background-color: #2d8cf0;
+  border-color: #2d8cf0;
+}
+.node .checkbox-wrapper .checkbox.undetermined.disabled{
+  border-color: #dcdee2;
+  background-color: #f5f5f5;
+}
+.node .checkbox-wrapper .checkbox.undetermined.disabled:after{
+  background-color: #a6a6a6;
 }
 </style>

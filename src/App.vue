@@ -4,7 +4,14 @@
     <button @click="create()" >create</button>
     <button @click="remove()" >remove</button>
     <button @click="edit()" >edit</button>
-    <TWTree :tree="tree" ref="tree" @open="open" class="tree"/>
+    <TWTree 
+      :tree="tree" 
+      ref="tree" 
+      @open="open" 
+      class="tree"
+      :globalAttrs="{
+        showCheckbox : true
+      }"/>
   </div>
 </template>
 
