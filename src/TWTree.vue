@@ -7,13 +7,13 @@
             :class="{
               node:             true, 
               selected:         item.__.isSelected,
-              'drag-over-prev': item.__.dragOverState == 'prev',
-              'drag-over-next': item.__.dragOverState == 'next',
-              'drag-over-self': item.__.dragOverState == 'self',
-              'not-droppable':  item.__.dragOverState == null && item == dragAndDrop.hoverNode
+              'drag-over-prev': item.__.dragOverState === 'prev',
+              'drag-over-next': item.__.dragOverState === 'next',
+              'drag-over-self': item.__.dragOverState === 'self',
+              'not-droppable':  item.__.dragOverState === null && item === dragAndDrop.hoverNode
             }"
             :style="{
-              'text-indent': (item.__.level - 1) * 20 + 'px',
+              'text-indent': (item.__.depth - 1) * 20 + 'px',
               '--height': item.__.height + 'px'
             }"
             @click = "open(item)"
@@ -45,8 +45,8 @@
               </span>
             </span>
             <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
-              <img src="./folder.svg"      class="icon" v-if="item.hasChild === true && item.__.directoryState == 'collapsed'"/>
-              <img src="./folder-open.svg" class="icon" v-else-if="item.hasChild === true && item.__.directoryState == 'expanded'"/>
+              <img src="./folder.svg"      class="icon" v-if="item.hasChild && item.__.directoryState === 'collapsed'"/>
+              <img src="./folder-open.svg" class="icon" v-else-if="item.hasChild && item.__.directoryState === 'expanded'"/>
               <img src="./file.svg"        class="icon" v-else/>
               <span 
                 :class="{title:true, editing:item.__.isEditing}" 
@@ -126,7 +126,7 @@ export default {
 
       for (let i=this.nodes.length-1; i>=0; i--) {
         let node = this.nodes[i]
-        this.setAttr(node, 'level',  1)
+        this.setAttr(node, 'depth',  1)
         this.setAttr(node, 'parent', null)
         this.setAttr(node, 'path',   [])
         this.setAttr(node, 'pos',    i)
@@ -136,11 +136,11 @@ export default {
 
       while (stack.length > 0) {
         let node = stack.pop()
-        if (node.hasChild === true) {
+        if (node.hasChild) {
           for (let i=node.children.length-1; i>=0; i--) {
             let child = node.children[i]
 
-            this.setAttr(child, 'level',  this.getAttr(node, 'level') + 1)
+            this.setAttr(child, 'depth',  this.getAttr(node, 'depth') + 1)
             this.setAttr(child, 'parent', node)
             this.setAttr(child, 'path',   [...this.getAttr(node, 'path'), node])
             this.setAttr(child, 'pos',    i)
@@ -158,7 +158,7 @@ export default {
     getNode(id) {
       let target = null
       this.traverse(function(node) {
-        if (node.id == id) {
+        if (node.id === id) {
           target = node
           return false
         }
@@ -194,7 +194,7 @@ export default {
       return node.__
     },
     getDirectoryState(node) {
-      if (node.hasChild !== true) {
+      if (!node.hasChild) {
         return null
       }
 
@@ -286,7 +286,7 @@ export default {
         if (!parentNode.hasOwnProperty('children')) {
           this.$set(parentNode, 'children', [])
         }
-        if (typeof(pos) == 'undefined') {
+        if (typeof(pos) === 'undefined') {
           parentNode.children.push(node)
         } else {
           parentNode.children.splice(pos, 0, node)
@@ -313,13 +313,13 @@ export default {
     move(node, toParentNode, toPos) {
       this.remove(node)
 
-      if (node.parent == toParentNode && this.getAttr(node, 'pos') < toPos) {
+      if (node.parent === toParentNode && this.getAttr(node, 'pos') < toPos) {
         toPos -= 1
       }
       this.create(node, toParentNode, toPos)
     },
     expand(node) {
-      if (node.hasChild != true) {
+      if (!node.hasChild) {
         return
       }
 
@@ -328,7 +328,7 @@ export default {
         return
       }
 
-      if (this.fnLoadData == null) {
+      if (this.fnLoadData === null) {
         this.setAttr(node, 'directoryState', 'expanded')
         this.refreshItems()
         return
@@ -339,7 +339,7 @@ export default {
         let rs = this.fnLoadData(node)
 
         //if the callback function returned a promise
-        if (typeof(rs.then) == 'function') {
+        if (typeof(rs.then) === 'function') {
           let prom = rs
           prom.then(function(children) {
             node.children = children
@@ -363,12 +363,12 @@ export default {
       }
     },
     collapse(node) {
-      if (node.hasChild != true) {
+      if (!node.hasChild) {
         return
       }
 
       let state = this.getDirectoryState(node)
-      if (state != 'expanded') {
+      if (state !== 'expanded') {
         return
       }
 
@@ -409,14 +409,14 @@ export default {
         this.dragEnter(node)
       }
 
-      if (this.dragAndDrop.srcNode == node) {
+      if (this.dragAndDrop.srcNode === node) {
         this.setAttr(node, 'dragOverState', null)
         return
       }
 
       let path = this.getAttr(node, 'path')
       for (let ancestor of path) {
-        if (ancestor == this.dragAndDrop.srcNode) {
+        if (ancestor === this.dragAndDrop.srcNode) {
           this.setAttr(node, 'dragOverState', null)
           return
         }
@@ -438,10 +438,10 @@ export default {
 
       let nodePos = this.getAttr(node, 'pos')
       let srcNodePos = this.getAttr(this.dragAndDrop.srcNode, 'pos')
-      if (dragOverState == 'prev' && this.dragAndDrop.srcNode.parent == node.parent && nodePos == srcNodePos + 1) {
+      if (dragOverState === 'prev' && this.dragAndDrop.srcNode.parent === node.parent && nodePos === srcNodePos + 1) {
         dragOverState = null
       }
-      if (dragOverState == 'next' && this.dragAndDrop.srcNode.parent == node.parent && nodePos == srcNodePos - 1) {
+      if (dragOverState === 'next' && this.dragAndDrop.srcNode.parent === node.parent && nodePos === srcNodePos - 1) {
         dragOverState = null
       }
 
@@ -469,7 +469,7 @@ export default {
       let desParentNode = this.getAttr(desNode, 'parent')
       let dragOverState = this.getAttr(desNode, 'dragOverState')
 
-      if (dragOverState == null) {
+      if (dragOverState === null) {
         return
       }
 
@@ -501,9 +501,9 @@ export default {
     },
     check(node) {
       let gpos = this.getAttr(node, 'gpos')
-      let level = this.getAttr(node, 'level')
+      let depth = this.getAttr(node, 'depth')
       for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+        if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
           break
         }
         if (!this.items[i].hasChild && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
@@ -512,7 +512,7 @@ export default {
       }
 
       for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+        if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
           break
         }
 
@@ -528,9 +528,9 @@ export default {
     },
     uncheck(node) {
       let gpos = this.getAttr(node, 'gpos')
-      let level = this.getAttr(node, 'level')
+      let depth = this.getAttr(node, 'depth')
       for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+        if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
           break
         }
         if (!this.items[i].hasChild && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
@@ -539,7 +539,7 @@ export default {
       }
 
       for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getAttr(this.items[i], 'level') <= level) {
+        if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
           break
         }
 
@@ -571,17 +571,17 @@ export default {
       }
     },
     getCheckboxState(node) {
-      if (!node.hasChild) {
+      if (node.hasChild === false) {
         return this.getAttr(node, 'checkboxState')
       }
 
       let gpos = this.getAttr(node, 'gpos');
-      let level = this.getAttr(node, 'level')
+      let depth = this.getAttr(node, 'depth')
 
       let hasChecked = false
       let hasUnchecked = false
       for (let i=gpos+1; i<this.items.length; i++) {
-        if (this.getAttr(this.items[i], 'level') <= level) {
+        if (this.getAttr(this.items[i], 'depth') <= depth) {
           break
         }
 
@@ -622,7 +622,7 @@ export default {
 
         let isVisible = true
         for (let tnode of path) {
-          if (this.getDirectoryState(tnode) == 'collapsed') {
+          if (this.getDirectoryState(tnode) === 'collapsed') {
             isVisible = false
             break
           }
