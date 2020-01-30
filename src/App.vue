@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import TWTree from './TWTree.vue'
+import TWTree from './components/TWTree.vue'
 
 export default {
   name: 'app',
