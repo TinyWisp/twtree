@@ -1,4 +1,5 @@
 <template>
+  <div class="tree-wrapper">
     <ul class="tree" @dragleave="dragLeaveTree($event)" ref="tree">
       <transition-group name="node">
         <template v-for="item of items">
@@ -16,7 +17,7 @@
               'text-indent': (item.__.depth - 1) * 20 + 'px',
               '--height': item.__.height
             }"
-            @click = "open(item)"
+            @click = "select(item)"
             :draggable="item.__.isDraggable"
             @dragstart="dragStart(item, $event)"
             @dragover="dragOver(item, $event)"
@@ -46,12 +47,8 @@
             </span>
             <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
               <span icon="icon-wrapper">
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-if="item.hasChild && item.__.directoryState === 'collapsed'">
-                  <path d="M2 26 L30 26 30 7 14 7 10 4 2 4 Z M30 12 L2 12" />
-                </svg>
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-else-if="item.hasChild && item.__.directoryState === 'expanded'">
-                  <path d="M4 28 L28 28 30 12 14 12 10 8 2 8 Z M28 12 L28 4 4 4 4 8" />
-                </svg>
+                <img class="icon" src="../assets/folder.svg" v-if="item.hasChild && item.__.directoryState === 'collapsed'">
+                <img class="icon" src="../assets/folder-open.svg" v-else-if="item.hasChild && item.__.directoryState === 'expanded'">
                 <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-else>
                   <path d="M6 2 L6 30 26 30 26 10 18 2 Z M18 2 L18 10 26 10" />
                 </svg>
@@ -59,8 +56,12 @@
               <span 
                 :class="{title:true, editing:item.__.isEditing}" 
                 :ref="'title-' + item.id" 
-                :contenteditable="item.__.isEditing" 
-                @blur="inputBlur(item)">{{item.title}}</span>
+                :contenteditable="item.__.isEditing"
+                @keydown="titleKeydown(item, $event)"
+                @keyup="titleKeyup(item, $event)"
+                @keypress="titleKeypress(item, $event)"
+                @input="titleInput(item, $event)"
+                @blur="blur(item)">{{item.title}}</span>
             </span>
             <div v-if="item.__.dragOverState !== null" class="drag-arrow-wrapper">
               <svg class="arrow" viewBox="0 0 24 24">
@@ -72,6 +73,7 @@
         </template>
       </transition-group>
     </ul>
+  </div>
 </template>
 
 <script>
@@ -94,6 +96,11 @@ export default {
       type: Function,
       required: false,
       default: null
+    },
+    maxSelectCount: {
+      type: Number,
+      required: false,
+      default: 1
     }
   },
   computed: {
@@ -103,7 +110,7 @@ export default {
     return {
       nodes: this.tree,
       items: this.getItems(),
-      selectedNode: null,
+      selected: [],
       autoIdCounter: 0,
       defaultAttrs: {
         directoryState: 'expanded',
@@ -172,8 +179,13 @@ export default {
 
       return target
     },
-    getSelectedNode() {
-      return this.selectedNode
+    getSelected() {
+      return this.selected
+    },
+    getSelectedOne() {
+      return this.selected.length > 0
+        ? this.selected[0]
+        : null
     },
     setAttr(node, key, val) {
       if (!node.hasOwnProperty('__')) {
@@ -198,6 +210,12 @@ export default {
     },
     getAttrs(node) {
       return node.__
+    },
+    setTitle(node, title) {
+      if (node.title !== title) {
+        this.$emit('rename', node, node.title, title)
+      }
+      this.$set(node, 'title', title)
     },
     getDirectoryState(node) {
       if (!node.hasChild) {
@@ -226,9 +244,11 @@ export default {
       this.setAttr(node, 'newTitle', node.title)
       this.setAttr(node, 'isEditing', true)
       this.focus(node)
+      this.$emit('edit', node)
     },
     quitEdit(node) {
       this.setAttr(node, 'isEditing', false)
+      this.$emit('quitEdit', node)
     },
     getTitleElement(node) {
       let refId = 'title-' + node.id
@@ -242,36 +262,40 @@ export default {
       let titleElement = this.getTitleElement(node)
       setTimeout(function(){
         titleElement.focus()
-      }, 100)
+        this.$emit('focus', node)
+      }.bind(this), 100)
     },
-    inputBlur(node) {
+    blur(node) {
       let titleElement = this.getTitleElement(node)
       let newTitle = titleElement.innerText
-      node.title = newTitle
 
-      this.quitEdit(node)
-
-      this.$emit('inputBlur', node, newTitle)
+      this.$emit('blur', node, newTitle)
     },
     inputKeypress(node) {
-      let inputWidth = (this.getTitleWidth(node) + 10) + 'px'
-      this.setAttr(node, 'inputWidth', inputWidth)
+      //let inputWidth = (this.getTitleWidth(node) + 10) + 'px'
+      //this.setAttr(node, 'inputWidth', inputWidth)
+
+      let titleElement = this.getTitleElement(node)
+      let newTitle = titleElement.innerText
+      this.$emit('input', node, newTitle)
     },
-    open(node) {
-      this.select(node)
-      this.$emit('open', node)
-    },
-    unselect() {
-      if (this.selectedNode != null) {
-        this.setAttr(this.selectedNode, 'isSelected', false)
+    unselect(node) {
+      let i = this.selected.indexOf(node)
+
+      if (i !== -1) {
+          this.setAttr(node, 'isSelected', false)
+          this.selected.splice(i, 1)
+          this.$emit('unselect', node)
       }
     },
     select(node) {
-      if (this.selectedNode != null) {
-        this.setAttr(this.selectedNode, 'isSelected', false)
-      }
       this.setAttr(node, 'isSelected', true)
-      this.selectedNode = node
+      this.selected.push(node)
+      this.$emit('select', node)
+
+      while (this.maxSelectCount < this.selected.length) {
+        this.unselect(this.selected[0])
+      }
     },
     draggable(node) {
       this.setAttr(node, 'isDraggable', true)
@@ -301,6 +325,7 @@ export default {
       }
       
       this.refreshItems()
+      this.$emit('create', node)
     },
     remove(node) {
       let parent = this.getAttr(node, 'parent')
@@ -315,14 +340,48 @@ export default {
       }
 
       this.refreshItems()
+      this.$emit('remove', node)
     },
-    move(node, toParentNode, toPos) {
-      this.remove(node)
+    move(node, toParent, toPos) {
+      let fromParent = this.getAttr(node, 'parent')
+      let fromPos = this.getAttr(node, 'pos')
 
-      if (node.parent === toParentNode && this.getAttr(node, 'pos') < toPos) {
+      //remove
+      if (fromParent === null) {
+        this.nodes.splice(fromPos, 1)
+      } else {
+        fromParent.children.splice(fromPos, 1)
+        fromParent.hasChild = (fromParent.children.length > 0)
+        this.setAttr(fromParent, 'directoryState', this.getDirectoryState(fromParent))
+      }
+
+      //create
+      if (fromParent === toParent && fromPos < toPos) {
         toPos -= 1
       }
-      this.create(node, toParentNode, toPos)
+
+      if (toParent === null) {
+        if (typeof(toPos) === 'undefined') {
+          this.nodes.push(node)
+        } else if(typeof(toPos) === 'number') {
+          this.nodes.splice(toPos, 0, node)
+        }
+
+      } else {
+        this.$set(toParent, 'hasChild', true)
+        if (!toParent.hasOwnProperty('children')) {
+          this.$set(toParent, 'children', [])
+        }
+        if (typeof(toPos) === 'undefined') {
+          toParent.children.push(node)
+        } else {
+          toParent.children.splice(toPos, 0, node)
+        }
+        this.setAttr(toParent, 'directoryState', this.getDirectoryState(toParent))
+      }
+ 
+      this.refreshItems()
+      this.$emit('move', node, fromParent, fromPos, toParent, toPos)
     },
     expand(node) {
       if (!node.hasChild) {
@@ -668,6 +727,7 @@ export default {
   overflow: visible;
   padding-top: 5px;
   padding-bottom: 5px;
+  white-space: nowrap;
 }
 .node {
   cursor: pointer;
