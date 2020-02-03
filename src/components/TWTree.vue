@@ -25,7 +25,7 @@
             @drop="drop()"
             :ref="'node-' + item.id"
             :key="item.id">
-            <div class="switcher" @click.stop="switchState(item)">
+            <div class="switcher" @click.stop="toggleDirectoryState(item)">
               <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-if="item.__.directoryState === 'expanded'">
                 <path d="M7 10l5 5 5-5z"/>
               </svg>
@@ -57,11 +57,12 @@
                 :class="{title:true, editing:item.__.isEditing}" 
                 :ref="'title-' + item.id" 
                 :contenteditable="item.__.isEditing"
-                @keydown="titleKeydown(item, $event)"
-                @keyup="titleKeyup(item, $event)"
-                @keypress="titleKeypress(item, $event)"
-                @input="titleInput(item, $event)"
-                @blur="blur(item)">{{item.title}}</span>
+                @keydown="keydownEvent(item, $event)"
+                @keyup="keyupEvent(item, $event)"
+                @keypress="keypressEvent(item, $event)"
+                @input="inputEvent(item, $event)"
+                @focus="focusEvent(item, $event)"
+                @blur="blurEvent(item)">{{item.title}}</span>
             </span>
             <div v-if="item.__.dragOverState !== null" class="drag-arrow-wrapper">
               <svg class="arrow" viewBox="0 0 24 24">
@@ -132,6 +133,7 @@ export default {
   methods: {
     traverse(fnDoSomething) {
       let stack = []
+      let gpos = 0
 
       if (!Array.isArray(this.nodes)) {
         return
@@ -143,12 +145,14 @@ export default {
         this.setAttr(node, 'parent', null)
         this.setAttr(node, 'path',   [])
         this.setAttr(node, 'pos',    i)
-        this.setAttr(node, 'gpos',   i)
         stack.push(node)
       }
 
       while (stack.length > 0) {
         let node = stack.pop()
+        this.setAttr(node, 'gpos', gpos)
+        gpos += 1
+
         if (node.hasChild) {
           for (let i=node.children.length-1; i>=0; i--) {
             let child = node.children[i]
@@ -157,7 +161,7 @@ export default {
             this.setAttr(child, 'parent', node)
             this.setAttr(child, 'path',   [...this.getAttr(node, 'path'), node])
             this.setAttr(child, 'pos',    i)
-            this.setAttr(child, 'gpos',   this.getAttr(node, 'gpos') + i + 1)
+
             stack.push(child)
           }
         }
@@ -243,8 +247,8 @@ export default {
     edit(node) {
       this.setAttr(node, 'newTitle', node.title)
       this.setAttr(node, 'isEditing', true)
-      this.focus(node)
       this.$emit('edit', node)
+      this.focus(node)
     },
     quitEdit(node) {
       this.setAttr(node, 'isEditing', false)
@@ -262,30 +266,39 @@ export default {
       let titleElement = this.getTitleElement(node)
       setTimeout(function(){
         titleElement.focus()
-        this.$emit('focus', node)
       }.bind(this), 100)
     },
-    blur(node) {
+    focusEvent(node, event) {
+      this.$emit('focus', node, event)
+    },
+    blurEvent(node, event) {
+      this.$emit('blur', node, event)
+    },
+    inputEvent(node, event) {
+      this.$emit('input', node, event)
+    },
+    keydownEvent(node, event) {
+      this.$emit('keydown', node, event)
+    },
+    keyupEvent(node, event) {
+      this.$emit('keyup', node, event)
+    },
+    keypressEvent(node, event) {
+      this.$emit('keypress', node, event)
+    },
+    getNewTitle(node) {
       let titleElement = this.getTitleElement(node)
       let newTitle = titleElement.innerText
 
-      this.$emit('blur', node, newTitle)
+      return newTitle
     },
-    inputKeypress(node) {
-      //let inputWidth = (this.getTitleWidth(node) + 10) + 'px'
-      //this.setAttr(node, 'inputWidth', inputWidth)
-
-      let titleElement = this.getTitleElement(node)
-      let newTitle = titleElement.innerText
-      this.$emit('input', node, newTitle)
-    },
-    unselect(node) {
+    deselect(node) {
       let i = this.selected.indexOf(node)
 
       if (i !== -1) {
           this.setAttr(node, 'isSelected', false)
           this.selected.splice(i, 1)
-          this.$emit('unselect', node)
+          this.$emit('deselect', node)
       }
     },
     select(node) {
@@ -294,7 +307,7 @@ export default {
       this.$emit('select', node)
 
       while (this.maxSelectCount < this.selected.length) {
-        this.unselect(this.selected[0])
+        this.deselect(this.selected[0])
       }
     },
     draggable(node) {
@@ -564,6 +577,17 @@ export default {
         }
       }
     },
+    setCheckboxState(node, state) {
+      if (this.getAttr(node, 'showCheckbox') === false) {
+        return
+      }
+
+      let oldState = this.getAttr(node, 'checkboxState')
+      if (oldState !== state) {
+        this.setAttr(node, 'checkboxState', state)
+        this.$emit('checkboxStateChange', node, oldState, state)
+      }
+    },
     check(node) {
       let gpos = this.getAttr(node, 'gpos')
       let depth = this.getAttr(node, 'depth')
@@ -571,25 +595,17 @@ export default {
         if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
           break
         }
-        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
-          this.setAttr(this.items[i], 'checkboxState', 'checked')
-        }
-      }
-
-      for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
-          break
-        }
-
-        if (this.items[i].hasChild) {
-          this.setAttr(this.items[i], 'checkboxState', this.getCheckboxState(this.items[i]))
+        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
+          this.setCheckboxState(node, 'checked')
         }
       }
 
       let path = this.getAttr(node, 'path')
-      for (let tnode of path) {
-        this.setAttr(tnode, 'checkboxState', this.getCheckboxState(tnode))
+      if (path.length > 0) {
+        this.refreshDirectoryCheckboxStateRecursively(path[0])
       }
+
+      this.$emit('check', node)
     },
     uncheck(node) {
       let gpos = this.getAttr(node, 'gpos')
@@ -598,25 +614,17 @@ export default {
         if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
           break
         }
-        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
-          this.setAttr(this.items[i], 'checkboxState', 'unchecked')
-        }
-      }
-
-      for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getAttr(this.items[i], 'depth') <= depth) {
-          break
-        }
-
-        if (this.items[i].hasChild) {
-          this.setAttr(this.items[i], 'checkboxState', this.getCheckboxState(this.items[i]))
+        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
+          this.setCheckboxState(node, 'unchecked')
         }
       }
 
       let path = this.getAttr(node, 'path')
-      for (let tnode of path) {
-        this.setAttr(tnode, 'checkboxState', this.getCheckboxState(tnode))
+      if (path.length > 0) {
+        this.refreshDirectoryCheckboxStateRecursively(path[0])
       }
+
+      this.$emit('uncheck', node)
     },
     toggleCheckbox(node) {
       let checkboxState = this.getAttr(node, 'checkboxState')
@@ -635,43 +643,75 @@ export default {
           break
       }
     },
-    getCheckboxState(node) {
-      if (node.hasChild === false) {
-        return this.getAttr(node, 'checkboxState')
+    refreshAllDirectoryCheckboxState() {
+      for (let node of this.nodes) {
+        this.refreshDirectoryCheckboxStateRecursively(node)
+      }
+    },
+    refreshDirectoryCheckboxStateRecursively(node) {
+      if (this.getAttr(node, 'showCheckbox') === false) {
+        return {
+          hasChecked: false,
+          hasUnchecked: false
+        }
       }
 
-      let gpos = this.getAttr(node, 'gpos');
-      let depth = this.getAttr(node, 'depth')
+      if (!node.hasChild) {
+        let state = this.getAttr(node, 'checkboxState')
+        return {
+          hasChecked: state === 'checked',
+          hasUnchecked: state === 'unchecked'
+        }
+      }
 
       let hasChecked = false
       let hasUnchecked = false
-      for (let i=gpos+1; i<this.items.length; i++) {
-        if (this.getAttr(this.items[i], 'depth') <= depth) {
-          break
-        }
-
-        if (!this.items[i].hasChild) {
-          if (this.getAttr(this.items[i], 'checkboxState') === 'checked') {
-            hasChecked = true
-          } else {
-            hasUnchecked = true
-          }
-        }
+      for (let tnode of node.children) {
+        let rs = this.refreshDirectoryCheckboxStateRecursively(tnode)
+        hasChecked = hasChecked || rs.hasChecked
+        hasUnchecked = hasUnchecked || rs.hasUnchecked
 
         if (hasChecked && hasUnchecked) {
-          return 'undetermined'
+          break
         }
       }
 
-      if (!hasChecked) {
-        return 'unchecked'
+      if (hasChecked && hasUnchecked) {
+        this.setCheckboxState(node, 'undetermined')
+      } else if (hasChecked && !hasUnchecked) {
+        this.setCheckboxState(node, 'checked')
+      } else if (!hasChecked && hasUnchecked) {
+        this.setCheckboxState(node, 'unchecked')
+      } else if (!hasChecked && !hasUnchecked) {
+        this.setCheckboxState(node, this.getAttr(node, 'checkboxState'))
       }
 
-      if (!hasUnchecked) {
-        return 'checked'
+      return {
+        hasChecked: hasChecked,
+        hasUnchecked: hasUnchecked
       }
     },
-    switchState(node) {
+    getNodesByCheckboxState(state) {
+      let arr = []
+
+      for (let i=0; i<this.items.length; i++) {
+        if (this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'checkboxState') === state) {
+          arr.push(this.items[i])
+        }
+      }
+
+      return arr
+    },
+    getChecked() {
+      return this.getNodesByCheckboxState('checked')
+    },
+    getUndetermined() {
+      return this.getNodesByCheckboxState('undetermined')
+    },
+    getUnchecked() {
+      return this.getNodesByCheckboxState('unchecked')
+    },
+    toggleDirectoryState(node) {
         let state = this.getDirectoryState(node)
         if (state === 'expanded') {
           this.collapse(node)
@@ -709,7 +749,8 @@ export default {
     },
     refreshItems() {
       this.items = this.getItems()
-    }
+      this.refreshAllDirectoryCheckboxState()
+    },
   },
   mounted() {
     this.refreshItems()
@@ -719,7 +760,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.tree {
+.tree-wrapper .tree {
   position: relative;
   padding-inline-start: 0;
   text-align: left;
@@ -728,6 +769,7 @@ export default {
   padding-top: 5px;
   padding-bottom: 5px;
   white-space: nowrap;
+  width: 100%;
 }
 .node {
   cursor: pointer;

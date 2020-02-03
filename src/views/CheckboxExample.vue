@@ -1,11 +1,28 @@
 <template>
   <div class="example-wrapper">
-    <TWTree 
-      :tree="tree" 
-      class="tree"
-      :globalAttrs="{
-        showCheckbox : true
-      }"/>
+    <div class="panel">
+      <TWTree :tree="tree" ref="tree" class="tree" :globalAttrs="{showCheckbox: true}" @check="refresh()" @uncheck="refresh()" />
+    </div>
+    <div class="result">
+      <ul class="list">
+        <li class="head">checked</li>
+        <li class="item" :key="i" v-for="(node, i) in checked">
+          {{node.title}}
+        </li>
+      </ul>
+      <ul class="list">
+        <li class="head">unchecked</li>
+        <li class="item" :key="i" v-for="(node, i) in unchecked">
+          {{node.title}}
+        </li>
+      </ul>
+      <ul class="list">
+        <li class="head">undetermined</li>
+        <li class="item" :key="i" v-for="(node, i) in undetermined">
+          {{node.title}}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -19,6 +36,9 @@ export default {
   },
   data() {
     return {
+      checked: [],
+      unchecked: [],
+      undetermined: [],
       tree: [
         {
           id: 1,
@@ -36,15 +56,25 @@ export default {
               children: [
                 {
                   id: 4,
-                  title: 'child 2-1'
+                  title: 'child 2-1',
+                  __: {
+                    showCheckbox: false
+                  }
                 },
                 {
                   id: 5,
-                  title: 'child 2-2'
+                  title: 'child 2-2',
+                  __: {
+                    checkboxState: 'checked'
+                  }
                 },
                 {
                   id: 6,
-                  title: 'child 2-3'
+                  title: 'checkbox',
+                  __: {
+                    checkboxState: 'checked',
+                    isCheckboxDisabled: true
+                  }
                 }
               ],
             },
@@ -54,7 +84,7 @@ export default {
             },
             {
               id: 8,
-              title: 'child 8'
+              title: 'child 4'
             }
           ]
         }
@@ -62,12 +92,63 @@ export default {
     }
   },
   methods: {
+    refresh() {
+      let tree = this.$refs.tree
+      this.checked = tree.getChecked()
+      this.unchecked = tree.getUnchecked()
+      this.undetermined = tree.getUndetermined()
+    }
+  },
+  mounted() {
+    this.refresh()
   }
 }
 </script>
 
 <style>
-.tree {
-  width: 200px;
+.example-wrapper {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.panel {
+  width: 100%;
+  min-height: 500px;
+  box-sizing: border-box;
+  padding: 10px;
+  margin: 20px 0 20px 0;
+  border: 1px solid gray;
+  box-shadow: 0 0 5px #ccc;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+.panel .tree {
+  width: 50%;
+}
+.btn {
+  width: 100px;
+  margin-right: 20px;
+}
+.result {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+.result .list {
+  flex-grow: 1;
+  width: 30%;
+  list-style: none;
+}
+.result .list .head {
+  font-size: 18px;
+  font-weight: bold;
+  height: 1.5em;
+}
+.result .list .item {
+  height: 1.5em;
 }
 </style>
