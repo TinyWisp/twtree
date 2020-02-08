@@ -154,6 +154,10 @@ export default {
         gpos += 1
 
         if (node.hasChild) {
+          if (!node.hasOwnProperty('children')) {
+            this.$set(node, 'children', [])
+          }
+
           for (let i=node.children.length-1; i>=0; i--) {
             let child = node.children[i]
 
@@ -420,14 +424,15 @@ export default {
         if (typeof(rs.then) === 'function') {
           let prom = rs
           prom.then(function(children) {
+            console.log(children)
             node.children = children
             this.setAttr(node, 'directoryState', 'expanded')
             this.refreshItems()
           }.bind(this))
           prom.catch(function(e) {
-            self.setAttr(node, 'directoryState', 'collapsed')
+            this.setAttr(node, 'directoryState', 'collapsed')
             console.log(e)
-          })
+          }.bind(this))
           return
         }
 
@@ -732,6 +737,11 @@ export default {
             break
           }
         }
+
+        if (!node.hasOwnProperty('id')) {
+          this.$set(node, 'id', this.generateId())
+        }
+
         this.setAttr(node, 'isVisible',          isVisible)
         this.setAttr(node, 'directoryState',     this.getDirectoryState(node))
         this.setAttr(node, 'isEditing',          this.getAttr(node, 'isEditing'))

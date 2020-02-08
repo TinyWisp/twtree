@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import BasicExample from '../views/BasicExample.vue'
 import CheckboxExample from '../views/CheckboxExample.vue'
+import AsyncExample from '../views/AsyncExample.vue'
 
 Vue.use(VueRouter)
 
@@ -29,6 +30,11 @@ const routes = [
     path: '/example/checkbox',
     name: 'checkbox-example',
     component: CheckboxExample
+  },
+  {
+    path: '/example/async',
+    name: 'async-example',
+    component: AsyncExample
   }
 ]
 
