@@ -4,6 +4,8 @@ import Home from '../views/Home.vue'
 import BasicExample from '../views/BasicExample.vue'
 import CheckboxExample from '../views/CheckboxExample.vue'
 import AsyncExample from '../views/AsyncExample.vue'
+import EditExample from '../views/EditExample.vue'
+import DragAndDropExample from '../views/DragAndDropExample.vue'
 
 Vue.use(VueRouter)
 
@@ -35,6 +37,16 @@ const routes = [
     path: '/example/async',
     name: 'async-example',
     component: AsyncExample
+  },
+  {
+    path: '/example/edit',
+    name: 'edit-example',
+    component: EditExample
+  },
+  {
+    path: '/example/drag_and_drop',
+    name: 'drag-and-drop-example',
+    component: DragAndDropExample
   }
 ]
 

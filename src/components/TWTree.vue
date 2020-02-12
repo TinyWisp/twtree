@@ -11,7 +11,7 @@
               'drag-over-prev': item.__.dragOverState === 'prev',
               'drag-over-next': item.__.dragOverState === 'next',
               'drag-over-self': item.__.dragOverState === 'self',
-              'not-droppable':  item.__.dragOverState === null && item === dragAndDrop.hoverNode
+              'not-droppable':  item.__.dragOverState === null && item === dragAndDrop.overNode
             }"
             :style="{
               'text-indent': (item.__.depth - 1) * 20 + 'px',
@@ -47,8 +47,9 @@
             </span>
             <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
               <span icon="icon-wrapper">
-                <img class="icon" src="../assets/folder.svg" v-if="item.hasChild && item.__.directoryState === 'collapsed'">
-                <img class="icon" src="../assets/folder-open.svg" v-else-if="item.hasChild && item.__.directoryState === 'expanded'">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-if="item.hasChild && (item.__.directoryState === 'collapsed' || item.__.directoryState === 'expanded')">
+                  <path d="M2 26 L30 26 30 7 14 7 10 4 2 4 Z M30 12 L2 12" />
+                </svg>
                 <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-else>
                   <path d="M6 2 L6 30 26 30 26 10 18 2 Z M18 2 L18 10 26 10" />
                 </svg>
@@ -98,6 +99,11 @@ export default {
       required: false,
       default: null
     },
+    fnIsDroppable: {
+      type: Function,
+      required: false,
+      default: null
+    },
     maxSelectCount: {
       type: Number,
       required: false,
@@ -125,8 +131,10 @@ export default {
         isCheckboxDisabled: false
       },
       dragAndDrop: {
-        srcNode: null,
-        hoverNode: null,
+        dragNode: null,
+        overNode: null,
+        overArea: null,
+        isDroppable: false,
       }
     }
   },
@@ -478,61 +486,73 @@ export default {
 
       return offsetTop
     },
+    isDroppable() {
+      if (this.dragAndDrop.dragNode === this.dragAndDrop.overNode) {
+        return false
+      }
+
+      let path = this.getAttr(this.dragAndDrop.overNode, 'path')
+      for (let ancestor of path) {
+        if (ancestor === this.dragAndDrop.dragNode) {
+          return false
+        }
+      }
+
+      if (this.dragAndDrop.dragNode.parent === this.dragAndDrop.overNode.parent) {
+        let dragNodePos = this.getAttr(this.dragAndDrop.dragNode, 'pos')
+        let overNodePos = this.getAttr(this.dragAndDrop.overNode, 'pos')
+        if (this.dragAndDrop.overArea === 'prev' && overNodePos === dragNodePos + 1) {
+          return false
+        }
+
+        if (this.dragAndDrop.overArea === 'next' && overNodePos === dragNodePos - 1) {
+          return false
+        }
+      }
+
+      if (this.fnIsDroppable !== null) {
+        return this.fnIsDroppable(this.dragAndDrop)
+      }
+
+      return true
+    },
     dragStart(node, event) {
       let refId = 'icon-and-title-' + node.id
       let ghostElement = this.$refs[refId][0]
 
-      this.dragAndDrop.srcNode = node
+      this.dragAndDrop.dragNode = node
       event.dataTransfer.setDragImage(ghostElement, -20, 0)
       event.dataTransfer.dropEffect = 'move'
     },
     dragOver(node, event) {
-      if (this.dragAndDrop.hoverNode !== node) {
-        this.dragLeave(this.dragAndDrop.hoverNode)
+      if (this.dragAndDrop.overNode !== node) {
+        this.dragLeave(this.dragAndDrop.overNode)
         this.dragEnter(node)
       }
 
-      if (this.dragAndDrop.srcNode === node) {
-        this.setAttr(node, 'dragOverState', null)
-        return
-      }
-
-      let path = this.getAttr(node, 'path')
-      for (let ancestor of path) {
-        if (ancestor === this.dragAndDrop.srcNode) {
-          this.setAttr(node, 'dragOverState', null)
-          return
-        }
-      }
+      //this.dragAndDrop.overNode = node
 
       let nodeElement = this.getNodeElement(node)
       let nodeHeight = nodeElement.clientHeight
       let y = event.pageY - this.getNodeOffsetTop(node)
 
-      let dragOverState = null
-
       if (y < nodeHeight * 0.33) {
-        dragOverState = 'prev'
+        this.dragAndDrop.overArea = 'prev'
       } else if (nodeHeight - y < nodeHeight * 0.33) {
-        dragOverState = 'next'
+        this.dragAndDrop.overArea = 'next'
       } else {
-        dragOverState = 'self'
+        this.dragAndDrop.overArea = 'self'
       }
 
-      let nodePos = this.getAttr(node, 'pos')
-      let srcNodePos = this.getAttr(this.dragAndDrop.srcNode, 'pos')
-      if (dragOverState === 'prev' && this.dragAndDrop.srcNode.parent === node.parent && nodePos === srcNodePos + 1) {
-        dragOverState = null
-      }
-      if (dragOverState === 'next' && this.dragAndDrop.srcNode.parent === node.parent && nodePos === srcNodePos - 1) {
-        dragOverState = null
-      }
-
+      this.dragAndDrop.isDroppable = this.isDroppable()
+      let dragOverState = this.dragAndDrop.isDroppable
+        ? this.dragAndDrop.overArea
+        : null
       this.setAttr(node, 'dragOverState', dragOverState)
       event.preventDefault()
     },
     dragEnter(node) {
-      this.dragAndDrop.hoverNode = node
+      this.dragAndDrop.overNode = node
     },
     dragLeave(node) {
       if (node !== null) {
@@ -540,33 +560,32 @@ export default {
       }
     },
     dragEnd() {
-      if (this.dragAndDrop.hoverNode !== null) {
-        this.dragLeave(this.dragAndDrop.hoverNode)
-        this.dragAndDrop.hoverNode = null
+      if (this.dragAndDrop.overNode !== null) {
+        this.dragLeave(this.dragAndDrop.overNode)
+        this.dragAndDrop.overNode = null
       }
     },
     drop() {
-      let srcNode = this.dragAndDrop.srcNode
-      let desNode = this.dragAndDrop.hoverNode
-      let desNodePos = this.getAttr(desNode, 'pos')
-      let desParentNode = this.getAttr(desNode, 'parent')
-      let dragOverState = this.getAttr(desNode, 'dragOverState')
-
-      if (dragOverState === null) {
+      if (this.dragAndDrop.isDroppable === false) {
         return
       }
 
-      switch (dragOverState) {
+      let dragNode = this.dragAndDrop.dragNode
+      let dropNode = this.dragAndDrop.overNode
+      let dropNodePos = this.getAttr(dropNode, 'pos')
+      let dropNodeParent = this.getAttr(dropNode, 'parent')
+
+      switch (this.dragAndDrop.overArea) {
         case 'prev':
-          this.move(srcNode, desParentNode, desNodePos)
+          this.move(dragNode, dropNodeParent, dropNodePos)
           break
 
         case 'next':
-          this.move(srcNode, desParentNode, desNodePos + 1)
+          this.move(dragNode, dropNodeParent, dropNodePos + 1)
           break
 
         case 'self':
-          this.move(srcNode, desNode)
+          this.move(dragNode, dropNode)
           break
       }
     },
@@ -576,9 +595,9 @@ export default {
       let treeHeight = treeElement.clientHeight
 
       if (event.offsetX <= 0 || event.offsetX >= treeWidth || event.offsetY <= 0 || event.offsetY >= treeHeight) {
-        if (this.dragAndDrop.hoverNode !== null) {
-          this.dragLeave(this.dragAndDrop.hoverNode)
-          this.dragAndDrop.hoverNode = null
+        if (this.dragAndDrop.overNode !== null) {
+          this.dragLeave(this.dragAndDrop.overNode)
+          this.dragAndDrop.overNode = null
         }
       }
     },
