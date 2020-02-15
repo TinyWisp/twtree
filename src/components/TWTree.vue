@@ -47,12 +47,14 @@
             </span>
             <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
               <span icon="icon-wrapper">
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-if="item.hasChild && (item.__.directoryState === 'collapsed' || item.__.directoryState === 'expanded')">
-                  <path d="M2 26 L30 26 30 7 14 7 10 4 2 4 Z M30 12 L2 12" />
-                </svg>
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-else>
-                  <path d="M6 2 L6 30 26 30 26 10 18 2 Z M18 2 L18 10 26 10" />
-                </svg>
+                <slot name="icon" v-bind:node="item">
+                  <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-if="item.hasChild && (item.__.directoryState === 'collapsed' || item.__.directoryState === 'expanded')">
+                    <path d="M2 26 L30 26 30 7 14 7 10 4 2 4 Z M30 12 L2 12" />
+                  </svg>
+                  <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-else>
+                    <path d="M6 2 L6 30 26 30 26 10 18 2 Z M18 2 L18 10 26 10" />
+                  </svg>
+                </slot>
               </span>
               <span 
                 :class="{title:true, editing:item.__.isEditing}" 

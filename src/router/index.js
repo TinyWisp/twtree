@@ -6,6 +6,7 @@ import CheckboxExample from '../views/CheckboxExample.vue'
 import AsyncExample from '../views/AsyncExample.vue'
 import EditExample from '../views/EditExample.vue'
 import DragAndDropExample from '../views/DragAndDropExample.vue'
+import CustomIconExample from '../views/CustomIconExample.vue'
 
 Vue.use(VueRouter)
 
@@ -47,6 +48,11 @@ const routes = [
     path: '/example/drag_and_drop',
     name: 'drag-and-drop-example',
     component: DragAndDropExample
+  },
+  {
+    path: '/example/custom_icon',
+    name: 'custom-icon-example',
+    component: CustomIconExample
   }
 ]
 
