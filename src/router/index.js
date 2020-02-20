@@ -7,6 +7,7 @@ import AsyncExample from '../views/AsyncExample.vue'
 import EditExample from '../views/EditExample.vue'
 import DragAndDropExample from '../views/DragAndDropExample.vue'
 import CustomIconExample from '../views/CustomIconExample.vue'
+import ButtonExample from '../views/ButtonExample.vue'
 
 Vue.use(VueRouter)
 
@@ -45,12 +46,17 @@ const routes = [
     component: EditExample
   },
   {
-    path: '/example/drag_and_drop',
+    path: '/example/drag-and-drop',
     name: 'drag-and-drop-example',
     component: DragAndDropExample
   },
   {
-    path: '/example/custom_icon',
+    path: '/example/button',
+    name: 'button-example',
+    component: ButtonExample
+  },
+  {
+    path: '/example/custom-icon',
     name: 'custom-icon-example',
     component: CustomIconExample
   }

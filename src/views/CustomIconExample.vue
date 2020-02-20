@@ -18,7 +18,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'basic-example',
+  name: 'custom-icon-example',
   components: {
     TWTree
   },

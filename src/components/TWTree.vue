@@ -67,6 +67,10 @@
                 @focus="focusEvent(item, $event)"
                 @blur="blurEvent(item)">{{item.title}}</span>
             </span>
+            <span class="buttons-wrapper">
+              <slot name="buttons" v-bind:node="item">
+              </slot>
+            </span>
             <div v-if="item.__.dragOverState !== null" class="drag-arrow-wrapper">
               <svg class="arrow" viewBox="0 0 24 24">
                 <path fill="none" d="M0 0h24v24H0z"/>
@@ -858,6 +862,13 @@ export default {
   height: 1em;
   margin-right: 0.5em;
   vertical-align: middle;
+}
+.node .buttons-wrapper {
+  display: none;
+  text-indent: 0;
+}
+.node:hover .buttons-wrapper {
+  display: inline-block;
 }
 .node .drag-arrow-wrapper {
   width: 100%;
