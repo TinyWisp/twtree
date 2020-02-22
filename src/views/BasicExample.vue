@@ -19,7 +19,7 @@ export default {
   },
   data() {
     return {
-      counter: 0,
+      counter: 100,
       tree: [
         {
           id: 1,
@@ -83,7 +83,6 @@ export default {
     remove() {
       let tree = this.$refs.tree
       let node = tree.getSelectedOne()
-      this.output('call method: ', 'remove (', node, ')')
       tree.remove(node)
     },
     edit() {

@@ -145,13 +145,19 @@ export default {
     }
   },
   methods: {
-    traverse(fnDoSomething) {
-      let stack = []
-      let gpos = 0
-
-      if (!Array.isArray(this.nodes)) {
-        return
+    traverse (fnDoSomething) {
+      for (let i=0; i<this.items.length; i++) {
+        let node = this.items[i]
+        fnDoSomething(node)
       }
+    },
+    getItems() {
+      if (!Array.isArray(this.nodes)) {
+        return []
+      }
+
+      let items = []
+      let stack = []
 
       for (let i=this.nodes.length-1; i>=0; i--) {
         let node = this.nodes[i]
@@ -164,8 +170,7 @@ export default {
 
       while (stack.length > 0) {
         let node = stack.pop()
-        this.setAttr(node, 'gpos', gpos)
-        gpos += 1
+        items.push(node)
 
         if (node.hasChild) {
           if (!node.hasOwnProperty('children')) {
@@ -183,12 +188,41 @@ export default {
             stack.push(child)
           }
         }
-
-        let rs = fnDoSomething(node)
-        if (rs === false) {
-          break
-        }
       }
+
+      for (let i=0; i<items.length; i++) {
+        let node = items[i]
+
+        if (!node.hasOwnProperty('id')) {
+          this.$set(node, 'id', this.generateId())
+        }
+
+        let path = this.getAttr(node, 'path')
+        let isVisible = true
+        for (let tnode of path) {
+          if (this.getDirectoryState(tnode) === 'collapsed') {
+            isVisible = false
+            break
+          }
+        }
+
+        this.setAttr(node, 'gpos',               i)
+        this.setAttr(node, 'isVisible',          isVisible)
+        this.setAttr(node, 'directoryState',     this.getDirectoryState(node))
+        this.setAttr(node, 'isEditing',          this.getAttr(node, 'isEditing'))
+        this.setAttr(node, 'isDraggable',        this.getAttr(node, 'isDraggable'))
+        this.setAttr(node, 'dragOverState',      this.getAttr(node, 'dragOverState'))
+        this.setAttr(node, 'height',             this.getAttr(node, 'height'))
+        this.setAttr(node, 'showCheckbox',       this.getAttr(node, 'showCheckbox'))
+        this.setAttr(node, 'checkboxState',      this.getAttr(node, 'checkboxState'))
+        this.setAttr(node, 'isCheckboxDisabled', this.getAttr(node, 'isCheckboxDisabled'))
+      }
+
+      return items
+    },
+    refreshItems() {
+      this.items = this.getItems()
+      this.refreshAllDirectoryCheckboxState()
     },
     getNode(id) {
       let target = null
@@ -608,6 +642,9 @@ export default {
       }
     },
     setCheckboxState(node, state) {
+      console.log('----setCheckboxState--------')
+      console.log(node.title)
+      console.log(state)
       if (this.getAttr(node, 'showCheckbox') === false) {
         return
       }
@@ -626,14 +663,15 @@ export default {
           break
         }
         if (!this.items[i].hasChild && this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
-          this.setCheckboxState(node, 'checked')
+          this.setCheckboxState(this.items[i], 'checked')
         }
       }
 
       let path = this.getAttr(node, 'path')
-      if (path.length > 0) {
-        this.refreshDirectoryCheckboxStateRecursively(path[0])
-      }
+      let top = path.length > 0
+        ? path[0]
+        : node
+      this.refreshDirectoryCheckboxStateRecursively(top)
 
       this.$emit('check', node)
     },
@@ -645,14 +683,15 @@ export default {
           break
         }
         if (!this.items[i].hasChild && this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'isCheckboxDisabled') === false) {
-          this.setCheckboxState(node, 'unchecked')
+          this.setCheckboxState(this.items[i], 'unchecked')
         }
       }
 
       let path = this.getAttr(node, 'path')
-      if (path.length > 0) {
-        this.refreshDirectoryCheckboxStateRecursively(path[0])
-      }
+      let top = path.length > 0
+        ? path[0]
+        : node
+      this.refreshDirectoryCheckboxStateRecursively(top)
 
       this.$emit('uncheck', node)
     },
@@ -748,44 +787,7 @@ export default {
         } else if (state === 'collapsed') {
           this.expand(node)
         }
-    },
-    getItems() {
-      let items = []
-
-      this.traverse(function(node) {
-        let path = this.getAttr(node, 'path')
-
-        let isVisible = true
-        for (let tnode of path) {
-          if (this.getDirectoryState(tnode) === 'collapsed') {
-            isVisible = false
-            break
-          }
-        }
-
-        if (!node.hasOwnProperty('id')) {
-          this.$set(node, 'id', this.generateId())
-        }
-
-        this.setAttr(node, 'isVisible',          isVisible)
-        this.setAttr(node, 'directoryState',     this.getDirectoryState(node))
-        this.setAttr(node, 'isEditing',          this.getAttr(node, 'isEditing'))
-        this.setAttr(node, 'isDraggable',        this.getAttr(node, 'isDraggable'))
-        this.setAttr(node, 'dragOverState',      this.getAttr(node, 'dragOverState'))
-        this.setAttr(node, 'height',             this.getAttr(node, 'height'))
-        this.setAttr(node, 'showCheckbox',       this.getAttr(node, 'showCheckbox'))
-        this.setAttr(node, 'checkboxState',      this.getAttr(node, 'checkboxState'))
-        this.setAttr(node, 'isCheckboxDisabled', this.getAttr(node, 'isCheckboxDisabled'))
-
-        items.push(node)
-      }.bind(this))
-
-      return items
-    },
-    refreshItems() {
-      this.items = this.getItems()
-      this.refreshAllDirectoryCheckboxState()
-    },
+    }
   },
   mounted() {
     this.refreshItems()

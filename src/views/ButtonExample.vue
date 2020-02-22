@@ -28,7 +28,7 @@ export default {
   },
   data() {
     return {
-      counter: 0,
+      counter: 100,
       tree: [
         {
           id: 1,
