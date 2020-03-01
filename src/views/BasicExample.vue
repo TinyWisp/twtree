@@ -3,6 +3,7 @@
     <button class="btn" @click="create()" >create</button>
     <button class="btn" @click="remove()" >remove</button>
     <button class="btn" @click="edit()" >edit</button>
+    <input type="text" v-model="keyword" placeholder="search" @input="search()">
     <div class="panel">
       <TWTree :tree="tree" ref="tree" @blur="blur" class="tree" />
     </div>
@@ -20,6 +21,7 @@ export default {
   data() {
     return {
       counter: 100,
+      keyword: '',
       tree: [
         {
           id: 1,
@@ -89,6 +91,14 @@ export default {
       let tree = this.$refs.tree
       let node = tree.getSelectedOne()
       tree.edit(node)
+    },
+    search() {
+      let tree = this.$refs.tree
+      if (this.keyword === '') {
+        tree.clearSearchResult()
+      } else {
+        tree.search(this.keyword)
+      }
     }
   }
 }

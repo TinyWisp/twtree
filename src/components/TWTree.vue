@@ -8,6 +8,7 @@
             :class="{
               node:             true, 
               selected:         item.__.isSelected,
+              'search-result':  item.__.isSearchResult,
               'drag-over-prev': item.__.dragOverState === 'prev',
               'drag-over-next': item.__.dragOverState === 'next',
               'drag-over-self': item.__.dragOverState === 'self',
@@ -110,6 +111,11 @@ export default {
       required: false,
       default: null
     },
+    fnMatch: {
+      type: Function,
+      required: false,
+      default: null
+    },
     maxSelectCount: {
       type: Number,
       required: false,
@@ -134,7 +140,8 @@ export default {
         height: '2em',
         showCheckbox: false,
         checkboxState: 'unchecked',
-        isCheckboxDisabled: false
+        isCheckboxDisabled: false,
+        isSearchResult: false
       },
       dragAndDrop: {
         dragNode: null,
@@ -216,6 +223,7 @@ export default {
         this.setAttr(node, 'showCheckbox',       this.getAttr(node, 'showCheckbox'))
         this.setAttr(node, 'checkboxState',      this.getAttr(node, 'checkboxState'))
         this.setAttr(node, 'isCheckboxDisabled', this.getAttr(node, 'isCheckboxDisabled'))
+        this.setAttr(node, 'isSearchResult',     this.getAttr(node, 'isSearchResult'))
       }
 
       return items
@@ -448,6 +456,36 @@ export default {
       this.refreshItems()
       this.$emit('move', node, fromParent, fromPos, toParent, toPos)
     },
+    search(keyword) {
+      let matches = []
+
+      for (let node of this.items) {
+        let match = this.fnMatch !== null
+          ? this.fnMatch(node, keyword)
+          : (node.title.indexOf(keyword) > -1)
+        this.setAttr(node, 'isSearchResult', match)
+        /*if (node.hasChild) {
+          this.setAttr(node, 'directoryState', 'collapsed')
+        }*/
+        if (match) {
+          matches.push(node)
+        }
+      }
+
+      for (let node of matches) {
+        let path = this.getAttr(node, 'path')
+        for (let pnode of path) {
+          this.setAttr(pnode, 'directoryState', 'expanded')
+        }
+      }
+
+      this.refreshItems()
+    },
+    clearSearchResult() {
+      for (let node of this.items) {
+        this.setAttr(node, 'isSearchResult', false)
+      }
+    },
     expand(node) {
       if (!node.hasChild) {
         return
@@ -642,9 +680,6 @@ export default {
       }
     },
     setCheckboxState(node, state) {
-      console.log('----setCheckboxState--------')
-      console.log(node.title)
-      console.log(state)
       if (this.getAttr(node, 'showCheckbox') === false) {
         return
       }
@@ -864,6 +899,9 @@ export default {
   height: 1em;
   margin-right: 0.5em;
   vertical-align: middle;
+}
+.node.search-result .title {
+  color: brown;
 }
 .node .buttons-wrapper {
   display: none;
