@@ -29,14 +29,17 @@
             @drop="drop()"
             :ref="'node-' + item.id"
             :key="item.id">
-            <div class="switcher" @click.stop="toggleDirectoryState(item)">
-              <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-if="item.__.directoryState === 'expanded'">
-                <path d="M7 10l5 5 5-5z"/>
+            <span class="switcher" @click.stop="toggleDirectoryState(item)">
+              <svg class="switcher-icon expanded" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-if="item.__.directoryState === 'expanded'">
+                <path d="M30 10 L16 26 2 10 Z" />
               </svg>
-              <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-else-if="item.__.directoryState === 'collapsed'">
-                <path d="M10 17l5-5-5-5v10z"/>
+              <svg class="switcher-icon collapsed" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-else-if="item.__.directoryState === 'collapsed'">
+                <path d="M10 30 L26 16 10 2 Z" />
               </svg>
-            </div>
+              <svg class="switcher-icon loading" viewBox="0 0 32 32" width="1em" height="1em" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else-if="item.__.directoryState === 'loading'">
+                <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
+              </svg>
+            </span>
             <span class="checkbox-wrapper" v-if="item.__.showCheckbox">
               <span
                 :class="{
@@ -941,11 +944,27 @@ export default {
   text-indent: 0;
 }
 .node .switcher {
-  display: inline-block;
-  width: 1em;
-  height: 100%;
   text-indent: 0;
   vertical-align: middle;
+}
+.node .switcher .switcher-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+.node .switcher .switcher-icon.loading {
+  animation-name: spin;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
 }
 .node .icon {
   width: 1em;
