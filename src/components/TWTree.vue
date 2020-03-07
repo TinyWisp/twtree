@@ -325,7 +325,17 @@ export default {
       this.setAttr(node, 'newTitle', node.title)
       this.setAttr(node, 'isEditing', true)
       this.$emit('edit', node)
-      this.focus(node)
+
+      let titleElement = this.getTitleElement(node)
+      setTimeout(function() {
+        let range = document.createRange();
+        let selection = window.getSelection();
+        range.setStart(titleElement.childNodes[0], node.title.length);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        titleElement.focus();
+      }.bind(this), 100)
     },
     quitEdit(node) {
       this.setAttr(node, 'isEditing', false)
@@ -974,6 +984,7 @@ export default {
 }
 .node.search-result .title {
   color: brown;
+  font-weight: bold;
 }
 .node .buttons-wrapper {
   display: none;
