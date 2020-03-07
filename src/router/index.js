@@ -8,6 +8,7 @@ import EditExample from '../views/EditExample.vue'
 import DragAndDropExample from '../views/DragAndDropExample.vue'
 import CustomIconExample from '../views/CustomIconExample.vue'
 import ButtonExample from '../views/ButtonExample.vue'
+import ContextMenuExample from '../views/ContextMenuExample.vue'
 
 Vue.use(VueRouter)
 
@@ -59,6 +60,11 @@ const routes = [
     path: '/example/custom-icon',
     name: 'custom-icon-example',
     component: CustomIconExample
+  },
+  {
+    path: '/example/contextmenu',
+    name: 'contextmenu-example',
+    component: ContextMenuExample
   }
 ]
 

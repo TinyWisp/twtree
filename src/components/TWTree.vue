@@ -16,9 +16,12 @@
             }"
             :style="{
               'text-indent': (item.__.depth - 1) * 20 + 'px',
-              '--height': item.__.height
+              '--height': item.__.height,
+              '--mousex': item.__.mousex,
+              '--mousey': item.__.mousey,
             }"
-            @click = "select(item)"
+            @click = "click(item)"
+            @contextmenu = "showContextMenu(item, $event)"
             :draggable="item.__.isDraggable"
             @dragstart="dragStart(item, $event)"
             @dragover="dragOver(item, $event)"
@@ -72,6 +75,10 @@
               <slot name="buttons" v-bind:node="item">
               </slot>
             </span>
+            <div class="contextmenu-wrapper" v-if="item.__.isDisplayingContextMenu">
+              <slot name="contextmenu" v-bind:node="item">
+              </slot>
+            </div>
             <div v-if="item.__.dragOverState !== null" class="drag-arrow-wrapper">
               <svg class="arrow" viewBox="0 0 24 24">
                 <path fill="none" d="M0 0h24v24H0z"/>
@@ -141,13 +148,18 @@ export default {
         showCheckbox: false,
         checkboxState: 'unchecked',
         isCheckboxDisabled: false,
-        isSearchResult: false
+        isSearchResult: false,
+        mousex: 0,
+        mousey: 0
       },
       dragAndDrop: {
         dragNode: null,
         overNode: null,
         overArea: null,
         isDroppable: false,
+      },
+      contextmenu: {
+        node: null
       }
     }
   },
@@ -224,6 +236,8 @@ export default {
         this.setAttr(node, 'checkboxState',      this.getAttr(node, 'checkboxState'))
         this.setAttr(node, 'isCheckboxDisabled', this.getAttr(node, 'isCheckboxDisabled'))
         this.setAttr(node, 'isSearchResult',     this.getAttr(node, 'isSearchResult'))
+        this.setAttr(node, 'mousex',             this.getAttr(node, 'mousex'))
+        this.setAttr(node, 'mousey',             this.getAttr(node, 'mousey'))
       }
 
       return items
@@ -368,6 +382,23 @@ export default {
 
       while (this.maxSelectCount < this.selected.length) {
         this.deselect(this.selected[0])
+      }
+    },
+    click(node) {
+      this.select(node)
+      this.hideContextMenuOnDisplay()
+    },
+    showContextMenu(node, event) {
+      this.hideContextMenuOnDisplay()
+      this.setAttr(node, 'mousex', event.offsetX + 'px')
+      this.setAttr(node, 'mousey', event.offsetY + 'px')
+      this.setAttr(node, 'isDisplayingContextMenu', true)
+      this.contextmenu.node = node
+      event.preventDefault()
+    },
+    hideContextMenuOnDisplay() {
+      if (this.contextmenu.node !== null) {
+        this.setAttr(this.contextmenu.node, 'isDisplayingContextMenu', false)
       }
     },
     draggable(node) {
@@ -1011,5 +1042,13 @@ export default {
 }
 .node .checkbox-wrapper .checkbox.undetermined.disabled:after{
   background-color: #a6a6a6;
+}
+.node .contextmenu-wrapper {
+  position: absolute;
+  display: block;
+  left: var(--mousex);
+  top: var(--mousey);
+  z-index: 100;
+  text-indent: 0;
 }
 </style>
