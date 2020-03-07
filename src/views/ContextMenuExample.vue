@@ -4,8 +4,8 @@
       <TWTree :tree="tree" ref="tree" class="tree">
           <template v-slot:contextmenu="{node}">
             <ul class="menu" v-if="node.__.depth > 0">
-              <li class="menu-item">create</li>
-              <li class="menu-item">remove</li>
+              <li class="menu-item" @click="create">create</li>
+              <li class="menu-item" @click="remove">remove</li>
             </ul>
           </template>
       </TWTree>
@@ -23,6 +23,7 @@ export default {
   },
   data() {
     return {
+      counter: 100,
       tree: [
         {
           id: 1,
@@ -64,6 +65,24 @@ export default {
         }
       ]
     }
+  },
+  methods: {
+    create() {
+      this.counter += 1
+      let tree = this.$refs.tree
+      let node = tree.getSelectedOne()
+      let child = {
+        id:  this.counter,
+        title: 'hello, world!' + this.counter,
+        hasChild: false
+      }
+      tree.create(child, node)
+    },
+    remove() {
+      let tree = this.$refs.tree
+      let node = tree.getSelectedOne()
+      tree.remove(node)
+    },
   }
 }
 </script>

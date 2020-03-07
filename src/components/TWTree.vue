@@ -390,8 +390,13 @@ export default {
     },
     showContextMenu(node, event) {
       this.hideContextMenuOnDisplay()
-      this.setAttr(node, 'mousex', event.offsetX + 'px')
-      this.setAttr(node, 'mousey', event.offsetY + 'px')
+      this.select(node)
+
+      let nodeOffset = this.getOffset(node)
+      let mousex = event.pageX - nodeOffset.left
+      let mousey = event.pageY - nodeOffset.top
+      this.setAttr(node, 'mousex', mousex + 'px')
+      this.setAttr(node, 'mousey', mousey + 'px')
       this.setAttr(node, 'isDisplayingContextMenu', true)
       this.contextmenu.node = node
       event.preventDefault()
@@ -594,6 +599,23 @@ export default {
       }
 
       return offsetTop
+    },
+    getOffset(node) {
+      let nodeElement = this.getNodeElement(node)
+      let offsetLeft  = nodeElement.offsetLeft
+      let offsetTop   = nodeElement.offsetTop
+
+      let reference = nodeElement.offsetParent
+      while(reference){
+        offsetLeft += reference.offsetLeft
+        offsetTop  += reference.offsetTop
+        reference   = reference.offsetParent
+      }
+
+      return {
+        left: offsetLeft,
+        top: offsetTop
+      }
     },
     isDroppable() {
       if (this.dragAndDrop.dragNode === this.dragAndDrop.overNode) {
