@@ -40,9 +40,7 @@ export default {
                 {
                   id: 4,
                   title: 'not draggable',
-                  __: {
-                    isDraggable: false
-                  }
+                  draggable: false
                 },
                 {
                   id: 5,
