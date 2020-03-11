@@ -29,16 +29,18 @@
             @drop="drop()"
             :ref="'node-' + item.id"
             :key="item.id">
-            <span class="switcher" @click.stop="toggleDirectoryState(item)">
-              <svg class="switcher-icon expanded" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
-                <path d="M30 10 L16 26 2 10 Z" />
-              </svg>
-              <svg class="switcher-icon collapsed" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-else-if="item.directoryState === 'collapsed'">
-                <path d="M10 30 L26 16 10 2 Z" />
-              </svg>
-              <svg class="switcher-icon loading" viewBox="0 0 32 32" width="1em" height="1em" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else-if="item.directoryState === 'loading'">
-                <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
-              </svg>
+            <span class="switcher-wrapper" @click.stop="toggleDirectoryState(item)">
+              <slot name="switcher" v-bind:node="item">
+                <svg class="switcher-icon expanded" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
+                  <path d="M30 10 L16 26 2 10 Z" />
+                </svg>
+                <svg class="switcher-icon collapsed" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-else-if="item.directoryState === 'collapsed'">
+                  <path d="M10 30 L26 16 10 2 Z" />
+                </svg>
+                <svg class="switcher-icon loading" viewBox="0 0 32 32" width="1em" height="1em" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else-if="item.directoryState === 'loading'">
+                  <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
+                </svg>
+              </slot>
             </span>
             <span class="checkbox-wrapper" v-if="item.showCheckbox">
               <span
@@ -63,30 +65,34 @@
                   </svg>
                 </slot>
               </span>
-              <span 
-                :class="{title:true, editing:item.__.isEditing}" 
-                :ref="'title-' + item.id" 
-                :contenteditable="item.__.isEditing"
-                @keydown="keydownEvent(item, $event)"
-                @keyup="keyupEvent(item, $event)"
-                @keypress="keypressEvent(item, $event)"
-                @input="inputEvent(item, $event)"
-                @focus="focusEvent(item, $event)"
-                @blur="blurEvent(item)">{{item.title}}</span>
+              <slot name="title" v-bind:node="item">
+                <span 
+                  :class="{title:true, editing:item.__.isEditing}" 
+                  :ref="'title-' + item.id" 
+                  :contenteditable="item.__.isEditing"
+                  @keydown="keydownEvent(item, $event)"
+                  @keyup="keyupEvent(item, $event)"
+                  @keypress="keypressEvent(item, $event)"
+                  @input="inputEvent(item, $event)"
+                  @focus="focusEvent(item, $event)"
+                  @blur="blurEvent(item)">{{item.title}}</span>
+              </slot>
             </span>
-            <span class="buttons-wrapper">
-              <slot name="buttons" v-bind:node="item">
+            <span class="extra-wrapper">
+              <slot name="extra" v-bind:node="item">
               </slot>
             </span>
             <div class="contextmenu-wrapper" v-if="item.__.isDisplayingContextMenu">
               <slot name="contextmenu" v-bind:node="item">
               </slot>
             </div>
-            <div v-if="item.__.dragOverState !== null" class="drag-arrow-wrapper">
-              <svg class="arrow" viewBox="0 0 24 24">
-                <path fill="none" d="M0 0h24v24H0z"/>
-                <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
-              </svg>
+            <div class="drag-arrow-wrapper" v-if="item.__.dragOverState !== null" >
+              <slot name="drag-arrow" v-bind:node="item">
+                <svg class="arrow" viewBox="0 0 24 24">
+                  <path fill="none" d="M0 0h24v24H0z"/>
+                  <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
+                </svg>
+              </slot>
             </div>
           </li>
         </template>
@@ -105,7 +111,7 @@ export default {
         return []
       }
     },
-    globalAttrs: {
+    defaultAttrs: {
       type: Object,
       default: function() {
         return {}
@@ -141,7 +147,7 @@ export default {
       items: this.getItems(),
       selected: [],
       autoIdCounter: 0,
-      defaultAttrs: {
+      spareDefaultAttrs: {
         directoryState: 'expanded',
         showCheckbox: false,
         disableCheckbox: false,
@@ -279,12 +285,12 @@ export default {
         return node[key]
       }
 
-      if (this.globalAttrs.hasOwnProperty(key)) {
-        return this.globalAttrs[key]
-      }
-
       if (this.defaultAttrs.hasOwnProperty(key)) {
         return this.defaultAttrs[key]
+      }
+
+      if (this.spareDefaultAttrs.hasOwnProperty(key)) {
+        return this.spareDefaultAttrs[key]
       }
     },
     setInternalAttr(node, key, val) {
@@ -946,16 +952,16 @@ export default {
   padding-right: 5px;
   text-indent: 0;
 }
-.node .switcher {
+.node .switcher-wrapper {
   text-indent: 0;
   vertical-align: middle;
 }
-.node .switcher .switcher-icon {
+.node .switcher-wrapper .switcher-icon {
   width: 1em;
   height: 1em;
   vertical-align: middle;
 }
-.node .switcher .switcher-icon.loading {
+.node .switcher-wrapper .switcher-icon.loading {
   animation-name: spin;
   animation-duration: 500ms;
   animation-iteration-count: infinite;
@@ -979,14 +985,14 @@ export default {
   color: brown;
   font-weight: bold;
 }
-.node .buttons-wrapper {
+.node .extra-wrapper {
   display: none;
   text-indent: 0;
 }
-.node:hover .buttons-wrapper {
+.node:hover .extra-wrapper {
   display: inline-block;
 }
-.node .drag-arrow-wrapper {
+.node .dnd-arrow-wrapper {
   width: 100%;
   height: 0;
   border: 0;
@@ -994,6 +1000,7 @@ export default {
   left: 0;
   display: none;
   overflow: visible;
+  z-index: 10;
 }
 .node .drag-arrow-wrapper .arrow {
   position: relative;
@@ -1054,6 +1061,7 @@ export default {
 .node .checkbox-wrapper .checkbox.checked.disabled {
   border-color: #dcdee2;
   background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 .node .checkbox-wrapper .checkbox.checked.disabled:after {
   border-color: #a6a6a6;

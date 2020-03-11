@@ -3,11 +3,19 @@
     <div class="panel">
       <TWTree :tree="tree" ref="tree" class="tree">
           <template v-slot:icon="{node}">
-              <img class="node-icon" src="../assets/folder.svg" v-if="node.hasChild && node.__.directoryState === 'collapsed'"/>
-              <img class="node-icon" src="../assets/folder-open.svg" v-else-if="node.hasChild && node.__.directoryState === 'expanded'"/>
-              <img class="node-icon" src="../assets/video.svg" v-else-if="!node.hasChild && node.type === 'video'"/>
-              <img class="node-icon" src="../assets/audio.svg" v-else-if="!node.hasChild && node.type === 'audio'"/>
-              <img class="node-icon" src="../assets/text.svg" v-else />
+            <img class="node-icon" src="../assets/folder.svg" v-if="node.hasChild && node.__.directoryState === 'collapsed'"/>
+            <img class="node-icon" src="../assets/folder-open.svg" v-else-if="node.hasChild && node.__.directoryState === 'expanded'"/>
+            <img class="node-icon" src="../assets/video.svg" v-else-if="!node.hasChild && node.type === 'video'"/>
+            <img class="node-icon" src="../assets/audio.svg" v-else-if="!node.hasChild && node.type === 'audio'"/>
+            <img class="node-icon" src="../assets/text.svg" v-else />
+          </template>
+          <template v-slot:switcher="{node}">
+            <svg class="toggler" viewBox="-3 -3 38 38" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3px" v-if="node.directoryState === 'collapsed'">
+              <path d="M12 30 L24 16 12 2" />
+            </svg>
+            <svg class="toggler" viewBox="-3 -3 38 38" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3px" v-else-if="node.directoryState === 'expanded'">
+              <path d="M30 12 L16 24 2 12" />
+            </svg>
           </template>
       </TWTree>
     </div>
@@ -118,5 +126,11 @@ export default {
     height: 1.2em;
     margin-right: 0.5em;
     vertical-align: middle;
+}
+.toggler {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  margin-right: 0.2em;
 }
 </style>
