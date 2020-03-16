@@ -1,6 +1,13 @@
 <template>
   <div class="tree-wrapper">
-    <ul class="tree" @dragleave="dragLeaveTree($event)" ref="tree">
+    <ul 
+      class="tree"
+      @dragleave="dragLeaveTree($event)"
+      ref="tree"
+      :style="{
+        '--dragImageOffsetX': dragImageOffsetX,
+        '--dragImageOffsetY': dragImageOffsetY
+      }">
       <transition-group name="node">
         <template v-for="item of items">
           <li
@@ -9,10 +16,9 @@
               node:             true, 
               selected:         item.__.isSelected,
               'search-result':  item.__.isSearchResult,
-              'drag-over-prev': item.__.dragOverState === 'prev',
-              'drag-over-next': item.__.dragOverState === 'next',
-              'drag-over-self': item.__.dragOverState === 'self',
-              'not-droppable':  item.__.dragOverState === null && item === dragAndDrop.overNode
+              'drag-over-prev': item.__.dragOverArea === 'prev' && item.__.isDroppable,
+              'drag-over-next': item.__.dragOverArea === 'next' && item.__.isDroppable,
+              'drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable
             }"
             :style="{
               'text-indent': (item.__.depth - 1) * 20 + 'px',
@@ -23,10 +29,10 @@
             @click = "click(item)"
             @contextmenu = "showContextMenu(item, $event)"
             :draggable="item.draggable"
-            @dragstart="dragStart(item, $event)"
-            @dragover="dragOver(item, $event)"
-            @dragend="dragEnd()"
-            @drop="drop()"
+            @dragstart="dragStartEvent(item, $event)"
+            @dragover="dragOverEvent(item, $event)"
+            @dragend="dragEndEvent()"
+            @drop="dropEvent()"
             :ref="'node-' + item.id"
             :key="item.id">
             <span class="switcher-wrapper" @click.stop="toggleDirectoryState(item)">
@@ -86,12 +92,17 @@
               <slot name="contextmenu" v-bind:node="item">
               </slot>
             </div>
-            <div class="drag-arrow-wrapper" v-if="item.__.dragOverState !== null" >
+            <div class="drag-arrow-wrapper" v-if="item.__.dragOverArea !== null">
               <slot name="drag-arrow" v-bind:node="item">
                 <svg class="arrow" viewBox="0 0 24 24">
                   <path fill="none" d="M0 0h24v24H0z"/>
                   <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
                 </svg>
+              </slot>
+            </div>
+            <div class="drag-image" v-if="item.__.dragOverArea !== null">
+              <slot name="drag-image" v-bind:node="item" v-bind:dnd="dragAndDrop">
+                <span class="drag-image-title">{{dragAndDrop.dragNode.title}}</span>
               </slot>
             </div>
           </li>
@@ -116,6 +127,14 @@ export default {
       default: function() {
         return {}
       }
+    },
+    dragImageOffsetX: {
+      type: String,
+      default: '20px'
+    },
+    dragImageOffsetY: {
+      type: String,
+      default: '10px'
     },
     fnLoadData: {
       type: Function,
@@ -157,7 +176,8 @@ export default {
       defaultInternalAttrs: {
         isEditing: false,
         isSearchResult: false,
-        dragOverState: null,
+        isDroppable: true,
+        dragOverArea: null,
         indent: '20px',
         height: '2em',
         mousex: 0,
@@ -246,7 +266,8 @@ export default {
         this.setInternalAttr(node, 'isVisible',          isVisible)
         this.setInternalAttr(node, 'isEditing',          this.getInternalAttr(node, 'isEditing'))
         this.setInternalAttr(node, 'isSearchResult',     this.getInternalAttr(node, 'isSearchResult'))
-        this.setInternalAttr(node, 'dragOverState',      this.getInternalAttr(node, 'dragOverState'))
+        this.setInternalAttr(node, 'isDroppable',        this.getInternalAttr(node, 'isDroppable'))
+        this.setInternalAttr(node, 'dragOverArea',       this.getInternalAttr(node, 'dragOverArea'))
         this.setInternalAttr(node, 'height',             this.getInternalAttr(node, 'height'))
         this.setInternalAttr(node, 'mousex',             this.getInternalAttr(node, 'mousex'))
         this.setInternalAttr(node, 'mousey',             this.getInternalAttr(node, 'mousey'))
@@ -659,15 +680,14 @@ export default {
 
       return true
     },
-    dragStart(node, event) {
-      let refId = 'icon-and-title-' + node.id
-      let ghostElement = this.$refs[refId][0]
+    dragStartEvent(node, event) {
+      let ghostElement = document.createElement('span')
 
       this.dragAndDrop.dragNode = node
-      event.dataTransfer.setDragImage(ghostElement, -20, 0)
+      event.dataTransfer.setDragImage(ghostElement, 0, 0)
       event.dataTransfer.dropEffect = 'move'
     },
-    dragOver(node, event) {
+    dragOverEvent(node, event) {
       if (this.dragAndDrop.overNode !== node) {
         this.dragLeave(this.dragAndDrop.overNode)
         this.dragEnter(node)
@@ -677,7 +697,12 @@ export default {
 
       let nodeElement = this.getNodeElement(node)
       let nodeHeight = nodeElement.clientHeight
-      let y = event.pageY - this.getNodeOffsetTop(node)
+      let offset = this.getOffset(node)
+      let x = event.pageX - offset.left
+      let y = event.pageY - offset.top
+
+      this.setInternalAttr(node, 'mousex', x + 'px')
+      this.setInternalAttr(node, 'mousey', y + 'px')
 
       if (y < nodeHeight * 0.33) {
         this.dragAndDrop.overArea = 'prev'
@@ -688,10 +713,9 @@ export default {
       }
 
       this.dragAndDrop.isDroppable = this.isDroppable()
-      let dragOverState = this.dragAndDrop.isDroppable
-        ? this.dragAndDrop.overArea
-        : null
-      this.setInternalAttr(node, 'dragOverState', dragOverState)
+
+      this.setInternalAttr(node, 'dragOverArea', this.dragAndDrop.overArea)
+      this.setInternalAttr(node, 'isDroppable',  this.dragAndDrop.isDroppable)
       event.preventDefault()
     },
     dragEnter(node) {
@@ -699,16 +723,16 @@ export default {
     },
     dragLeave(node) {
       if (node !== null) {
-        this.setInternalAttr(node, 'dragOverState', null)
+        this.setInternalAttr(node, 'dragOverArea', null)
       }
     },
-    dragEnd() {
+    dragEndEvent() {
       if (this.dragAndDrop.overNode !== null) {
         this.dragLeave(this.dragAndDrop.overNode)
         this.dragAndDrop.overNode = null
       }
     },
-    drop() {
+    dropEvent() {
       if (this.dragAndDrop.isDroppable === false) {
         return
       }
@@ -992,7 +1016,7 @@ export default {
 .node:hover .extra-wrapper {
   display: inline-block;
 }
-.node .dnd-arrow-wrapper {
+.node .drag-arrow-wrapper {
   width: 100%;
   height: 0;
   border: 0;
@@ -1022,6 +1046,27 @@ export default {
   top: 50%;
 }
 .node.drag-over-self .icon-and-title {
+  background-color: #bae7ff;
+}
+.node.not-droppable .not-droppable-sign {
+  text-indent: 0;
+  position: absolute;
+  left: var(--mousex);
+  top: calc(var(--mousey) + 0.5em);
+  z-index: 10;
+}
+.node .drag-image {
+  display: block;
+  position: absolute;
+  z-index: 11;
+  left: calc(var(--mousex) + var(--dragImageOffsetX));
+  top: calc(var(--mousey) + var(--dragImageOffsetY));
+  text-indent: 0;
+  height: 1.5em;
+  line-height: 1.5em;
+  padding: 0.1em 0.5em;
+  border: 0;
+  border-radius: 5px;
   background-color: #bae7ff;
 }
 .node .checkbox-wrapper {
