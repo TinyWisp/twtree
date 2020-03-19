@@ -26,9 +26,9 @@
               '--mousex': item.__.mousex,
               '--mousey': item.__.mousey,
             }"
+            :draggable="item.draggable"
             @click = "click(item)"
             @contextmenu = "showContextMenu(item, $event)"
-            :draggable="item.draggable"
             @dragstart="dragStartEvent(item, $event)"
             @dragover="dragOverEvent(item, $event)"
             @dragend="dragEndEvent()"
@@ -142,6 +142,21 @@ export default {
       default: null
     },
     fnIsDroppable: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    fnBeforeCheck: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    fnBeforeUncheck: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    fnBeforeSelect: {
       type: Function,
       required: false,
       default: null
@@ -416,6 +431,10 @@ export default {
       }
     },
     select(node) {
+      if (typeof(this.fnBeforeSelect) === 'function' && this.fnBeforeSelect() === false) {
+        return
+      }
+
       this.setInternalAttr(node, 'isSelected', true)
       this.selected.push(node)
       this.$emit('select', node)
@@ -682,10 +701,11 @@ export default {
     },
     dragStartEvent(node, event) {
       let ghostElement = document.createElement('span')
-
       this.dragAndDrop.dragNode = node
       event.dataTransfer.setDragImage(ghostElement, 0, 0)
       event.dataTransfer.dropEffect = 'move'
+
+      this.$emit('dragStart', this.dragAndDrop)
     },
     dragOverEvent(node, event) {
       if (this.dragAndDrop.overNode !== node) {
@@ -720,17 +740,20 @@ export default {
     },
     dragEnter(node) {
       this.dragAndDrop.overNode = node
+      this.$emit('dragEnter', this.dragAndDrop, node)
     },
     dragLeave(node) {
       if (node !== null) {
         this.setInternalAttr(node, 'dragOverArea', null)
       }
+      this.$emit('dragLeave', this.dragAndDrop, node)
     },
     dragEndEvent() {
       if (this.dragAndDrop.overNode !== null) {
         this.dragLeave(this.dragAndDrop.overNode)
         this.dragAndDrop.overNode = null
       }
+      this.$emit('dragEnd', this.dragAndDrop)
     },
     dropEvent() {
       if (this.dragAndDrop.isDroppable === false) {
@@ -755,6 +778,8 @@ export default {
           this.move(dragNode, dropNode)
           break
       }
+
+      this.$emit('drop', this.dragAndDrop)
     },
     dragLeaveTree(event) {
       let treeElement = this.$refs.tree
@@ -780,6 +805,10 @@ export default {
       }
     },
     check(node) {
+      if (typeof(this.fnBeforeCheck) === 'function' && this.fnBeforeCheck() === false) {
+          return
+      }
+
       let gpos = this.getInternalAttr(node, 'gpos')
       let depth = this.getInternalAttr(node, 'depth')
       for (let i=gpos; i<this.items.length; i++) {
@@ -800,6 +829,10 @@ export default {
       this.$emit('check', node)
     },
     uncheck(node) {
+      if (typeof(this.fnBeforeUncheck) === 'function' && this.fnBeforeUncheck() === false) {
+          return
+      }
+
       let gpos = this.getInternalAttr(node, 'gpos')
       let depth = this.getInternalAttr(node, 'depth')
       for (let i=gpos; i<this.items.length; i++) {
