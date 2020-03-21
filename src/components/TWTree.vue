@@ -100,9 +100,9 @@
                 </svg>
               </slot>
             </div>
-            <div class="drag-image" v-if="item.__.dragOverArea !== null">
+            <div class="drag-image-wrapper" v-if="item.__.dragOverArea !== null">
               <slot name="drag-image" v-bind:node="item" v-bind:dnd="dragAndDrop">
-                <span class="drag-image-title">{{dragAndDrop.dragNode.title}}</span>
+                <span class="drag-image">{{dragAndDrop.dragNode.title}}</span>
               </slot>
             </div>
           </li>
@@ -1088,16 +1088,20 @@ export default {
   top: calc(var(--mousey) + 0.5em);
   z-index: 10;
 }
-.node .drag-image {
+.node .drag-image-wrapper {
   display: block;
   position: absolute;
   z-index: 11;
   left: calc(var(--mousex) + var(--dragImageOffsetX));
   top: calc(var(--mousey) + var(--dragImageOffsetY));
   text-indent: 0;
+}
+.node .drag-image-wrapper .drag-image {
+  text-indent: 0;
+  width: auto;
   height: 1.5em;
   line-height: 1.5em;
-  padding: 0.1em 0.5em;
+  padding: 0.3em 0.5em;
   border: 0;
   border-radius: 5px;
   background-color: #bae7ff;

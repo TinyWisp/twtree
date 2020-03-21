@@ -10,6 +10,7 @@ import CustomIconExample from '../views/CustomIconExample.vue'
 import ButtonExample from '../views/ButtonExample.vue'
 import ContextMenuExample from '../views/ContextMenuExample.vue'
 import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
+import CustomDragAndDropExample from '../views/CustomDragAndDropExample.vue'
 
 Vue.use(VueRouter)
 
@@ -72,6 +73,11 @@ const routes = [
     name: 'a-lot-of-nodes-example',
     component: ALotOfNodesExample
   },
+  {
+    path: '/example/custom-drag-and-drop',
+    name: 'custom-drag-and-drop',
+    component: CustomDragAndDropExample
+  }
 ]
 
 const router = new VueRouter({
