@@ -95,7 +95,6 @@
             <div class="drag-arrow-wrapper" v-if="item.__.dragOverArea !== null">
               <slot name="drag-arrow" v-bind:node="item">
                 <svg class="arrow" viewBox="0 0 24 24">
-                  <path fill="none" d="M0 0h24v24H0z"/>
                   <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
                 </svg>
               </slot>
@@ -1050,21 +1049,25 @@ export default {
   display: inline-block;
 }
 .node .drag-arrow-wrapper {
-  width: 100%;
   height: 0;
+  width: 100%;
   border: 0;
   position: absolute;
   left: 0;
   display: none;
   overflow: visible;
   z-index: 10;
+  flex-direction: row;
+  align-items: center;
 }
 .node .drag-arrow-wrapper .arrow {
   position: relative;
   width: 20px;
   height: 20px;
-  top: -10px;
   left: -8px;
+  top: -10px;
+  stroke: #5cb85c;
+  fill: #5cb85c;
 }
 .node.drag-over-prev .drag-arrow-wrapper {
   display: block;

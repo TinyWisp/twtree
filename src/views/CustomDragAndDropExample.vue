@@ -12,6 +12,11 @@
           </svg> 
           <span class="drag-image-title">{{dnd.dragNode.title}}</span>
         </template>
+        <template v-slot:drag-arrow>
+          <svg class="drag-arrow" viewBox="0 0 32 32">
+            <path d="M22 10 L30 16 22 22 M30 16 L2 16"></path>
+          </svg>
+        </template>
       </TWTree>
     </div>
   </div>
@@ -122,5 +127,12 @@ export default {
   border: 0;
   border-radius: 5px;
   background-color: #bae7ff;
+}
+.tree .drag-arrow {
+  stroke-width: 3px;
+  stroke: green;
+  width: 1em;
+  height: 1em;
+  fill: none;
 }
 </style>

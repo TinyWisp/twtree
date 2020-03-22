@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnIsDroppable="fnIsDroppable" />
+      <TWTree :tree="tree" ref="tree" class="tree" :fnIsDroppable="isDroppable" />
     </div>
     dragNode: {{dragNode}}
     overNode: {{overNode}}
