@@ -1,7 +1,17 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :globalAttrs="{showCheckbox: true}" @check="refresh()" @uncheck="refresh()" />
+      <TWTree 
+        :tree="tree" 
+        ref="tree" 
+        class="tree" 
+        :defaultAttrs="{
+          checkbox: {
+            show: true
+          }
+        }"
+        @check="refresh()"
+        @uncheck="refresh()" />
     </div>
     <div class="result">
       <ul class="list">
@@ -57,18 +67,24 @@ export default {
                 {
                   id: 4,
                   title: 'no checkbox',
-                  showCheckbox: false
+                  checkbox: {
+                    show: false
+                  }
                 },
                 {
                   id: 5,
                   title: 'child 2-2',
-                  checkboxState: 'checked'
+                  checkbox: {
+                    state: 'checked'
+                  }
                 },
                 {
                   id: 6,
                   title: 'checkbox disabled',
-                  checkboxState: 'checked',
-                  disableCheckbox: true
+                  checkbox: {
+                    state: 'checked',
+                    disable: true
+                  }
                 }
               ],
             },

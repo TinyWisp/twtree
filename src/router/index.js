@@ -11,6 +11,8 @@ import ButtonExample from '../views/ButtonExample.vue'
 import ContextMenuExample from '../views/ContextMenuExample.vue'
 import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
 import CustomDragAndDropExample from '../views/CustomDragAndDropExample.vue'
+import CustomSizeExample from '../views/CustomSizeExample.vue'
+import CustomBackgroundColorExample from '../views/CustomBackgroundColorExample.vue'
 
 Vue.use(VueRouter)
 
@@ -77,7 +79,17 @@ const routes = [
     path: '/example/custom-drag-and-drop',
     name: 'custom-drag-and-drop',
     component: CustomDragAndDropExample
-  }
+  },
+  {
+    path: '/example/custom-size',
+    name: 'custom-size-example',
+    component: CustomSizeExample
+  },
+  {
+    path: '/example/custom-background-color',
+    name: 'custom-background-color-example',
+    component: CustomBackgroundColorExample
+  },
 ]
 
 const router = new VueRouter({

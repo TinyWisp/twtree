@@ -1,11 +1,13 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnIsDroppable="isDroppable" />
+      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeDrag="beforeDrag" :fnIsDroppable="isDroppable" @dragOver="dragOver" />
     </div>
-    dragNode: {{dragNode}}
-    overNode: {{overNode}}
-    overArea: {{overArea}}
+    <span class="info">
+      <span class="key">dragNode:</span> <span class="val">{{dragNode}}</span> <br>
+      <span class="key">overNode:</span> <span class="val">{{overNode}}</span> <br>
+      <span class="key">overArea:</span> <span class="val">{{overArea}}</span>
+    </span>
   </div>
 </template>
 
@@ -74,6 +76,9 @@ export default {
     }
   },
   methods: {
+    beforeDrag(node) {
+      return node.draggable !== false
+    },
     isDroppable(dragAndDrop) {
       //cannot drop before node 8
       if (dragAndDrop.overNode.id === 8 && dragAndDrop.overArea === 'prev') {
@@ -99,6 +104,11 @@ export default {
       }
 
       return true
+    },
+    dragOver(dragAndDrop) {
+      this.dragNode = dragAndDrop.dragNode.title
+      this.overNode = dragAndDrop.overNode.title
+      this.overArea = dragAndDrop.overArea
     }
   }
 }
@@ -131,5 +141,14 @@ fconfigeth0734
 .btn {
   width: 100px;
   margin-right: 20px;
+}
+.info {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.key {
+  font-weight: bold;
+  font-size: 18px;
 }
 </style>

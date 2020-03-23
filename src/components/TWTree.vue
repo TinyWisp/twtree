@@ -21,12 +21,15 @@
               'drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable
             }"
             :style="{
-              'text-indent': (item.__.depth - 1) * 20 + 'px',
-              '--height': item.__.height,
+              'text-indent': item.__.fullIndent,
+              '--height': item.style.height,
+              '--fontSize': item.style.fontSize,
+              '--hoverBgColor': item.style.hoverBgColor,
+              '--selectedBgColor': item.style.selectedBgColor,
               '--mousex': item.__.mousex,
               '--mousey': item.__.mousey,
             }"
-            :draggable="item.draggable"
+            :draggable="true"
             @click = "click(item)"
             @contextmenu = "showContextMenu(item, $event)"
             @dragstart="dragStartEvent(item, $event)"
@@ -48,14 +51,14 @@
                 </svg>
               </slot>
             </span>
-            <span class="checkbox-wrapper" v-if="item.showCheckbox">
+            <span class="checkbox-wrapper" v-if="item.checkbox.show">
               <span
                 :class="{
                   checkbox:     true,
-                  checked:      item.checkboxState === 'checked',
-                  unchecked:    item.checkboxState === 'unchecked',
-                  undetermined: item.checkboxState === 'undetermined',
-                  disabled:     item.disableCheckbox
+                  checked:      item.checkbox.state === 'checked',
+                  unchecked:    item.checkbox.state === 'unchecked',
+                  undetermined: item.checkbox.state === 'undetermined',
+                  disabled:     item.checkbox.disable
                 }"
                 @click.stop="toggleCheckbox(item)">
               </span>
@@ -145,6 +148,11 @@ export default {
       required: false,
       default: null
     },
+    fnBeforeDrag: {
+      type: Function,
+      required: false,
+      default: null
+    },
     fnBeforeCheck: {
       type: Function,
       required: false,
@@ -156,6 +164,16 @@ export default {
       default: null
     },
     fnBeforeSelect: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    fnBeforeExpand: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    fnBeforeCollapse: {
       type: Function,
       required: false,
       default: null
@@ -182,20 +200,30 @@ export default {
       autoIdCounter: 0,
       spareDefaultAttrs: {
         directoryState: 'expanded',
-        showCheckbox: false,
-        disableCheckbox: false,
-        checkboxState: 'unchecked',
-        draggable: true
-      },
-      defaultInternalAttrs: {
-        isEditing: false,
-        isSearchResult: false,
-        isDroppable: true,
-        dragOverArea: null,
-        indent: '20px',
-        height: '2em',
-        mousex: 0,
-        mousey: 0
+        checkbox: {
+          show: false,
+          disable: false,
+          state: 'unchecked'
+        },
+        style: {
+          height: '2em',
+          indent: '20px',
+          fontSize: '12px',
+          hoverBgColor: '#e7f4f9',
+          selectedBgColor: '#bae7ff',
+          paddingTop: 0,
+          paddingBottom: 0
+        },
+        __: {
+          isEditing: false,
+          isSearchResult: false,
+          isDroppable: true,
+          dragOverArea: null,
+          indent: '20px',
+          height: '2em',
+          mousex: 0,
+          mousey: 0
+        }
       },
       dragAndDrop: {
         dragNode: null,
@@ -225,10 +253,10 @@ export default {
 
       for (let i=this.nodes.length-1; i>=0; i--) {
         let node = this.nodes[i]
-        this.setInternalAttr(node, 'depth',  1)
-        this.setInternalAttr(node, 'parent', null)
-        this.setInternalAttr(node, 'path',   [])
-        this.setInternalAttr(node, 'pos',    i)
+        this.setAttr(node, '__', 'depth',  1)
+        this.setAttr(node, '__', 'parent', null)
+        this.setAttr(node, '__', 'path',   [])
+        this.setAttr(node, '__', 'pos',    i)
         stack.push(node)
       }
 
@@ -244,10 +272,10 @@ export default {
           for (let i=node.children.length-1; i>=0; i--) {
             let child = node.children[i]
 
-            this.setInternalAttr(child, 'depth',  this.getInternalAttr(node, 'depth') + 1)
-            this.setInternalAttr(child, 'parent', node)
-            this.setInternalAttr(child, 'path',   [...this.getInternalAttr(node, 'path'), node])
-            this.setInternalAttr(child, 'pos',    i)
+            this.setAttr(child, '__', 'depth',  this.getAttr(node, '__', 'depth') + 1)
+            this.setAttr(child, '__', 'parent', node)
+            this.setAttr(child, '__', 'path',   [...this.getAttr(node, '__', 'path'), node])
+            this.setAttr(child, '__', 'pos',    i)
 
             stack.push(child)
           }
@@ -261,7 +289,7 @@ export default {
           this.$set(node, 'id', this.generateId())
         }
 
-        let path = this.getInternalAttr(node, 'path')
+        let path = this.getAttr(node, '__', 'path')
         let isVisible = true
         for (let tnode of path) {
           if (this.getDirectoryState(tnode) === 'collapsed') {
@@ -270,21 +298,42 @@ export default {
           }
         }
 
-        this.setAttr(node, 'showCheckbox',    this.getAttr(node, 'showCheckbox'))
-        this.setAttr(node, 'disableCheckbox', this.getAttr(node, 'disableCheckbox'))
-        this.setAttr(node, 'checkboxState',   this.getAttr(node, 'checkboxState'))
-        this.setAttr(node, 'directoryState',  this.getDirectoryState(node))
-        this.setAttr(node, 'draggable',       this.getAttr(node, 'draggable'))
+        let fullIndent = 0
+        if (path.length === 1) {
+          fullIndent = this.getAttr(node, 'style', 'indent')
+        } else if (path.length > 1) {
+          let indents = []
+          for (let i=1; i<path.length; i++) {
+            let indent = this.getAttr(path[i], 'style', 'indent')
+            indents.push(indent)
+          }
+          let indent = this.getAttr(node, 'style', 'indent')
+          indents.push(indent)
+          fullIndent = 'calc(' + indents.join(' + ') + ')'
+        }
 
-        this.setInternalAttr(node, 'gpos',               i)
-        this.setInternalAttr(node, 'isVisible',          isVisible)
-        this.setInternalAttr(node, 'isEditing',          this.getInternalAttr(node, 'isEditing'))
-        this.setInternalAttr(node, 'isSearchResult',     this.getInternalAttr(node, 'isSearchResult'))
-        this.setInternalAttr(node, 'isDroppable',        this.getInternalAttr(node, 'isDroppable'))
-        this.setInternalAttr(node, 'dragOverArea',       this.getInternalAttr(node, 'dragOverArea'))
-        this.setInternalAttr(node, 'height',             this.getInternalAttr(node, 'height'))
-        this.setInternalAttr(node, 'mousex',             this.getInternalAttr(node, 'mousex'))
-        this.setInternalAttr(node, 'mousey',             this.getInternalAttr(node, 'mousey'))
+        this.setAttr(node, 'directoryState',  this.getDirectoryState(node))
+
+        this.setAttr(node, 'checkbox', 'show',    this.getAttr(node, 'checkbox', 'show'))
+        this.setAttr(node, 'checkbox', 'disable', this.getAttr(node, 'checkbox', 'disable'))
+        this.setAttr(node, 'checkbox', 'state',   this.getAttr(node, 'checkbox', 'state'))
+
+        this.setAttr(node, 'style', 'height',          this.getAttr(node, 'style', 'height'))
+        this.setAttr(node, 'style', 'indent',          this.getAttr(node, 'style', 'indent'))
+        this.setAttr(node, 'style', 'fontSize',        this.getAttr(node, 'style', 'fontSize'))
+        this.setAttr(node, 'style', 'hoverBgColor',    this.getAttr(node, 'style', 'hoverBgColor'))
+        this.setAttr(node, 'style', 'selectedBgColor', this.getAttr(node, 'style', 'selectedBgColor'))
+
+        this.setAttr(node, '__', 'gpos',           i)
+        this.setAttr(node, '__', 'isVisible',      isVisible)
+        this.setAttr(node, '__', 'isEditing',      this.getAttr(node, '__', 'isEditing'))
+        this.setAttr(node, '__', 'isSearchResult', this.getAttr(node, '__', 'isSearchResult'))
+        this.setAttr(node, '__', 'isDroppable',    this.getAttr(node, '__', 'isDroppable'))
+        this.setAttr(node, '__', 'dragOverArea',   this.getAttr(node, '__', 'dragOverArea'))
+        this.setAttr(node, '__', 'height',         this.getAttr(node, '__', 'height'))
+        this.setAttr(node, '__', 'mousex',         this.getAttr(node, '__', 'mousex'))
+        this.setAttr(node, '__', 'mousey',         this.getAttr(node, '__', 'mousey'))
+        this.setAttr(node, '__', 'fullIndent',     fullIndent)
       }
 
       return items
@@ -312,38 +361,62 @@ export default {
         ? this.selected[0]
         : null
     },
-    setAttr(node, key, val) {
-      this.$set(node, key, val)
+    setAttr() {
+      if (arguments.length === 3) {
+        let node = arguments[0]
+        let key = arguments[1]
+        let val = arguments[2]
+        this.$set(node, key, val) 
+      }
+
+      if (arguments.length === 4) {
+        let node = arguments[0]
+        let key = arguments[1]
+        let subKey = arguments[2]
+        let val = arguments[3]
+
+        if (!node.hasOwnProperty(key)) {
+          this.$set(node, key, {})
+        }
+
+        this.$set(node[key], subKey, val)
+      }
     },
-    getAttr(node, key) {
-      if (node.hasOwnProperty(key)) {
-        return node[key]
+    getAttr() {
+      if (arguments.length === 2) {
+        let node = arguments[0]
+        let key = arguments[1]
+
+        if (node.hasOwnProperty(key)) {
+          return node[key]
+        }
+
+        if (this.defaultAttrs.hasOwnProperty(key)) {
+          return this.defaultAttrs[key]
+        }
+
+        if (this.spareDefaultAttrs.hasOwnProperty(key)) {
+          return this.spareDefaultAttrs[key]
+        }
       }
 
-      if (this.defaultAttrs.hasOwnProperty(key)) {
-        return this.defaultAttrs[key]
-      }
+      if (arguments.length === 3) {
+        let node = arguments[0]
+        let key = arguments[1]
+        let subKey = arguments[2]
 
-      if (this.spareDefaultAttrs.hasOwnProperty(key)) {
-        return this.spareDefaultAttrs[key]
-      }
-    },
-    setInternalAttr(node, key, val) {
-      if (!node.hasOwnProperty('__')) {
-        this.$set(node, '__', {})
-      }
-      this.$set(node.__, key, val)
-    },
-    getInternalAttr(node, key) {
-      if (node.hasOwnProperty('__') && node.__.hasOwnProperty(key)) {
-        return node.__[key]
-      }
+        if (node.hasOwnProperty(key) && node[key].hasOwnProperty(subKey)) {
+          return node[key][subKey]
+        }
 
-      if (this.defaultInternalAttrs.hasOwnProperty(key)) {
-        return this.defaultInternalAttrs[key]
-      }
+        if (this.defaultAttrs.hasOwnProperty(key) && this.defaultAttrs[key].hasOwnProperty(subKey)) {
+          return this.defaultAttrs[key][subKey]
+        }
 
-      return undefined
+        if (this.spareDefaultAttrs.hasOwnProperty(key) && this.spareDefaultAttrs[key].hasOwnProperty(subKey)) {
+          return this.spareDefaultAttrs[key][subKey]
+        }
+      }
     },
     setTitle(node, title) {
       if (node.title !== title) {
@@ -363,8 +436,8 @@ export default {
       return 'twtree-node-' + this.autoIdCounter
     },
     edit(node) {
-      this.setInternalAttr(node, 'newTitle', node.title)
-      this.setInternalAttr(node, 'isEditing', true)
+      this.setAttr(node, '__', 'newTitle', node.title)
+      this.setAttr(node, '__', 'isEditing', true)
       this.$emit('edit', node)
 
       let titleElement = this.getTitleElement(node)
@@ -379,7 +452,7 @@ export default {
       }.bind(this), 100)
     },
     quitEdit(node) {
-      this.setInternalAttr(node, 'isEditing', false)
+      this.setAttr(node, '__', 'isEditing', false)
       this.$emit('quitEdit', node)
     },
     getTitleElement(node) {
@@ -424,7 +497,7 @@ export default {
       let i = this.selected.indexOf(node)
 
       if (i !== -1) {
-          this.setInternalAttr(node, 'isSelected', false)
+          this.setAttr(node, '__', 'isSelected', false)
           this.selected.splice(i, 1)
           this.$emit('deselect', node)
       }
@@ -434,7 +507,7 @@ export default {
         return
       }
 
-      this.setInternalAttr(node, 'isSelected', true)
+      this.setAttr(node, '__', 'isSelected', true)
       this.selected.push(node)
       this.$emit('select', node)
 
@@ -453,15 +526,15 @@ export default {
       let nodeOffset = this.getOffset(node)
       let mousex = event.pageX - nodeOffset.left
       let mousey = event.pageY - nodeOffset.top
-      this.setInternalAttr(node, 'mousex', mousex + 'px')
-      this.setInternalAttr(node, 'mousey', mousey + 'px')
-      this.setInternalAttr(node, 'isDisplayingContextMenu', true)
+      this.setAttr(node, '__', 'mousex', mousex + 'px')
+      this.setAttr(node, '__', 'mousey', mousey + 'px')
+      this.setAttr(node, '__', 'isDisplayingContextMenu', true)
       this.contextmenu.node = node
       event.preventDefault()
     },
     hideContextMenuOnDisplay() {
       if (this.contextmenu.node !== null) {
-        this.setInternalAttr(this.contextmenu.node, 'isDisplayingContextMenu', false)
+        this.setAttr(this.contextmenu.node, '__', 'isDisplayingContextMenu', false)
       }
     },
     create(node, parentNode, pos) {
@@ -489,8 +562,8 @@ export default {
       this.$emit('create', node)
     },
     remove(node) {
-      let parent = this.getInternalAttr(node, 'parent')
-      let pos = this.getInternalAttr(node, 'pos')
+      let parent = this.getAttr(node, '__', 'parent')
+      let pos = this.getAttr(node, '__', 'pos')
 
       if (parent === null) {
         this.nodes.splice(pos, 1)
@@ -504,8 +577,8 @@ export default {
       this.$emit('remove', node)
     },
     move(node, toParent, toPos) {
-      let fromParent = this.getInternalAttr(node, 'parent')
-      let fromPos = this.getInternalAttr(node, 'pos')
+      let fromParent = this.getAttr(node, '__', 'parent')
+      let fromPos = this.getAttr(node, '__', 'pos')
 
       //remove
       if (fromParent === null) {
@@ -551,7 +624,7 @@ export default {
         let match = this.fnMatch !== null
           ? this.fnMatch(node, keyword)
           : (node.title.indexOf(keyword) > -1)
-        this.setInternalAttr(node, 'isSearchResult', match)
+        this.setAttr(node, '__', 'isSearchResult', match)
         /*if (node.hasChild) {
           this.setAttr(node, 'directoryState', 'collapsed')
         }*/
@@ -561,9 +634,9 @@ export default {
       }
 
       for (let node of matches) {
-        let path = this.getInternalAttr(node, 'path')
+        let path = this.getAttr(node, '__', 'path')
         for (let pnode of path) {
-          this.setInternalAttr(pnode, 'directoryState', 'expanded')
+          this.setAttr(pnode, 'directoryState', 'expanded')
         }
       }
 
@@ -571,7 +644,7 @@ export default {
     },
     clearSearchResult() {
       for (let node of this.items) {
-        this.setInternalAttr(node, 'isSearchResult', false)
+        this.setAttr(node, '__', 'isSearchResult', false)
       }
     },
     expand(node) {
@@ -581,6 +654,10 @@ export default {
 
       let state = this.getDirectoryState(node)
       if (state != 'collapsed') {
+        return
+      }
+
+      if (typeof(this.fnBeforeExpand) === 'function' && this.fnBeforeExpand(node) === false) {
         return
       }
 
@@ -625,6 +702,10 @@ export default {
 
       let state = this.getDirectoryState(node)
       if (state !== 'expanded') {
+        return
+      }
+
+      if (typeof(this.fnBeforeCollapse) === 'function' && this.fnBeforeCollapse(node) === false) {
         return
       }
 
@@ -673,7 +754,7 @@ export default {
         return false
       }
 
-      let path = this.getInternalAttr(this.dragAndDrop.overNode, 'path')
+      let path = this.getAttr(this.dragAndDrop.overNode, '__', 'path')
       for (let ancestor of path) {
         if (ancestor === this.dragAndDrop.dragNode) {
           return false
@@ -681,8 +762,8 @@ export default {
       }
 
       if (this.dragAndDrop.dragNode.parent === this.dragAndDrop.overNode.parent) {
-        let dragNodePos = this.getInternalAttr(this.dragAndDrop.dragNode, 'pos')
-        let overNodePos = this.getInternalAttr(this.dragAndDrop.overNode, 'pos')
+        let dragNodePos = this.getAttr(this.dragAndDrop.dragNode, '__', 'pos')
+        let overNodePos = this.getAttr(this.dragAndDrop.overNode, '__', 'pos')
         if (this.dragAndDrop.overArea === 'prev' && overNodePos === dragNodePos + 1) {
           return false
         }
@@ -699,8 +780,14 @@ export default {
       return true
     },
     dragStartEvent(node, event) {
+      if (typeof(this.fnBeforeDrag) === 'function' && this.fnBeforeDrag(node) === false) {
+        event.preventDefault()
+        return
+      }
+
       let ghostElement = document.createElement('span')
       this.dragAndDrop.dragNode = node
+      event.dataTransfer.setData('text', node.id);
       event.dataTransfer.setDragImage(ghostElement, 0, 0)
       event.dataTransfer.dropEffect = 'move'
 
@@ -712,16 +799,14 @@ export default {
         this.dragEnter(node)
       }
 
-      //this.dragAndDrop.overNode = node
-
       let nodeElement = this.getNodeElement(node)
       let nodeHeight = nodeElement.clientHeight
       let offset = this.getOffset(node)
       let x = event.pageX - offset.left
       let y = event.pageY - offset.top
 
-      this.setInternalAttr(node, 'mousex', x + 'px')
-      this.setInternalAttr(node, 'mousey', y + 'px')
+      this.setAttr(node, '__', 'mousex', x + 'px')
+      this.setAttr(node, '__', 'mousey', y + 'px')
 
       if (y < nodeHeight * 0.33) {
         this.dragAndDrop.overArea = 'prev'
@@ -733,9 +818,11 @@ export default {
 
       this.dragAndDrop.isDroppable = this.isDroppable()
 
-      this.setInternalAttr(node, 'dragOverArea', this.dragAndDrop.overArea)
-      this.setInternalAttr(node, 'isDroppable',  this.dragAndDrop.isDroppable)
+      this.setAttr(node, '__', 'dragOverArea', this.dragAndDrop.overArea)
+      this.setAttr(node, '__', 'isDroppable',  this.dragAndDrop.isDroppable)
       event.preventDefault()
+
+      this.$emit('dragOver', this.dragAndDrop)
     },
     dragEnter(node) {
       this.dragAndDrop.overNode = node
@@ -743,7 +830,7 @@ export default {
     },
     dragLeave(node) {
       if (node !== null) {
-        this.setInternalAttr(node, 'dragOverArea', null)
+        this.setAttr(node, '__', 'dragOverArea', null)
       }
       this.$emit('dragLeave', this.dragAndDrop, node)
     },
@@ -761,8 +848,8 @@ export default {
 
       let dragNode = this.dragAndDrop.dragNode
       let dropNode = this.dragAndDrop.overNode
-      let dropNodePos = this.getInternalAttr(dropNode, 'pos')
-      let dropNodeParent = this.getInternalAttr(dropNode, 'parent')
+      let dropNodePos = this.getAttr(dropNode, '__', 'pos')
+      let dropNodeParent = this.getAttr(dropNode, '__', 'parent')
 
       switch (this.dragAndDrop.overArea) {
         case 'prev':
@@ -793,33 +880,33 @@ export default {
       }
     },
     setCheckboxState(node, state) {
-      if (this.getAttr(node, 'showCheckbox') === false) {
+      if (this.getAttr(node, 'checkbox', 'show') === false) {
         return
       }
 
-      let oldState = this.getAttr(node, 'checkboxState')
+      let oldState = this.getAttr(node, 'checkbox', 'state')
       if (oldState !== state) {
-        this.setAttr(node, 'checkboxState', state)
+        this.setAttr(node, 'checkbox', 'state', state)
         this.$emit('checkboxStateChange', node, oldState, state)
       }
     },
     check(node) {
-      if (typeof(this.fnBeforeCheck) === 'function' && this.fnBeforeCheck() === false) {
+      if (typeof(this.fnBeforeCheck) === 'function' && this.fnBeforeCheck(node) === false) {
           return
       }
 
-      let gpos = this.getInternalAttr(node, 'gpos')
-      let depth = this.getInternalAttr(node, 'depth')
+      let gpos = this.getAttr(node, '__', 'gpos')
+      let depth = this.getAttr(node, '__', 'depth')
       for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getInternalAttr(this.items[i], 'depth') <= depth) {
+        if (i > gpos && this.getAttr(this.items[i], '__', 'depth') <= depth) {
           break
         }
-        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'disableCheckbox') === false) {
+        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'checkbox', 'show') === true && this.getAttr(this.items[i], 'checkbox', 'disable') === false) {
           this.setCheckboxState(this.items[i], 'checked')
         }
       }
 
-      let path = this.getInternalAttr(node, 'path')
+      let path = this.getAttr(node, '__', 'path')
       let top = path.length > 0
         ? path[0]
         : node
@@ -828,22 +915,22 @@ export default {
       this.$emit('check', node)
     },
     uncheck(node) {
-      if (typeof(this.fnBeforeUncheck) === 'function' && this.fnBeforeUncheck() === false) {
+      if (typeof(this.fnBeforeUncheck) === 'function' && this.fnBeforeUncheck(node) === false) {
           return
       }
 
-      let gpos = this.getInternalAttr(node, 'gpos')
-      let depth = this.getInternalAttr(node, 'depth')
+      let gpos = this.getAttr(node, '__', 'gpos')
+      let depth = this.getAttr(node, '__', 'depth')
       for (let i=gpos; i<this.items.length; i++) {
-        if (i > gpos && this.getInternalAttr(this.items[i], 'depth') <= depth) {
+        if (i > gpos && this.getAttr(this.items[i], '__', 'depth') <= depth) {
           break
         }
-        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'disableCheckbox') === false) {
+        if (!this.items[i].hasChild && this.getAttr(this.items[i], 'checkbox', 'show') === true && this.getAttr(this.items[i], 'checkbox', 'disable') === false) {
           this.setCheckboxState(this.items[i], 'unchecked')
         }
       }
 
-      let path = this.getInternalAttr(node, 'path')
+      let path = this.getAttr(node, '__', 'path')
       let top = path.length > 0
         ? path[0]
         : node
@@ -852,7 +939,7 @@ export default {
       this.$emit('uncheck', node)
     },
     toggleCheckbox(node) {
-      let checkboxState = this.getAttr(node, 'checkboxState')
+      let checkboxState = this.getAttr(node, 'checkbox', 'state')
 
       switch (checkboxState) {
         case 'checked':
@@ -874,7 +961,7 @@ export default {
       }
     },
     refreshDirectoryCheckboxStateRecursively(node) {
-      if (this.getAttr(node, 'showCheckbox') === false) {
+      if (this.getAttr(node, 'checkbox', 'show') === false) {
         return {
           hasChecked: false,
           hasUnchecked: false
@@ -882,7 +969,7 @@ export default {
       }
 
       if (!node.hasChild) {
-        let state = this.getAttr(node, 'checkboxState')
+        let state = this.getAttr(node, 'checkbox', 'state')
         return {
           hasChecked: state === 'checked',
           hasUnchecked: state === 'unchecked'
@@ -908,7 +995,7 @@ export default {
       } else if (!hasChecked && hasUnchecked) {
         this.setCheckboxState(node, 'unchecked')
       } else if (!hasChecked && !hasUnchecked) {
-        this.setCheckboxState(node, this.getAttr(node, 'checkboxState'))
+        this.setCheckboxState(node, this.getAttr(node, 'checkbox', 'state'))
       }
 
       return {
@@ -920,7 +1007,7 @@ export default {
       let arr = []
 
       for (let i=0; i<this.items.length; i++) {
-        if (this.getAttr(this.items[i], 'showCheckbox') === true && this.getAttr(this.items[i], 'checkboxState') === state) {
+        if (this.getAttr(this.items[i], 'checkbox', 'show') === true && this.getAttr(this.items[i], 'checkbox', 'state') === state) {
           arr.push(this.items[i])
         }
       }
@@ -968,7 +1055,7 @@ export default {
   cursor: pointer;
   position: relative;
   line-height: var(--height);
-  font-size: 12px;
+  font-size: var(--fontSize);
  }
 .node-enter-to, .node-leave {
   height: var(--height);
@@ -985,10 +1072,10 @@ export default {
   transition: transform 0.5s;
 }
 .node:hover {
-  background-color: #e7f4f9;
+  background-color: var(--hoverBgColor);
 }
 .node.selected {
-  background-color: #bae7ff;
+  background-color: var(--selectedBgColor);
 }
 .node .icon-and-title {
   display: inline-block;
