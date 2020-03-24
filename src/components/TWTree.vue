@@ -1,5 +1,5 @@
 <template>
-  <div class="tree-wrapper">
+  <div class="tree-wrapper" tabindex="1" @blur="treeBlurEvent">
     <ul 
       class="tree"
       @dragleave="dragLeaveTree($event)"
@@ -561,6 +561,9 @@ export default {
         this.setAttr(this.contextMenu.node, '__', 'showContextMenu', false)
       }
     },
+    treeBlurEvent() {
+      this.hideContextMenuOnDisplay()
+    },
     create(node, parentNode, pos) {
       if (parentNode === null) {
         if (typeof(pos) === 'undefined') {
@@ -1077,6 +1080,9 @@ export default {
   padding-bottom: 5px;
   white-space: nowrap;
   width: 100%;
+}
+.tree-wrapper:focus {
+  outline: 0;
 }
 .node {
   cursor: pointer;
