@@ -30,8 +30,8 @@
               '--mousey': item.__.mousey,
             }"
             :draggable="true"
-            @click = "click(item)"
-            @contextmenu = "showContextMenu(item, $event)"
+            @click = "clickEvent(item)"
+            @contextmenu = "contextMenuEvent(item, $event)"
             @dragstart="dragStartEvent(item, $event)"
             @dragover="dragOverEvent(item, $event)"
             @dragend="dragEndEvent()"
@@ -91,7 +91,7 @@
               <slot name="extra" v-bind:node="item">
               </slot>
             </span>
-            <div class="contextmenu-wrapper" v-if="item.__.isDisplayingContextMenu">
+            <div class="contextmenu-wrapper" v-if="item.__.showContextMenu">
               <slot name="contextmenu" v-bind:node="item">
               </slot>
             </div>
@@ -178,6 +178,11 @@ export default {
       required: false,
       default: null
     },
+    fnBeforeContextMenu: {
+      type: Function,
+      required: false,
+      default: null
+    },
     fnMatch: {
       type: Function,
       required: false,
@@ -215,6 +220,7 @@ export default {
           paddingBottom: 0
         },
         __: {
+          isSelected: false,
           isEditing: false,
           isSearchResult: false,
           isDroppable: true,
@@ -231,7 +237,7 @@ export default {
         overArea: null,
         isDroppable: false,
       },
-      contextmenu: {
+      contextMenu: {
         node: null
       }
     }
@@ -326,6 +332,7 @@ export default {
 
         this.setAttr(node, '__', 'gpos',           i)
         this.setAttr(node, '__', 'isVisible',      isVisible)
+        this.setAttr(node, '__', 'isSelected',     this.getAttr(node, '__', 'isSelected'))
         this.setAttr(node, '__', 'isEditing',      this.getAttr(node, '__', 'isEditing'))
         this.setAttr(node, '__', 'isSearchResult', this.getAttr(node, '__', 'isSearchResult'))
         this.setAttr(node, '__', 'isDroppable',    this.getAttr(node, '__', 'isDroppable'))
@@ -429,7 +436,14 @@ export default {
         return null
       }
 
-      return this.getAttr(node, 'directoryState')
+      let directoryState = this.getAttr(node, 'directoryState')
+      if (directoryState === null) {
+        directoryState = (this.defaultAttrs.hasOwnProperty('directoryState') && this.defaultAttrs.directoryState !== null)
+          ? this.defaultAttrs.directoryState
+          : 'expanded'
+      }
+
+      return directoryState
     },
     generateId() {
       this.autoIdCounter += 1
@@ -503,7 +517,11 @@ export default {
       }
     },
     select(node) {
-      if (typeof(this.fnBeforeSelect) === 'function' && this.fnBeforeSelect() === false) {
+      if (this.selected.indexOf(node) >= 0) {
+        return
+      }
+
+      if (typeof(this.fnBeforeSelect) === 'function' && this.fnBeforeSelect(node) === false) {
         return
       }
 
@@ -515,26 +533,32 @@ export default {
         this.deselect(this.selected[0])
       }
     },
-    click(node) {
+    clickEvent(node) {
       this.select(node)
       this.hideContextMenuOnDisplay()
     },
-    showContextMenu(node, event) {
-      this.hideContextMenuOnDisplay()
-      this.select(node)
+    contextMenuEvent(node, event) {
+      if (typeof(this.fnBeforeContextMenu) === 'function' && this.fnBeforeContextMenu(node, event) === false) {
+        return
+      }
+
+      if (this.contextMenu.node !== node) {
+        this.hideContextMenuOnDisplay()
+        this.select(node)
+      }
 
       let nodeOffset = this.getOffset(node)
       let mousex = event.pageX - nodeOffset.left
       let mousey = event.pageY - nodeOffset.top
       this.setAttr(node, '__', 'mousex', mousex + 'px')
       this.setAttr(node, '__', 'mousey', mousey + 'px')
-      this.setAttr(node, '__', 'isDisplayingContextMenu', true)
-      this.contextmenu.node = node
+      this.setAttr(node, '__', 'showContextMenu', true)
+      this.contextMenu.node = node
       event.preventDefault()
     },
     hideContextMenuOnDisplay() {
-      if (this.contextmenu.node !== null) {
-        this.setAttr(this.contextmenu.node, '__', 'isDisplayingContextMenu', false)
+      if (this.contextMenu.node !== null) {
+        this.setAttr(this.contextMenu.node, '__', 'showContextMenu', false)
       }
     },
     create(node, parentNode, pos) {
@@ -572,6 +596,9 @@ export default {
         parent.hasChild = (parent.children.length > 0)
         this.setAttr(parent, 'directoryState', this.getDirectoryState(parent))
       }
+
+      let spos = this.selected.indexOf(node)
+      this.selected.splice(spos, 1)
 
       this.refreshItems()
       this.$emit('remove', node)

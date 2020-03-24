@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree">
+      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeContextMenu="beforeContextMenu">
           <template v-slot:contextmenu="{node}">
             <ul class="menu" v-if="node.__.depth > 0">
               <li class="menu-item" @click="create">create</li>
@@ -45,7 +45,8 @@ export default {
                 },
                 {
                   id: 5,
-                  title: 'child 2-2'
+                  title: 'no context menu',
+                  showContextMenu: false
                 },
                 {
                   id: 6,
@@ -83,6 +84,9 @@ export default {
       let node = tree.getSelectedOne()
       tree.remove(node)
     },
+    beforeContextMenu(node) {
+      return node.showContextMenu !== false
+    }
   }
 }
 </script>
