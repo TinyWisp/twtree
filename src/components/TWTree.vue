@@ -40,28 +40,29 @@
             :key="item.id">
             <span class="switcher-wrapper" @click.stop="toggleDirectoryState(item)">
               <slot name="switcher" v-bind:node="item">
-                <svg class="switcher-icon expanded" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
+                <svg class="switcher-icon expanded" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
                   <path d="M30 10 L16 26 2 10 Z" />
                 </svg>
-                <svg class="switcher-icon collapsed" viewBox="-7 -3 46 46" width="1em" height="1em" fill="currentColor" aria-hidden="true" v-else-if="item.directoryState === 'collapsed'">
+                <svg class="switcher-icon collapsed" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-else-if="item.directoryState === 'collapsed'">
                   <path d="M10 30 L26 16 10 2 Z" />
                 </svg>
-                <svg class="switcher-icon loading" viewBox="0 0 32 32" width="1em" height="1em" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else-if="item.directoryState === 'loading'">
+                <svg class="switcher-icon loading" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else-if="item.directoryState === 'loading'">
                   <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
                 </svg>
               </slot>
             </span>
-            <span class="checkbox-wrapper" v-if="item.checkbox.show">
-              <span
-                :class="{
-                  checkbox:     true,
-                  checked:      item.checkbox.state === 'checked',
-                  unchecked:    item.checkbox.state === 'unchecked',
-                  undetermined: item.checkbox.state === 'undetermined',
-                  disabled:     item.checkbox.disable
-                }"
-                @click.stop="toggleCheckbox(item)">
-              </span>
+            <span class="checkbox-wrapper" v-if="item.checkbox.show" @click.stop="toggleCheckbox(item)">
+              <slot name="checkbox" v-bind:node="item">
+                <span
+                  :class="{
+                    checkbox:     true,
+                    checked:      item.checkbox.state === 'checked',
+                    unchecked:    item.checkbox.state === 'unchecked',
+                    undetermined: item.checkbox.state === 'undetermined',
+                    disabled:     item.checkbox.disable
+                  }">
+                </span>
+              </slot>
             </span>
             <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
               <span icon="icon-wrapper">
@@ -199,7 +200,7 @@ export default {
   },
   data() {
     return {
-      nodes: this.tree,
+      nodes: JSON.parse(JSON.stringify(this.tree)),
       items: this.getItems(),
       selected: [],
       autoIdCounter: 0,
@@ -1131,6 +1132,11 @@ export default {
 .node .switcher-wrapper {
   text-indent: 0;
   vertical-align: middle;
+  display: inline-block;
+  min-width: 1em;
+  min-height: 1em;
+  padding: 0;
+  overflow: visible;
 }
 .node .switcher-wrapper .switcher-icon {
   width: 1em;

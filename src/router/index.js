@@ -6,13 +6,10 @@ import CheckboxExample from '../views/CheckboxExample.vue'
 import AsyncExample from '../views/AsyncExample.vue'
 import EditExample from '../views/EditExample.vue'
 import DragAndDropExample from '../views/DragAndDropExample.vue'
-import CustomIconExample from '../views/CustomIconExample.vue'
 import ButtonExample from '../views/ButtonExample.vue'
 import ContextMenuExample from '../views/ContextMenuExample.vue'
 import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
-import CustomDragAndDropExample from '../views/CustomDragAndDropExample.vue'
-import CustomSizeExample from '../views/CustomSizeExample.vue'
-import CustomBackgroundColorExample from '../views/CustomBackgroundColorExample.vue'
+import CustomAppearanceExample from '../views/CustomAppearanceExample.vue'
 
 Vue.use(VueRouter)
 
@@ -61,11 +58,6 @@ const routes = [
     component: ButtonExample
   },
   {
-    path: '/example/custom-icon',
-    name: 'custom-icon-example',
-    component: CustomIconExample
-  },
-  {
     path: '/example/contextmenu',
     name: 'contextmenu-example',
     component: ContextMenuExample
@@ -76,20 +68,10 @@ const routes = [
     component: ALotOfNodesExample
   },
   {
-    path: '/example/custom-drag-and-drop',
-    name: 'custom-drag-and-drop',
-    component: CustomDragAndDropExample
-  },
-  {
-    path: '/example/custom-size',
-    name: 'custom-size-example',
-    component: CustomSizeExample
-  },
-  {
-    path: '/example/custom-background-color',
-    name: 'custom-background-color-example',
-    component: CustomBackgroundColorExample
-  },
+    path: '/example/custom-appearance',
+    name: 'custom-appearance-example',
+    component: CustomAppearanceExample
+  }
 ]
 
 const router = new VueRouter({
