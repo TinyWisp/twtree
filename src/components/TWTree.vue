@@ -350,16 +350,19 @@ export default {
       this.items = this.getItems()
       this.refreshAllDirectoryCheckboxState()
     },
-    getNode(id) {
-      let target = null
-      this.traverse(function(node) {
-        if (node.id === id) {
-          target = node
-          return false
+    getById(id) {
+      for (let i=0; i<this.items.length; i++) {
+        if (this.items[i].id === id) {
+          return this.items[i]
         }
-      })
-
-      return target
+      }
+      return null
+    },
+    getByGpos(gpos) {
+      if (gpos < 0 || gpos > this.items.length - 1) {
+        return null
+      }
+      return this.items[gpos]
     },
     getSelected() {
       return this.selected
@@ -743,7 +746,7 @@ export default {
       this.setAttr(node, 'directoryState', 'collapsed')
       this.refreshItems()
     },
-    getNodeElement(node) {
+    getElement(node) {
       let refId = 'node-' + node.id
       if (this.$refs.hasOwnProperty(refId)) {
         return this.$refs[refId][0]
@@ -751,20 +754,8 @@ export default {
 
       return null
     },
-    getNodeOffsetTop(node) {
-      let nodeElement = this.getNodeElement(node)
-      let offsetTop = nodeElement.offsetTop
-
-      let reference = nodeElement.offsetParent
-      while(reference){
-        offsetTop += reference.offsetTop
-        reference = reference.offsetParent
-      }
-
-      return offsetTop
-    },
     getOffset(node) {
-      let nodeElement = this.getNodeElement(node)
+      let nodeElement = this.getElement(node)
       let offsetLeft  = nodeElement.offsetLeft
       let offsetTop   = nodeElement.offsetTop
 
@@ -830,7 +821,7 @@ export default {
         this.dragEnter(node)
       }
 
-      let nodeElement = this.getNodeElement(node)
+      let nodeElement = this.getElement(node)
       let nodeHeight = nodeElement.clientHeight
       let offset = this.getOffset(node)
       let x = event.pageX - offset.left
@@ -1034,7 +1025,7 @@ export default {
         hasUnchecked: hasUnchecked
       }
     },
-    getNodesByCheckboxState(state) {
+    getByCheckboxState(state) {
       let arr = []
 
       for (let i=0; i<this.items.length; i++) {
@@ -1046,13 +1037,13 @@ export default {
       return arr
     },
     getChecked() {
-      return this.getNodesByCheckboxState('checked')
+      return this.getByCheckboxState('checked')
     },
     getUndetermined() {
-      return this.getNodesByCheckboxState('undetermined')
+      return this.getByCheckboxState('undetermined')
     },
     getUnchecked() {
-      return this.getNodesByCheckboxState('unchecked')
+      return this.getByCheckboxState('unchecked')
     },
     toggleDirectoryState(node) {
         let state = this.getDirectoryState(node)

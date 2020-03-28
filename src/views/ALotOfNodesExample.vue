@@ -2699,7 +2699,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .example-wrapper {
   width: 800px;
   margin-left: auto;

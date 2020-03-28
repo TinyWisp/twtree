@@ -115,7 +115,7 @@ export default {
 </script>
 fconfigeth0734
 
-<style>
+<style scoped>
 .example-wrapper {
   width: 800px;
   margin-left: auto;

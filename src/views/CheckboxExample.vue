@@ -3,36 +3,72 @@
     <div class="panel">
       <TWTree 
         :tree="tree" 
-        ref="tree" 
+        ref="tree1" 
         class="tree" 
         :defaultAttrs="{
           checkbox: {
             show: true
           }
         }"
-        @check="refresh()"
-        @uncheck="refresh()" />
+        @check="demo1Refresh()"
+        @uncheck="demo1Refresh()" />
     </div>
     <div class="result">
       <ul class="list">
         <li class="head">checked</li>
-        <li class="item" :key="i" v-for="(node, i) in checked">
+        <li class="item" :key="i" v-for="(node, i) in demo1.checked">
           {{node.title}}
         </li>
       </ul>
       <ul class="list">
         <li class="head">unchecked</li>
-        <li class="item" :key="i" v-for="(node, i) in unchecked">
+        <li class="item" :key="i" v-for="(node, i) in demo1.unchecked">
           {{node.title}}
         </li>
       </ul>
       <ul class="list">
         <li class="head">undetermined</li>
-        <li class="item" :key="i" v-for="(node, i) in undetermined">
+        <li class="item" :key="i" v-for="(node, i) in demo1.undetermined">
           {{node.title}}
         </li>
       </ul>
     </div>
+
+    <div class="title">no correlation between parent and child nodes</div>
+    <div class="panel">
+      <TWTree 
+        :tree="tree" 
+        ref="tree2"
+        class="tree" 
+        :defaultAttrs="{
+          checkbox: {
+            show: true
+          }
+        }"
+        :fnBeforeCheck="demo2BeforeCheck"
+        :fnBeforeUncheck="demo2BeforeUncheck"/>
+    </div>
+    <div class="result">
+      <ul class="list">
+        <li class="head">checked</li>
+        <li class="item" :key="i" v-for="(node, i) in demo2.checked">
+          {{node.title}}
+        </li>
+      </ul>
+      <ul class="list">
+        <li class="head">unchecked</li>
+        <li class="item" :key="i" v-for="(node, i) in demo2.unchecked">
+          {{node.title}}
+        </li>
+      </ul>
+      <ul class="list">
+        <li class="head">undetermined</li>
+        <li class="item" :key="i" v-for="(node, i) in demo2.undetermined">
+          {{node.title}}
+        </li>
+      </ul>
+    </div>
+
   </div>
 </template>
 
@@ -46,9 +82,16 @@ export default {
   },
   data() {
     return {
-      checked: [],
-      unchecked: [],
-      undetermined: [],
+      demo1 : {
+        checked: [],
+        unchecked: [],
+        undetermined: []
+      },
+      demo2 : {
+        checked: [],
+        unchecked: [],
+        undetermined: []
+      },
       tree: [
         {
           id: 1,
@@ -102,24 +145,49 @@ export default {
     }
   },
   methods: {
-    refresh() {
-      let tree = this.$refs.tree
-      this.checked = tree.getChecked()
-      this.unchecked = tree.getUnchecked()
-      this.undetermined = tree.getUndetermined()
+    demo1Refresh() {
+      let tree = this.$refs.tree1
+      this.demo1.checked = tree.getChecked()
+      this.demo1.unchecked = tree.getUnchecked()
+      this.demo1.undetermined = tree.getUndetermined()
+    },
+    demo2Refresh() {
+      let tree = this.$refs.tree2
+      this.demo2.checked = tree.getChecked()
+      this.demo2.unchecked = tree.getUnchecked()
+      this.demo2.undetermined = tree.getUndetermined()
+    },
+    demo2BeforeCheck(node) {
+      let tree = this.$refs.tree2
+      tree.setAttr(node, 'checkbox', 'state', 'checked')
+      this.demo2Refresh()
+      return false;
+    },
+    demo2BeforeUncheck(node) {
+      let tree = this.$refs.tree2
+      tree.setAttr(node, 'checkbox', 'state', 'unchecked')
+      this.demo2Refresh()
+      return false;
     }
   },
   mounted() {
-    this.refresh()
+    this.demo1Refresh()
+    this.demo2Refresh()
   }
 }
 </script>
 
-<style>
+<style scoped>
 .example-wrapper {
   width: 800px;
   margin-left: auto;
   margin-right: auto;
+}
+.title {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 24px;
 }
 .panel {
   width: 100%;
@@ -147,6 +215,8 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
+  min-height: 230px;
+  margin-bottom: 30px;
 }
 .result .list {
   flex-grow: 1;
