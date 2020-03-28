@@ -26,6 +26,9 @@
               '--fontSize': item.style.fontSize,
               '--hoverBgColor': item.style.hoverBgColor,
               '--selectedBgColor': item.style.selectedBgColor,
+              '--switcherMarginRight': item.style.switcherMarginRight,
+              '--iconMarginRight': item.style.iconMarginRight,
+              '--checkboxMarginRight': item.style.checkboxMarginRight,
               '--mousex': item.__.mousex,
               '--mousey': item.__.mousey,
             }"
@@ -65,7 +68,7 @@
               </slot>
             </span>
             <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
-              <span icon="icon-wrapper">
+              <span class="icon-wrapper">
                 <slot name="icon" v-bind:node="item">
                   <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-if="item.hasChild && (item.directoryState === 'collapsed' || item.directoryState === 'expanded')">
                     <path d="M2 26 L30 26 30 7 14 7 10 4 2 4 Z M30 12 L2 12" />
@@ -217,6 +220,9 @@ export default {
           fontSize: '12px',
           hoverBgColor: '#e7f4f9',
           selectedBgColor: '#bae7ff',
+          iconMarginRight: '0.5em',
+          checkboxMarginRight: '0.1em',
+          switcherMarginRight: '0.1em',
           paddingTop: 0,
           paddingBottom: 0
         },
@@ -325,11 +331,14 @@ export default {
         this.setAttr(node, 'checkbox', 'disable', this.getAttr(node, 'checkbox', 'disable'))
         this.setAttr(node, 'checkbox', 'state',   this.getAttr(node, 'checkbox', 'state'))
 
-        this.setAttr(node, 'style', 'height',          this.getAttr(node, 'style', 'height'))
-        this.setAttr(node, 'style', 'indent',          this.getAttr(node, 'style', 'indent'))
-        this.setAttr(node, 'style', 'fontSize',        this.getAttr(node, 'style', 'fontSize'))
-        this.setAttr(node, 'style', 'hoverBgColor',    this.getAttr(node, 'style', 'hoverBgColor'))
-        this.setAttr(node, 'style', 'selectedBgColor', this.getAttr(node, 'style', 'selectedBgColor'))
+        this.setAttr(node, 'style', 'height',              this.getAttr(node, 'style', 'height'))
+        this.setAttr(node, 'style', 'indent',              this.getAttr(node, 'style', 'indent'))
+        this.setAttr(node, 'style', 'fontSize',            this.getAttr(node, 'style', 'fontSize'))
+        this.setAttr(node, 'style', 'hoverBgColor',        this.getAttr(node, 'style', 'hoverBgColor'))
+        this.setAttr(node, 'style', 'selectedBgColor',     this.getAttr(node, 'style', 'selectedBgColor'))
+        this.setAttr(node, 'style', 'switcherMarginRight', this.getAttr(node, 'style', 'switcherMarginRight'))
+        this.setAttr(node, 'style', 'iconMarginRight',     this.getAttr(node, 'style', 'iconMarginRight'))
+        this.setAttr(node, 'style', 'checkboxMarginRight', this.getAttr(node, 'style', 'checkboxMarginRight'))
 
         this.setAttr(node, '__', 'gpos',           i)
         this.setAttr(node, '__', 'isVisible',      isVisible)
@@ -1128,6 +1137,7 @@ export default {
   min-height: 1em;
   padding: 0;
   overflow: visible;
+  margin-right: var(--switcherMarginRight)
 }
 .node .switcher-wrapper .switcher-icon {
   width: 1em;
@@ -1148,10 +1158,12 @@ export default {
         transform:rotate(360deg);
     }
 }
-.node .icon {
+.node .icon-wrapper {
+  margin-right: var(--iconMarginRight);
+}
+.node .icon-wrapper .icon {
   width: 1em;
   height: 1em;
-  margin-right: 0.5em;
   vertical-align: middle;
 }
 .node.search-result .title {
@@ -1229,6 +1241,7 @@ export default {
 .node .checkbox-wrapper {
   display: inline-block;
   text-indent: 0;
+  margin-right: var(--checkboxMarginRight);
 }
 .node .checkbox-wrapper .checkbox {
   display: inline-block;
