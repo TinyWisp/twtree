@@ -10,6 +10,7 @@ import ButtonExample from '../views/ButtonExample.vue'
 import ContextMenuExample from '../views/ContextMenuExample.vue'
 import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
 import CustomAppearanceExample from '../views/CustomAppearanceExample.vue'
+import SearchExample from '../views/SearchExample.vue'
 
 Vue.use(VueRouter)
 
@@ -71,6 +72,11 @@ const routes = [
     path: '/example/custom-appearance',
     name: 'custom-appearance-example',
     component: CustomAppearanceExample
+  },
+  {
+    path: '/example/search',
+    name: 'search-example',
+    component: SearchExample
   }
 ]
 
