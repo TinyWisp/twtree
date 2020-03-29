@@ -1,0 +1,10 @@
+[
+    {
+        "title": "child 1",
+        "hasChild": false
+    },
+    {
+        "title": "child 2",
+        "hasChild": true
+    }
+]
