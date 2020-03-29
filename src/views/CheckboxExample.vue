@@ -34,19 +34,18 @@
       </ul>
     </div>
 
-    <div class="title">no correlation between parent and child nodes</div>
+    <div class="title">no linkage relationship between parent and child nodes</div>
     <div class="panel">
       <TWTree 
         :tree="tree" 
         ref="tree2"
         class="tree" 
+        :checkboxLinkage = "false"
         :defaultAttrs="{
           checkbox: {
             show: true
           }
-        }"
-        :fnBeforeCheck="demo2BeforeCheck"
-        :fnBeforeUncheck="demo2BeforeUncheck"/>
+        }"/>
     </div>
     <div class="result">
       <ul class="list">
@@ -156,18 +155,6 @@ export default {
       this.demo2.checked = tree.getChecked()
       this.demo2.unchecked = tree.getUnchecked()
       this.demo2.undetermined = tree.getUndetermined()
-    },
-    demo2BeforeCheck(node) {
-      let tree = this.$refs.tree2
-      tree.setAttr(node, 'checkbox', 'state', 'checked')
-      this.demo2Refresh()
-      return false;
-    },
-    demo2BeforeUncheck(node) {
-      let tree = this.$refs.tree2
-      tree.setAttr(node, 'checkbox', 'state', 'unchecked')
-      this.demo2Refresh()
-      return false;
     }
   },
   mounted() {

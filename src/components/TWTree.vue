@@ -134,6 +134,10 @@ export default {
         return {}
       }
     },
+    checkboxLinkage: {
+      type: Boolean,
+      default: true
+    },
     dragImageOffsetX: {
       type: String,
       default: '20px'
@@ -926,6 +930,11 @@ export default {
           return
       }
 
+      if (!this.checkboxLinkage) {
+        this.setCheckboxState(node, 'checked')
+        return
+      }
+
       let gpos = this.getAttr(node, '__', 'gpos')
       let depth = this.getAttr(node, '__', 'depth')
       for (let i=gpos; i<this.items.length; i++) {
@@ -948,6 +957,11 @@ export default {
     uncheck(node) {
       if (typeof(this.fnBeforeUncheck) === 'function' && this.fnBeforeUncheck(node) === false) {
           return
+      }
+
+      if (!this.checkboxLinkage) {
+        this.setCheckboxState(node, 'unchecked')
+        return
       }
 
       let gpos = this.getAttr(node, '__', 'gpos')
@@ -987,11 +1001,19 @@ export default {
       }
     },
     refreshAllDirectoryCheckboxState() {
+      if (!this.checkboxLinkage) {
+        return
+      }
+
       for (let node of this.nodes) {
         this.refreshDirectoryCheckboxStateRecursively(node)
       }
     },
     refreshDirectoryCheckboxStateRecursively(node) {
+      if (!this.checkboxLinkage) {
+        return
+      }
+
       if (this.getAttr(node, 'checkbox', 'show') === false) {
         return {
           hasChecked: false,
