@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnLoadData="loadData" :globalAttrs="{directoryState: 'collapsed'}" />
+      <TWTree :tree="tree" ref="tree" class="tree" :fnLoadData="loadData" :defaultAttrs="{directoryState: 'collapsed'}" />
     </div>
   </div>
 </template>
@@ -28,7 +28,7 @@ export default {
   },
   methods: {
     loadData(node) {
-      let url = '/load.json?id=' + node.id;
+      let url = 'load.json?id=' + node.id;
       let promise = new Promise(function(resolve, reject) {
         setTimeout(function() {
           axios.get(url).then(function(response){
