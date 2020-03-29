@@ -16,3 +16,47 @@
  [右键菜单](https://tinywisp.github.io/twtree/#/example/contextmenu) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/ContextMenuExample.vue)
  [查找](https://tinywisp.github.io/twtree/#/example/search) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/SearchExample.vue)
  [自定义外观](https://tinywisp.github.io/twtree/#/example/custom-appearance) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceExample.vue)
+
+
+ 依赖
+ *  [vue](https://vuejs.org/)
+ 
+ 组件及示例中用到的图标来自
+ *  [bytesize icons](https://github.com/danklammer/bytesize-icons)
+ *  [material icons](https://github.com/danklammer/bytesize-icons)
+ *  [feather icons](https://feathericons.com/)
+ *  [kde](https://kde.org/)
+ 
+ 开源协议
+ MIT，无论个人还是公司，都可以免费自由使用
+ 
+ ---
+ 
+ A highly customzable tree component.
+ 
+ [English Document](https://github.com/TinyWisp/twtree/wiki/English-Document)
+
+ demo | source
+ --- | ---
+ [basic](https://tinywisp.github.io/twtree/#/example/basic) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue)
+ [checkbox](https://tinywisp.github.io/twtree/#/example/checkbox) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue)
+ [ansyc loading](https://tinywisp.github.io/twtree/#/example/async) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/AsyncExample.vue)
+ [edit](https://tinywisp.github.io/twtree/#/example/edit) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/EditExample.vue)
+ [button](https://tinywisp.github.io/twtree/#/example/button) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/ButtonExample.vue)
+ [drag and drop](https://tinywisp.github.io/twtree/#/example/drag-and-drop) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/DragAndDropExample.vue)
+ [context menu](https://tinywisp.github.io/twtree/#/example/contextmenu) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/ContextMenuExample.vue)
+ [search](https://tinywisp.github.io/twtree/#/example/search) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/SearchExample.vue)
+ [custom appearance](https://tinywisp.github.io/twtree/#/example/custom-appearance) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceExample.vue)
+ 
+Dependencies:
+*  [vue](https://vuejs.org/)
+
+Icons in TWTree component and these examples are from:
+ *  [bytesize icons](https://github.com/danklammer/bytesize-icons)
+ *  [material icons](https://github.com/danklammer/bytesize-icons)
+ *  [feather icons](https://feathericons.com/)
+ *  [kde](https://kde.org/)
+ 
+License
+MIT, everyone can use it freely for commercial purpose.
+ 
