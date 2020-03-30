@@ -1,6 +1,14 @@
 # TWTree
 
-基于vue的树形组件，支持复选框，异步加载，拖放操作，句键菜单，按钮，自定义外观等功能。
+基于vue的树形组件。
+
+主要特色
+*  支持复选框
+*  可异步加载
+*  拖放操作
+*  右键菜单
+*  按钮
+*  自定义外观
 
 [文档](https://github.com/TinyWisp/twtree/wiki/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3)
 
@@ -28,13 +36,23 @@
  *  [kde](https://kde.org/)
  
  开源协议
+
  MIT，无论个人还是公司，都可以免费自由使用
  
  ---
  
- A highly customzable tree component.
+ A highly customizable tree component.
+
+Features:
+*  checkbox
+*  async loading
+*  drag and drop
+*  context menu
+*  button
+*  customizable appearance
+
  
- [English Document](https://github.com/TinyWisp/twtree/wiki/English-Document)
+ [Document](https://github.com/TinyWisp/twtree/wiki/English-Document)
 
  demo | source
  --- | ---
@@ -58,5 +76,6 @@ Icons in TWTree component and these examples are from:
  *  [kde](https://kde.org/)
  
 License
+
 MIT, everyone can use it freely for commercial purpose.
  
