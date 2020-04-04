@@ -11,7 +11,7 @@
  *  自定义外观
 
  文档
- *  [文档](https://github.com/TinyWisp/twtree/wiki/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3)
+ *  [文档](https://github.com/TinyWisp/twtree/wiki/%E6%96%87%E6%A1%A3)
 
  
  示例
