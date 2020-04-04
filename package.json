@@ -1,6 +1,6 @@
 {
   "name": "twtree",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A highly customizable tree component for vue",
   "main": "lib/twtree.umd.min.js",
   "keyword": ["vue", "tree", "javascript"],
