@@ -14,7 +14,7 @@
             v-if="item.__.isVisible"
             :class="{
               node:             true, 
-              selected:         item.__.isSelected,
+              selected:         item.selected,
               'search-result':  item.__.isSearchResult,
               'drag-over-prev': item.__.dragOverArea === 'prev' && item.__.isDroppable,
               'drag-over-next': item.__.dragOverArea === 'next' && item.__.isDroppable,
@@ -31,9 +31,11 @@
               '--checkboxMarginRight': item.style.checkboxMarginRight,
               '--mousex': item.__.mousex,
               '--mousey': item.__.mousey,
+              '--marginTop': item.style.marginTop,
+              '--marginBottom': item.style.marginBottom
             }"
             :draggable="true"
-            @click = "clickEvent(item)"
+            @click = "clickEvent(item, $event)"
             @contextmenu = "contextMenuEvent(item, $event)"
             @dragstart="dragStartEvent(item, $event)"
             @dragover="dragOverEvent(item, $event)"
@@ -195,11 +197,6 @@ export default {
       type: Function,
       required: false,
       default: null
-    },
-    maxSelectCount: {
-      type: Number,
-      required: false,
-      default: 1
     }
   },
   computed: {
@@ -209,9 +206,9 @@ export default {
     return {
       nodes: JSON.parse(JSON.stringify(this.tree)),
       items: this.getItems(),
-      selected: [],
       autoIdCounter: 0,
       spareDefaultAttrs: {
+        selected: false,
         directoryState: 'expanded',
         checkbox: {
           show: false,
@@ -227,11 +224,10 @@ export default {
           iconMarginRight: '0.5em',
           checkboxMarginRight: '0.1em',
           switcherMarginRight: '0.1em',
-          paddingTop: 0,
-          paddingBottom: 0
+          marginTop: 0,
+          marginBottom: 0
         },
         __: {
-          isSelected: false,
           isEditing: false,
           isSearchResult: false,
           isDroppable: true,
@@ -330,6 +326,7 @@ export default {
         }
 
         this.setAttr(node, 'directoryState',  this.getDirectoryState(node))
+        this.setAttr(node, 'selected',        this.getAttr(node, 'selected'))
 
         this.setAttr(node, 'checkbox', 'show',    this.getAttr(node, 'checkbox', 'show'))
         this.setAttr(node, 'checkbox', 'disable', this.getAttr(node, 'checkbox', 'disable'))
@@ -343,10 +340,11 @@ export default {
         this.setAttr(node, 'style', 'switcherMarginRight', this.getAttr(node, 'style', 'switcherMarginRight'))
         this.setAttr(node, 'style', 'iconMarginRight',     this.getAttr(node, 'style', 'iconMarginRight'))
         this.setAttr(node, 'style', 'checkboxMarginRight', this.getAttr(node, 'style', 'checkboxMarginRight'))
+        this.setAttr(node, 'style', 'marginTop',           this.getAttr(node, 'style', 'marginTop'))
+        this.setAttr(node, 'style', 'marginBottom',        this.getAttr(node, 'style', 'marginBottom'))
 
         this.setAttr(node, '__', 'gpos',           i)
         this.setAttr(node, '__', 'isVisible',      isVisible)
-        this.setAttr(node, '__', 'isSelected',     this.getAttr(node, '__', 'isSelected'))
         this.setAttr(node, '__', 'isEditing',      this.getAttr(node, '__', 'isEditing'))
         this.setAttr(node, '__', 'isSearchResult', this.getAttr(node, '__', 'isSearchResult'))
         this.setAttr(node, '__', 'isDroppable',    this.getAttr(node, '__', 'isDroppable'))
@@ -378,11 +376,21 @@ export default {
       return this.items[gpos]
     },
     getSelected() {
-      return this.selected
+      let selected = []
+
+      for (let i=0; i<this.items.length; i++) {
+        let node = this.items[i]
+        if (node.selected) {
+          selected.push(node)
+        }
+      }
+      return selected
     },
     getSelectedOne() {
-      return this.selected.length > 0
-        ? this.selected[0]
+      let selected = this.getSelected()
+
+      return selected.length > 0
+        ? selected[0]
         : null
     },
     setAttr() {
@@ -528,29 +536,32 @@ export default {
       let i = this.selected.indexOf(node)
 
       if (i !== -1) {
-          this.setAttr(node, '__', 'isSelected', false)
+          this.setAttr(node, 'selected', false)
           this.selected.splice(i, 1)
           this.$emit('deselect', node)
       }
     },
     select(node) {
-      if (this.selected.indexOf(node) >= 0) {
-        return
-      }
-
       if (typeof(this.fnBeforeSelect) === 'function' && this.fnBeforeSelect(node) === false) {
         return
       }
 
-      this.setAttr(node, '__', 'isSelected', true)
-      this.selected.push(node)
+      this.setAttr(node, 'selected', true)
       this.$emit('select', node)
-
-      while (this.maxSelectCount < this.selected.length) {
-        this.deselect(this.selected[0])
-      }
     },
-    clickEvent(node) {
+    initSelect() {
+      let selected = []
+
+      for (let node of this.items) {
+        if (node.selected) {
+          selected.push(node)
+        }
+      }
+
+      this.selected = selected
+    },
+    clickEvent(node, event) {
+      this.$emit('click', node, event)
       this.select(node)
       this.hideContextMenuOnDisplay()
     },
@@ -1087,6 +1098,7 @@ export default {
   },
   mounted() {
     this.refreshItems()
+    this.initSelect()
   }
 }
 </script>
@@ -1112,6 +1124,8 @@ export default {
   position: relative;
   line-height: var(--height);
   font-size: var(--fontSize);
+  margin-top: var(--marginTop);
+  margin-bottom: var(--marginBottom);
  }
 .node-enter-to, .node-leave {
   height: var(--height);

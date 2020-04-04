@@ -11,6 +11,7 @@ import ContextMenuExample from '../views/ContextMenuExample.vue'
 import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
 import CustomAppearanceExample from '../views/CustomAppearanceExample.vue'
 import SearchExample from '../views/SearchExample.vue'
+import MultiSelectExample from '../views/MultiSelectExample.vue'
 
 Vue.use(VueRouter)
 
@@ -77,6 +78,11 @@ const routes = [
     path: '/example/search',
     name: 'search-example',
     component: SearchExample
+  },
+  {
+    path: '/example/multi-select',
+    name: 'multi-select-example',
+    component: MultiSelectExample
   }
 ]
 
