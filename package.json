@@ -1,11 +1,18 @@
 {
   "name": "twtree",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.2",
+  "description": "A highly customizable tree component for vue",
+  "main": "lib/twtree.umd.min.js",
+  "keyword": ["vue", "tree", "javascript"],
+  "author": "yinquan",
+  "private": false,
+  "license": "MIT",
+  "homepage": "https://github.com/TinyWisp/twtree",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "lib": "vue-cli-service build --target lib --name twtree --dest lib src/publish.js"
   },
   "dependencies": {
     "axios": "^0.19.2",

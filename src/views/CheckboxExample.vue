@@ -45,7 +45,9 @@
           checkbox: {
             show: true
           }
-        }"/>
+        }"
+        @check="demo2Refresh()"
+        @uncheck="demo2Refresh()"/>
     </div>
     <div class="result">
       <ul class="list">

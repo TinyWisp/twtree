@@ -148,6 +148,10 @@ export default {
       type: String,
       default: '10px'
     },
+    multiSelect: {
+      type: Boolean,
+      default: false
+    },
     fnLoadData: {
       type: Function,
       required: false,
@@ -375,24 +379,6 @@ export default {
       }
       return this.items[gpos]
     },
-    getSelected() {
-      let selected = []
-
-      for (let i=0; i<this.items.length; i++) {
-        let node = this.items[i]
-        if (node.selected) {
-          selected.push(node)
-        }
-      }
-      return selected
-    },
-    getSelectedOne() {
-      let selected = this.getSelected()
-
-      return selected.length > 0
-        ? selected[0]
-        : null
-    },
     setAttr() {
       if (arguments.length === 3) {
         let node = arguments[0]
@@ -532,14 +518,27 @@ export default {
 
       return newTitle
     },
-    deselect(node) {
-      let i = this.selected.indexOf(node)
+    getSelected() {
+      let selected = []
 
-      if (i !== -1) {
-          this.setAttr(node, 'selected', false)
-          this.selected.splice(i, 1)
-          this.$emit('deselect', node)
+      for (let i=0; i<this.items.length; i++) {
+        let node = this.items[i]
+        if (node.selected) {
+          selected.push(node)
+        }
       }
+      return selected
+    },
+    getSelectedOne() {
+      let selected = this.getSelected()
+
+      return selected.length > 0
+        ? selected[0]
+        : null
+    },
+    deselect(node) {
+      this.setAttr(node, 'selected', false)
+      this.$emit('deselect', node)
     },
     select(node) {
       if (typeof(this.fnBeforeSelect) === 'function' && this.fnBeforeSelect(node) === false) {
@@ -549,20 +548,24 @@ export default {
       this.setAttr(node, 'selected', true)
       this.$emit('select', node)
     },
-    initSelect() {
-      let selected = []
-
-      for (let node of this.items) {
-        if (node.selected) {
-          selected.push(node)
-        }
-      }
-
-      this.selected = selected
-    },
     clickEvent(node, event) {
       this.$emit('click', node, event)
-      this.select(node)
+
+      if (this.multiSelect) {
+        if (node.selected) {
+          this.deselect(node)
+        } else {
+          this.select(node)
+        }
+      } else {
+        let selected = this.getSelected()
+        for (let item of selected) {
+          if (item !== node ) {
+            this.deselect(item)
+          }
+        }
+        this.select(node)
+      }
       this.hideContextMenuOnDisplay()
     },
     contextMenuEvent(node, event) {
@@ -627,9 +630,6 @@ export default {
         parent.hasChild = (parent.children.length > 0)
         this.setAttr(parent, 'directoryState', this.getDirectoryState(parent))
       }
-
-      let spos = this.selected.indexOf(node)
-      this.selected.splice(spos, 1)
 
       this.refreshItems()
       this.$emit('remove', node)
@@ -941,7 +941,7 @@ export default {
           return
       }
 
-      if (!this.checkboxLinkage) {
+      if (!this.checkboxLinkage && !node.checkbox.disable) {
         this.setCheckboxState(node, 'checked')
         return
       }
@@ -970,7 +970,7 @@ export default {
           return
       }
 
-      if (!this.checkboxLinkage) {
+      if (!this.checkboxLinkage && !node.checkbox.disable) {
         this.setCheckboxState(node, 'unchecked')
         return
       }
@@ -1098,7 +1098,6 @@ export default {
   },
   mounted() {
     this.refreshItems()
-    this.initSelect()
   }
 }
 </script>

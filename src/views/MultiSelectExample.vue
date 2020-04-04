@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" :fnBeforeSelect="selectOrDeselect" :maxSelectCount="100" class="tree" :defaultAttrs="{style:{marginTop: '2px', marginBottom: '2px'}}" />
+      <TWTree :tree="tree" ref="tree" :multiSelect="true" class="tree" :defaultAttrs="{style:{marginTop: '2px', marginBottom: '2px'}}" />
     </div>
     <span class="title">selected:</span>
     <span class="selected-item" v-for="item of selected" :key="item.title">{{item.title}}</span>
@@ -64,15 +64,6 @@ export default {
     }
   },
   methods: {
-    selectOrDeselect(node) {
-      if (node.selected) {
-        this.$refs.tree.setAttr(node, 'selected', false)
-      } else {
-        this.$refs.tree.setAttr(node, 'selected', true)
-      }
-      this.refreshSelected()
-      return false
-    },
     refreshSelected() {
       this.selected = this.$refs.tree.getSelected()
     }

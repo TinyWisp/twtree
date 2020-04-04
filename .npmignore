@@ -1,0 +1,8 @@
+src/
+public/
+node_modules/
+dist/
+docs/
+vue.config.js
+babel.config.js
+*.map
