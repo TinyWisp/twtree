@@ -16,7 +16,7 @@ A highly customizable tree component.
 * [License](#license)
 
 
- # 主要特色
+## 主要特色
  *  支持复选框
  *  可异步加载
  *  拖放操作
@@ -24,10 +24,10 @@ A highly customizable tree component.
  *  按钮
  *  自定义外观
 
- # 文档
+## 文档
  *  [文档](https://github.com/TinyWisp/twtree/wiki/%E6%96%87%E6%A1%A3)
 
- # 开始使用
+## 开始使用
 
  npm
  ```
@@ -39,7 +39,7 @@ A highly customizable tree component.
    import TWTree from 'twtree'
  ```
 
- # 示例
+## 示例
  示例|源码
  ---|---
  [基础](https://tinywisp.github.io/twtree/#/example/basic) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue)
@@ -54,14 +54,14 @@ A highly customizable tree component.
  [自定义外观](https://tinywisp.github.io/twtree/#/example/custom-appearance) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceExample.vue)
 
 
- # 开源协议
+## 开源协议
  * MIT
  * 无论个人还是公司，都可以免费自由使用
  
  ---
  
 
- # Features
+## Features
  *  checkbox
  *  async loading
  *  drag and drop
@@ -69,7 +69,7 @@ A highly customizable tree component.
  *  button
  *  customizable appearance
 
- # Getting Started
+## Getting Started
 
  npm
  ```
@@ -81,10 +81,10 @@ A highly customizable tree component.
    import TWTree from 'twtree'
  ```
 
- # Document
+## Document
  *  [Document](https://github.com/TinyWisp/twtree/wiki/Document)
 
- # Demo
+## Demo
  *  [basic](https://tinywisp.github.io/twtree/#/example/basic)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue))*
  *  [checkbox](https://tinywisp.github.io/twtree/#/example/checkbox)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue))*
  *  [ansyc loading](https://tinywisp.github.io/twtree/#/example/async)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/AsyncExample.vue))*
@@ -97,7 +97,7 @@ A highly customizable tree component.
  *  [custom appearance](https://tinywisp.github.io/twtree/#/example/custom-appearance) &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceExample.vue))*
  
  
- # License
+## License
  * MIT
  * everyone can use it freely for commercial purpose.
  
