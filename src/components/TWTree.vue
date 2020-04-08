@@ -943,6 +943,7 @@ export default {
 
       if (!this.checkboxLinkage && !node.checkbox.disable) {
         this.setCheckboxState(node, 'checked')
+        this.$emit('check', node)
         return
       }
 
@@ -972,6 +973,7 @@ export default {
 
       if (!this.checkboxLinkage && !node.checkbox.disable) {
         this.setCheckboxState(node, 'unchecked')
+        this.$emit('uncheck', node)
         return
       }
 
