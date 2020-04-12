@@ -44,6 +44,7 @@ A highly customizable tree component.
  ---|---
  [基础](https://tinywisp.github.io/twtree/#/example/basic) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue)
  [复选框](https://tinywisp.github.io/twtree/#/example/checkbox) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue)
+ [单选按钮](https://tinywisp.github.io/twtree/#/example/radio-button) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/RadioButtonExample.vue)
  [异步加载](https://tinywisp.github.io/twtree/#/example/async) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/AsyncExample.vue)
  [编辑](https://tinywisp.github.io/twtree/#/example/edit) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/EditExample.vue)
  [按钮](https://tinywisp.github.io/twtree/#/example/button) | [源码](https://github.com/TinyWisp/twtree/blob/master/src/views/ButtonExample.vue)
@@ -87,6 +88,7 @@ A highly customizable tree component.
 ## Demo
  *  [basic](https://tinywisp.github.io/twtree/#/example/basic)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue))*
  *  [checkbox](https://tinywisp.github.io/twtree/#/example/checkbox)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue))*
+ *  [radio button](https://tinywisp.github.io/twtree/#/example/radio-button)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/RadioButtonExample.vue))*
  *  [ansyc loading](https://tinywisp.github.io/twtree/#/example/async)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/AsyncExample.vue))*
  *  [edit](https://tinywisp.github.io/twtree/#/example/edit) &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/EditExample.vue))*
  *  [button](https://tinywisp.github.io/twtree/#/example/button) &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/ButtonExample.vue))*
