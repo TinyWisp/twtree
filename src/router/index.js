@@ -12,6 +12,7 @@ import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
 import CustomAppearanceExample from '../views/CustomAppearanceExample.vue'
 import SearchExample from '../views/SearchExample.vue'
 import MultiSelectExample from '../views/MultiSelectExample.vue'
+import RadioButtonExample from '../views/RadioButtonExample.vue'
 
 Vue.use(VueRouter)
 
@@ -83,6 +84,11 @@ const routes = [
     path: '/example/multi-select',
     name: 'multi-select-example',
     component: MultiSelectExample
+  },
+  {
+    path: '/example/radio-button',
+    name: 'radio-button-example',
+    component: RadioButtonExample
   }
 ]
 

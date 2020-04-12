@@ -6,7 +6,8 @@
       ref="tree"
       :style="{
         '--dragImageOffsetX': dragImageOffsetX,
-        '--dragImageOffsetY': dragImageOffsetY
+        '--dragImageOffsetY': dragImageOffsetY,
+        '--animationDuration': animationDuration
       }">
       <transition-group name="node">
         <template v-for="item of items">
@@ -26,6 +27,7 @@
               '--fontSize': item.style.fontSize,
               '--hoverBgColor': item.style.hoverBgColor,
               '--selectedBgColor': item.style.selectedBgColor,
+              '--dragOverBgColor': item.style.dragOverBgColor,
               '--switcherMarginRight': item.style.switcherMarginRight,
               '--iconMarginRight': item.style.iconMarginRight,
               '--checkboxMarginRight': item.style.checkboxMarginRight,
@@ -148,6 +150,10 @@ export default {
       type: String,
       default: '10px'
     },
+    animationDuration: {
+      type: String,
+      default: '0.5s'
+    },
     multiSelect: {
       type: Boolean,
       default: false
@@ -225,6 +231,7 @@ export default {
           fontSize: '12px',
           hoverBgColor: '#e7f4f9',
           selectedBgColor: '#bae7ff',
+          dragOverBgColor: '#e7f4f9',
           iconMarginRight: '0.5em',
           checkboxMarginRight: '0.1em',
           switcherMarginRight: '0.1em',
@@ -341,6 +348,7 @@ export default {
         this.setAttr(node, 'style', 'fontSize',            this.getAttr(node, 'style', 'fontSize'))
         this.setAttr(node, 'style', 'hoverBgColor',        this.getAttr(node, 'style', 'hoverBgColor'))
         this.setAttr(node, 'style', 'selectedBgColor',     this.getAttr(node, 'style', 'selectedBgColor'))
+        this.setAttr(node, 'style', 'dragOverBgColor',     this.getAttr(node, 'style', 'dragOverBgColor'))
         this.setAttr(node, 'style', 'switcherMarginRight', this.getAttr(node, 'style', 'switcherMarginRight'))
         this.setAttr(node, 'style', 'iconMarginRight',     this.getAttr(node, 'style', 'iconMarginRight'))
         this.setAttr(node, 'style', 'checkboxMarginRight', this.getAttr(node, 'style', 'checkboxMarginRight'))
@@ -364,6 +372,12 @@ export default {
     refreshItems() {
       this.items = this.getItems()
       this.refreshAllDirectoryCheckboxState()
+    },
+    getNestedTree() {
+      return this.nodes
+    },
+    getFlatTree() {
+      return this.items
     },
     getById(id) {
       for (let i=0; i<this.items.length; i++) {
@@ -1137,10 +1151,10 @@ export default {
   opacity: 0;
 }
 .node-enter-active, .node-leave-active {
-  transition: height 0.5s, opacity 0.5s;
+  transition: height var(--animationDuration), opacity var(--animationDuration);
 }
 .node-move {
-  transition: transform 0.5s;
+  transition: transform (--animationDuration);
 }
 .node:hover {
   background-color: var(--hoverBgColor);
@@ -1248,7 +1262,7 @@ export default {
   top: 50%;
 }
 .node.drag-over-self .icon-and-title {
-  background-color: #bae7ff;
+  background-color: var(--dragOverBgColor);
 }
 .node.not-droppable .not-droppable-sign {
   text-indent: 0;

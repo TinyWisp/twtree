@@ -10,14 +10,14 @@
             indent: '40px'
         }
       }"
-      ref="tree" 
+      ref="stree" 
       class="tree" />
     </div>
 
     <div class="title">icon</div>
     <div class="panel">
       <TWTree 
-        :tree="customIconTree" ref="tree" class="tree">
+        :tree="customIconTree" ref="citree" class="tree">
           <template v-slot:icon="{node}">
             <img class="node-icon" src="../assets/folder.svg" v-if="node.hasChild && node.directoryState === 'collapsed'"/>
             <img class="node-icon" src="../assets/folder-open.svg" v-else-if="node.hasChild && node.directoryState === 'expanded'"/>
@@ -38,7 +38,7 @@
 
     <div class="title">drag and drop</div>
     <div class="panel">
-      <TWTree :tree="commonTree" ref="tree" class="tree">
+      <TWTree :tree="commonTree" ref="dndtree" class="tree">
         <template v-slot:drag-image="{dnd}">
           <svg class="drag-image-icon droppable" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" v-if="dnd.overNode.__.isDroppable">
             <path d="M2 20 L12 28 30 4" />
@@ -53,7 +53,7 @@
 
     <div class="title">checkbox</div>
     <div class="panel">
-      <TWTree :tree="commonTree" ref="tree" class="tree" :defaultAttrs="{checkbox:{show:true}}">
+      <TWTree :tree="commonTree" ref="ctree" class="tree" :defaultAttrs="{checkbox:{show:true}}">
         <template v-slot:checkbox="{node}">
           <svg class="checkbox-icon checked" viewBox="0 0 24 24" v-if="node.checkbox.state === 'checked'">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -78,9 +78,19 @@
         style: {
           hoverBgColor: 'lightgray',
           selectedBgColor: '#cc9966',
+          dragOverBgColor: 'lightgreen'
         }
       }"
-      ref="tree" 
+      ref="bctree" 
+      class="tree" />
+    </div>
+
+    <div class="title">disable animations</div>
+    <div class="panel">
+      <TWTree 
+      :tree="commonTree" 
+      animationDuration="0"
+      ref="datree" 
       class="tree" />
     </div>
 
