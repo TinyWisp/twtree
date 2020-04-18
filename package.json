@@ -1,9 +1,14 @@
 {
   "name": "twtree",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A highly customizable tree component for vue",
   "main": "lib/twtree.umd.min.js",
-  "keywords": ["vue", "tree", "vue tree", "javascript"],
+  "keywords": [
+    "vue",
+    "tree",
+    "vue tree",
+    "javascript"
+  ],
   "author": "yinquan",
   "private": false,
   "license": "MIT",
@@ -12,7 +17,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "lib": "vue-cli-service build --target lib --name twtree --dest lib src/publish.js"
+    "lib": "vue-cli-service build --target lib --name twtree --dest lib src/publish.js",
+    "test": "jest"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -25,9 +31,15 @@
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
+    "@vue/test-utils": "^1.0.0-beta.33",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
+    "babel-jest": "^25.3.0",
+    "babel-preset-env": "^1.7.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "jest": "^25.3.0",
+    "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.10"
   },
   "eslintConfig": {
@@ -49,5 +61,19 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      ".*\\.(vue)$": "vue-jest",
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  }
 }

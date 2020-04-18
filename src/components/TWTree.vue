@@ -951,11 +951,19 @@ export default {
       }
     },
     check(node) {
+      if (this.getAttr(node, 'checkbox', 'show') === false) {
+        return
+      }
+
+      if (this.getAttr(node, 'checkbox', 'disable') === true) {
+        return
+      }
+
       if (typeof(this.fnBeforeCheck) === 'function' && this.fnBeforeCheck(node) === false) {
           return
       }
 
-      if (!this.checkboxLinkage && !node.checkbox.disable) {
+      if (!this.checkboxLinkage) {
         this.setCheckboxState(node, 'checked')
         this.$emit('check', node)
         return
@@ -981,11 +989,19 @@ export default {
       this.$emit('check', node)
     },
     uncheck(node) {
+      if (this.getAttr(node, 'checkbox', 'show') === false) {
+        return
+      }
+
+      if (this.getAttr(node, 'checkbox', 'disable') === true) {
+        return
+      }
+
       if (typeof(this.fnBeforeUncheck) === 'function' && this.fnBeforeUncheck(node) === false) {
           return
       }
 
-      if (!this.checkboxLinkage && !node.checkbox.disable) {
+      if (!this.checkboxLinkage) {
         this.setCheckboxState(node, 'unchecked')
         this.$emit('uncheck', node)
         return
