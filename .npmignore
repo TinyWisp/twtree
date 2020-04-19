@@ -3,6 +3,7 @@ public/
 node_modules/
 dist/
 docs/
+coverage/
 vue.config.js
 babel.config.js
 *.map

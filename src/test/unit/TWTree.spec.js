@@ -216,6 +216,45 @@ describe('basic', ()=>{
         expect(node8.children.length).toBe(1)
         expect(node8.children[0]).toBe(created)
     })
+
+    it('method: remove', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        wrapper.vm.remove(wrapper.vm.getById(5))        
+        expect(wrapper.vm.getById(5)).toBeNull()
+        expect(wrapper.vm.getById(3).children.length).toBe(2)
+
+        wrapper.vm.remove(wrapper.vm.getById(3))
+        expect(wrapper.vm.getById(3)).toBeNull()
+        expect(wrapper.vm.items.length).toBe(4)
+        
+        expect(wrapper.vm.getById(8).__.pos).toBe(2)
+    })
+
+     it('method: move', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node3 = wrapper.vm.getById(3)
+        let node5 = wrapper.vm.getById(5)
+        let node6 = wrapper.vm.getById(6)
+
+        expect(node3.children[1]).toBe(node5)
+        wrapper.vm.move(node5, node3, 3)
+        expect(node3.children.length).toBe(3)
+        expect(node3.children[2]).toBe(node5)
+        expect(node3.children[1]).toBe(node6)
+        expect(node5.__.pos).toBe(2)
+    })
 })
 
 describe('select', ()=>{

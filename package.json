@@ -74,6 +74,10 @@
     },
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"
-    }
+    },
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/components/TWTree.vue"
+    ]
   }
 }
