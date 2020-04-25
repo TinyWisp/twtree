@@ -202,11 +202,6 @@ export default {
       type: Function,
       required: false,
       default: null
-    },
-    fnMatch: {
-      type: Function,
-      required: false,
-      default: null
     }
   },
   computed: {
@@ -369,7 +364,7 @@ export default {
 
       return items
     },
-    refreshItems() {
+    refresh() {
       this.items = this.getItems()
       this.refreshAllDirectoryCheckboxState()
     },
@@ -480,15 +475,15 @@ export default {
       this.$emit('edit', node)
 
       let titleElement = this.getTitleElement(node)
-      setTimeout(function() {
-        let range = document.createRange();
-        let selection = window.getSelection();
-        range.setStart(titleElement.childNodes[0], node.title.length);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        titleElement.focus();
-      }.bind(this), 100)
+      this.$nextTick().then(function(){
+        let range = document.createRange()
+        let selection = window.getSelection()
+        range.setStart(titleElement.childNodes[0], node.title.length)
+        range.collapse(true)
+        selection.removeAllRanges()
+        selection.addRange(range)
+        titleElement.focus()
+      })
     },
     quitEdit(node) {
       this.setAttr(node, '__', 'isEditing', false)
@@ -630,7 +625,7 @@ export default {
         this.setAttr(parentNode, 'directoryState', this.getDirectoryState(parentNode))
       }
       
-      this.refreshItems()
+      this.refresh()
       this.$emit('create', node)
     },
     remove(node) {
@@ -645,7 +640,7 @@ export default {
         this.setAttr(parent, 'directoryState', this.getDirectoryState(parent))
       }
 
-      this.refreshItems()
+      this.refresh()
       this.$emit('remove', node)
     },
     move(node, toParent, toPos) {
@@ -686,15 +681,15 @@ export default {
         this.setAttr(toParent, 'directoryState', this.getDirectoryState(toParent))
       }
  
-      this.refreshItems()
+      this.refresh()
       this.$emit('move', node, fromParent, fromPos, toParent, toPos)
     },
-    search(keyword) {
+    search(keyword, fnMatch) {
       let matches = []
 
       for (let node of this.items) {
-        let match = this.fnMatch !== null
-          ? this.fnMatch(node, keyword)
+        let match = typeof(fnMatch) === 'function'
+          ? fnMatch(node, keyword)
           : (node.title.indexOf(keyword) > -1)
         this.setAttr(node, '__', 'isSearchResult', match)
         /*if (node.hasChild) {
@@ -712,12 +707,52 @@ export default {
         }
       }
 
-      this.refreshItems()
+      this.refresh()
     },
     clearSearchResult() {
       for (let node of this.items) {
         this.setAttr(node, '__', 'isSearchResult', false)
       }
+    },
+    getSearchResult() {
+      let nodes = []
+
+      for (let node of this.items) {
+        if (this.getAttr(node, '__', 'isSearchResult')) {
+          nodes.push(node)
+        }
+      }
+
+      return nodes
+    },
+    sort(node, recursive, fnCompare) {
+      if (typeof(fnCompare) !== 'function') {
+        fnCompare = function(node1, node2) {
+          return node1.title.localeCompare(node2.title)
+        }
+      }
+
+      if (node === null) {
+        this.nodes.sort(fnCompare)
+        if (recursive) {
+          for (let tnode of this.nodes) {
+            if (tnode.hasChild) {
+              this.sort(tnode, recursive, fnCompare)
+            }
+          }
+        }
+      } else if (node.hasChild) {
+        node.children.sort(fnCompare)
+        if (recursive) {
+          for (let tnode of node.children) {
+            if (tnode.hasChild) {
+              this.sort(tnode, recursive, fnCompare)
+            }
+          }
+        }
+      }
+
+      this.refresh()
     },
     expand(node) {
       if (!node.hasChild) {
@@ -735,7 +770,7 @@ export default {
 
       if (this.fnLoadData === null) {
         this.setAttr(node, 'directoryState', 'expanded')
-        this.refreshItems()
+        this.refresh()
         return
       }
 
@@ -749,7 +784,7 @@ export default {
           prom.then(function(children) {
             node.children = children
             this.setAttr(node, 'directoryState', 'expanded')
-            this.refreshItems()
+            this.refresh()
           }.bind(this))
           prom.catch(function(e) {
             this.setAttr(node, 'directoryState', 'collapsed')
@@ -763,7 +798,7 @@ export default {
         if (Array.isArray(children) && children.length > 0) {
           node.children = children
           this.setAttr(node, 'directoryState', 'expanded')
-          this.refreshItems()
+          this.refresh()
         }
       }
     },
@@ -782,7 +817,7 @@ export default {
       }
 
       this.setAttr(node, 'directoryState', 'collapsed')
-      this.refreshItems()
+      this.refresh()
     },
     getElement(node) {
       let refId = 'node-' + node.id
@@ -1129,7 +1164,7 @@ export default {
     }
   },
   mounted() {
-    this.refreshItems()
+    this.refresh()
   }
 }
 </script>

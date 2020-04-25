@@ -13,6 +13,7 @@ import CustomAppearanceExample from '../views/CustomAppearanceExample.vue'
 import SearchExample from '../views/SearchExample.vue'
 import MultiSelectExample from '../views/MultiSelectExample.vue'
 import RadioButtonExample from '../views/RadioButtonExample.vue'
+import SortExample from '../views/SortExample.vue'
 
 Vue.use(VueRouter)
 
@@ -89,6 +90,11 @@ const routes = [
     path: '/example/radio-button',
     name: 'radio-button-example',
     component: RadioButtonExample
+  },
+  {
+    path: '/example/sort',
+    name: 'sort-example',
+    component: SortExample
   }
 ]
 

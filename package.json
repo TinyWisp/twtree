@@ -1,13 +1,14 @@
 {
   "name": "twtree",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A highly customizable tree component for vue",
   "main": "lib/twtree.umd.min.js",
   "keywords": [
     "vue",
     "tree",
     "vue tree",
-    "javascript"
+    "checkbox",
+    "draggable"
   ],
   "author": "yinquan",
   "private": false,
@@ -22,23 +23,23 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "core-js": "^3.4.4",
+    "core-js": "^3.6.5",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.5",
     "vue-router": "^3.1.5"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.1.0",
-    "@vue/cli-plugin-eslint": "^4.1.0",
-    "@vue/cli-service": "^4.1.0",
+    "@vue/cli-plugin-babel": "^4.3.1",
+    "@vue/cli-plugin-eslint": "^4.3.1",
+    "@vue/cli-service": "^4.3.1",
     "@vue/test-utils": "^1.0.0-beta.33",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
-    "babel-jest": "^25.3.0",
+    "babel-jest": "^25.4.0",
     "babel-preset-env": "^1.7.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "jest": "^25.3.0",
+    "jest": "^25.4.0",
     "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.10"
   },

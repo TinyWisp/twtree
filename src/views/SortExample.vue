@@ -1,8 +1,12 @@
 <template>
   <div class="example-wrapper">
-    <button class="btn" @click="edit()" >edit</button>
+    <span class="controller">
+        <button class="btn" type="button" @click="sortByTitle" >sort by title</button>
+        &nbsp; &nbsp;
+        <button class="btn" type="button" @click="sortById" >sort by id</button>
+    </span>
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" @blur="blur" @keypress="keypress" class="tree" />
+      <TWTree :tree="tree" ref="tree" class="tree" />
     </div>
   </div>
 </template>
@@ -11,49 +15,63 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'basic-example',
+  name: 'search-example',
   components: {
     TWTree
   },
   data() {
     return {
-      counter: 0,
       tree: [
         {
           id: 1,
-          title: 'ROOT',
+          title: 'root',
           hasChild: true,
           children: [
             {
               id: 2,
-              title: 'child 1',
+              title: 'node 2',
             },
             {
               id: 3,
-              title: 'child 2',
+              title: 'node 1',
               hasChild: true,
               children: [
                 {
                   id: 4,
-                  title: 'numbers only!'
+                  title: 'child c'
                 },
                 {
                   id: 5,
-                  title: 'child 2-2'
+                  title: 'child b'
                 },
                 {
                   id: 6,
-                  title: 'child 2-3'
+                  title: 'child a'
                 }
               ],
             },
             {
               id: 7,
-              title: 'child 3'
+              title: 'node 7'
             },
             {
               id: 8,
-              title: 'child 4'
+              title: 'node 8',
+              hasChild: true,
+              children: [
+                  {
+                      id: 9,
+                      title: 'child f'
+                  },
+                  {
+                      id: 10,
+                      title: 'child e'
+                  },
+                  {
+                      id: 11,
+                      title: 'child d'
+                  }
+              ]
             }
           ]
         }
@@ -61,28 +79,19 @@ export default {
     }
   },
   methods: {
-    blur(node) {
-      let tree = this.$refs.tree
-      let newTitle = tree.getNewTitle(node)
-      tree.setTitle(node, newTitle)
-      tree.quitEdit(node)
-    },
-    edit() {
+    sortById() {
       let tree = this.$refs.tree
       let node = tree.getSelectedOne()
-      tree.edit(node)
-    },
-    keypress(node, event) {
-        if (node.id === 4) {
-            let key = event.keyCode
-            let min = '0'.charCodeAt(0)
-            let max = '9'.charCodeAt(0)
 
-            if (key < min || key > max) {
-                event.returnValue = false
-                event.preventDefault()
-            }
-        }
+      tree.sort(node, true, function(node1, node2) {
+          return node1.id - node2.id
+      })
+    },
+    sortByTitle() {
+      let tree = this.$refs.tree
+      let node = tree.getSelectedOne()
+
+      tree.sort(node, true)
     }
   }
 }
@@ -112,7 +121,17 @@ export default {
   width: 50%;
 }
 .btn {
-  width: 100px;
-  margin-right: 20px;
+  width: 7em;
+  vertical-align: middle;
+}
+.input {
+  width: 3em;
+  vertical-align: middle;
+}
+.controller {
+  display: block;
+  width: 100%;
+  text-align: center;
+  line-height: 2em;
 }
 </style>

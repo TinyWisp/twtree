@@ -236,7 +236,7 @@ describe('basic', ()=>{
         expect(wrapper.vm.getById(8).__.pos).toBe(2)
     })
 
-     it('method: move', async ()=>{
+    it('method: move', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
                 tree: commonTree
@@ -254,6 +254,64 @@ describe('basic', ()=>{
         expect(node3.children[2]).toBe(node5)
         expect(node3.children[1]).toBe(node6)
         expect(node5.__.pos).toBe(2)
+    })
+
+    it('method: sort', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node3 = wrapper.vm.getById(3)
+        wrapper.vm.sort(node3, false, function(node1, node2) {
+            return node2.id - node1.id
+        })
+
+        expect(node3.children[0].id).toBe(6)
+        expect(node3.children[1].id).toBe(5)
+        expect(node3.children[2].id).toBe(4)
+    })
+
+    it('methods: search, getSearchResult, clearSearchResult', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree,
+                checkboxLinkage: true,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        wrapper.vm.search('ROOT')
+        let nodes = wrapper.vm.getSearchResult()
+        expect(nodes.length).toBe(1)
+        expect(nodes[0]).toBe(wrapper.vm.getById(1))
+        expect(nodes[0].__.isSearchResult).toBeTruthy()
+
+        wrapper.vm.search({min:3, max:5}, function(node, keyword){
+            return (node.id >= keyword.min && node.id <= keyword.max)
+        })
+        nodes = wrapper.vm.getSearchResult()
+        expect(nodes.length).toBe(3)
+        expect(nodes).toContain(wrapper.vm.getById(3))
+        expect(nodes).toContain(wrapper.vm.getById(4))
+        expect(nodes).toContain(wrapper.vm.getById(5))
+        expect(nodes[0].__.isSearchResult).toBeTruthy()
+        expect(nodes[1].__.isSearchResult).toBeTruthy()
+        expect(nodes[2].__.isSearchResult).toBeTruthy()
+
+        wrapper.vm.clearSearchResult()
+        for (let item of wrapper.vm.items) {
+            expect(item.__.isSearchResult).toBeFalsy()
+        }
     })
 })
 
@@ -299,7 +357,6 @@ describe('select', ()=>{
             ]
         }
     ]
-
 
 
     it('data: items', async ()=>{
@@ -658,6 +715,103 @@ describe('checkbox (checkboxLinkage = true)', ()=>{
             }
         }
     })
+})
 
+describe('directory', ()=>{
+    let directoryTree = [
+        {
+            id: 1,
+            title: 'ROOT',
+            hasChild: true,
+            children: [
+                {
+                    id: 2,
+                    title: 'child 1'
+                },
+                {
+                    id: 3,
+                    title: 'child 2',
+                    directoryState: 'collapsed',
+                    hasChild: true,
+                    children: [
+                        {
+                            id: 4,
+                            title: 'child 2-1'
+                        },
+                        {
+                            id: 5,
+                            title: 'child 2-2'
+                        },
+                        {
+                            id: 6,
+                            title: 'child 2-3'
+                        }
+                    ]
+                },
+                {
+                    id: 7,
+                    title: 'child 3'
+                },
+                {
+                    id: 8,
+                    title: 'child 4'
+                }
+            ]
+        }
+    ]
 
+    it('data: items', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.getById(1).directoryState).toMatch('expanded')
+        expect(wrapper.vm.getById(3).directoryState).toMatch('collapsed')
+
+        expect(wrapper.vm.getById(1).__.isVisible).toBeTruthy()
+        expect(wrapper.vm.getById(2).__.isVisible).toBeTruthy()
+        expect(wrapper.vm.getById(3).__.isVisible).toBeTruthy()
+        expect(wrapper.vm.getById(4).__.isVisible).toBeFalsy()
+        expect(wrapper.vm.getById(5).__.isVisible).toBeFalsy()
+        expect(wrapper.vm.getById(6).__.isVisible).toBeFalsy()
+        expect(wrapper.vm.getById(7).__.isVisible).toBeTruthy()
+        expect(wrapper.vm.getById(8).__.isVisible).toBeTruthy()
+    })
+
+    it('method: expand', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        wrapper.vm.expand(wrapper.vm.getById(3))
+        expect(wrapper.vm.getById(3).directoryState).toMatch('expanded')
+        for (let item of wrapper.vm.items) {
+            expect(item.__.isVisible).toBeTruthy()
+        }
+    })
+
+    it('method: collapse', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        wrapper.vm.collapse(wrapper.vm.getById(1))
+        expect(wrapper.vm.getById(1).directoryState).toMatch('collapsed')
+        for (let item of wrapper.vm.items) {
+            if (item.id === 1) {
+                expect(item.__.isVisible).toBeTruthy()
+            } else {
+                expect(item.__.isVisible).toBeFalsy()
+            }
+        }
+    })
 })

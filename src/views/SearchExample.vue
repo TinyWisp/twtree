@@ -4,7 +4,7 @@
         <input class="input" type="text" v-model="from"/> ~ <input class="input" type="text" v-model="to" /> <button class="btn" type="button" @click="search" >search</button>
     </span>
     <div class="panel">
-      <TWTree :tree="tree" :fnMatch="match" ref="tree" class="tree" />
+      <TWTree :tree="tree" ref="tree" class="tree" />
     </div>
   </div>
 </template>
@@ -87,7 +87,7 @@ export default {
       }
 
       tree.clearSearchResult()
-      tree.search(keyword)
+      tree.search(keyword, this.match)
     },
     match(node, keyword) {
         let from = keyword.from
