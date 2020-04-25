@@ -274,7 +274,7 @@ describe('basic', ()=>{
         expect(node3.children[2].id).toBe(4)
     })
 
-    it('methods: search, getSearchResult, clearSearchResult', async ()=>{
+    it('methods: search, clearSearchResult', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
                 tree: commonTree,
@@ -290,16 +290,14 @@ describe('basic', ()=>{
         })
         await wrapper.vm.$nextTick()
 
-        wrapper.vm.search('ROOT')
-        let nodes = wrapper.vm.getSearchResult()
+        let nodes  = wrapper.vm.search('ROOT')
         expect(nodes.length).toBe(1)
         expect(nodes[0]).toBe(wrapper.vm.getById(1))
         expect(nodes[0].__.isSearchResult).toBeTruthy()
 
-        wrapper.vm.search({min:3, max:5}, function(node, keyword){
+        nodes = wrapper.vm.search({min:3, max:5}, function(node, keyword){
             return (node.id >= keyword.min && node.id <= keyword.max)
         })
-        nodes = wrapper.vm.getSearchResult()
         expect(nodes.length).toBe(3)
         expect(nodes).toContain(wrapper.vm.getById(3))
         expect(nodes).toContain(wrapper.vm.getById(4))

@@ -3,6 +3,6 @@
     methods: 
         search(keyword) -> search(keyword, fnMatch)
         refreshItems() -> refresh()
-        add method: sort(node, recursive, fnSort)
+        add method: sort(node, recursive, fnCompare)
 
 1.0.0  the first stable version

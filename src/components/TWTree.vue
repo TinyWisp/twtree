@@ -708,22 +708,13 @@ export default {
       }
 
       this.refresh()
+
+      return matches
     },
     clearSearchResult() {
       for (let node of this.items) {
         this.setAttr(node, '__', 'isSearchResult', false)
       }
-    },
-    getSearchResult() {
-      let nodes = []
-
-      for (let node of this.items) {
-        if (this.getAttr(node, '__', 'isSearchResult')) {
-          nodes.push(node)
-        }
-      }
-
-      return nodes
     },
     sort(node, recursive, fnCompare) {
       if (typeof(fnCompare) !== 'function') {
