@@ -311,6 +311,33 @@ describe('basic', ()=>{
             expect(item.__.isSearchResult).toBeFalsy()
         }
     })
+
+    it('methods: edit, quitEdit', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree,
+                checkboxLinkage: true,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node6 = wrapper.vm.getById(6)
+
+        wrapper.vm.edit(node6)
+        await wrapper.vm.$nextTick()
+        expect(node6.__.isEditing).toBeTruthy()
+
+        wrapper.vm.quitEdit(node6)
+        await wrapper.vm.$nextTick()
+        expect(node6.__.isEditing).toBeFalsy()
+    })
 })
 
 describe('select', ()=>{
@@ -715,6 +742,236 @@ describe('checkbox (checkboxLinkage = true)', ()=>{
     })
 })
 
+describe('checkbox (checkboxLinkage = false)', ()=>{
+    let checkboxTree = [
+        {
+            id: 1,
+            title: 'ROOT',
+            hasChild: true,
+            children: [
+                {
+                    id: 2,
+                    title: 'child 1'
+                },
+                {
+                    id: 3,
+                    title: 'child 2',
+                    hasChild: true,
+                    children: [
+                        {
+                            id: 4,
+                            title: 'child 2-1',
+                            checkbox: {
+                                show: false
+                            }
+                        },
+                        {
+                            id: 5,
+                            title: 'child 2-2',
+                            checkbox: {
+                                disable: true
+                            }
+                        },
+                        {
+                            id: 6,
+                            title: 'child 2-3',
+                            checkbox: {
+                                state: 'checked'
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 7,
+                    title: 'child 3'
+                },
+                {
+                    id: 8,
+                    title: 'child 4'
+                }
+            ]
+        }
+    ]
+
+
+    it('data: items', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: checkboxTree,
+                checkboxLinkage: false,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node1 = wrapper.vm.getById(1)
+        expect(node1.checkbox.show).toBeTruthy()
+        expect(node1.checkbox.state).toMatch('unchecked')
+        expect(node1.checkbox.disable).toBeFalsy()
+
+        let node2 = wrapper.vm.getById(2)
+        expect(node2.checkbox.show).toBeTruthy()
+        expect(node2.checkbox.state).toMatch('unchecked')
+        expect(node2.checkbox.disable).toBeFalsy()
+
+        let node3 = wrapper.vm.getById(3)
+        expect(node3.checkbox.show).toBeTruthy()
+        expect(node3.checkbox.state).toMatch('unchecked')
+        expect(node3.checkbox.disable).toBeFalsy()
+
+        let node4 = wrapper.vm.getById(4)
+        expect(node4.checkbox.show).toBeFalsy()
+
+        let node5 = wrapper.vm.getById(5)
+        expect(node5.checkbox.show).toBeTruthy()
+        expect(node5.checkbox.state).toMatch('unchecked')
+        expect(node5.checkbox.disable).toBeTruthy()
+
+        let node6 = wrapper.vm.getById(6)
+        expect(node6.checkbox.show).toBeTruthy()
+        expect(node6.checkbox.state).toMatch('checked')
+        expect(node6.checkbox.disable).toBeFalsy()
+    })
+
+    it('methods: getChecked, getUnchecked, getUndetermined', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: checkboxTree,
+                checkboxLinkage: false,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let checked = wrapper.vm.getChecked()
+        expect(checked.length).toBe(1)
+        expect(checked[0]).toBe(wrapper.vm.getById(6))
+
+        let unchecked = wrapper.vm.getUnchecked()
+        expect(unchecked.length).toBe(6)
+        expect(unchecked).toContain(wrapper.vm.getById(1))
+        expect(unchecked).toContain(wrapper.vm.getById(2))
+        expect(unchecked).toContain(wrapper.vm.getById(3))
+        expect(unchecked).toContain(wrapper.vm.getById(5))
+        expect(unchecked).toContain(wrapper.vm.getById(7))
+        expect(unchecked).toContain(wrapper.vm.getById(8))
+
+        let undetermined = wrapper.vm.getUndetermined()
+        expect(undetermined.length).toBe(0)
+    })
+
+    it('methods: check, uncheck (check/uncheck a disabled node)', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: checkboxTree,
+                checkboxLinkage: false,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node5 = wrapper.vm.getById(5)
+        wrapper.vm.check(node5)
+        expect(node5.checkbox.state).toMatch('unchecked')
+
+        wrapper.vm.setCheckboxState(node5, 'checked')
+        wrapper.vm.uncheck(node5)
+        expect(node5.checkbox.state).toMatch('checked')
+    })
+
+    it('methods: check, uncheck (check/uncheck a leaf node)', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: checkboxTree,
+                checkboxLinkage: false,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node6 = wrapper.vm.getById(6)
+        wrapper.vm.uncheck(node6)
+        expect(node6.__.parent.checkbox.state).toMatch('unchecked')
+        expect(node6.__.parent.__.parent.checkbox.state).toMatch('unchecked')
+
+        wrapper.vm.check(node6)
+        expect(node6.__.parent.checkbox.state).toMatch('unchecked')
+        expect(node6.__.parent.__.parent.checkbox.state).toMatch('unchecked')
+    })
+
+    it('methods: check, uncheck (check/uncheck the root node, no disabled checkbox)', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: checkboxTree,
+                checkboxLinkage: false,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+        wrapper.vm.setAttr(wrapper.vm.getById(5), 'checkbox', 'disable', false)
+
+        wrapper.vm.uncheck(wrapper.vm.getById(6))
+        for (let i=0; i<8; i++) {
+            let item = wrapper.vm.items[i]
+            if (item.checkbox.show === true) {
+                expect(item.checkbox.state).toMatch('unchecked')
+            }
+        }
+
+        let root = wrapper.vm.getById(1)
+        wrapper.vm.check(root)
+        for (let i=0; i<8; i++) {
+            let item = wrapper.vm.items[i]
+            if (item.id === 1) {
+                expect(item.checkbox.state).toMatch('checked')
+            } else {
+                expect(item.checkbox.state).toMatch('unchecked')
+            }
+        }
+
+        wrapper.vm.uncheck(root)
+        for (let i=0; i<8; i++) {
+            let item = wrapper.vm.items[i]
+            if (item.id === 1) {
+                expect(item.checkbox.state).toMatch('unchecked')
+            } else {
+                expect(item.checkbox.state).toMatch('checked')
+            }
+        }
+    })
+})
+
+
 describe('directory', ()=>{
     let directoryTree = [
         {
@@ -811,5 +1068,131 @@ describe('directory', ()=>{
                 expect(item.__.isVisible).toBeFalsy()
             }
         }
+    })
+
+    it('prop: fnLoadData (return an array)', async ()=>{
+        let fnLoadData = function() {
+            return [
+                {
+                    title: 'hello',
+                },
+                {
+                    title: 'world',
+                }
+            ]
+        }
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+                fnLoadData: fnLoadData
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node3 = wrapper.vm.getById(3)
+        wrapper.vm.expand(node3)
+        expect(node3.directoryState).toMatch('expanded')
+        for (let item of wrapper.vm.items) {
+            expect(item.__.isVisible).toBeTruthy()
+        }
+        expect(node3.children.length).toBe(2)
+        expect(node3.children[1].title).toMatch('world')
+    })
+
+    it('prop: fnLoadData (return a promise)', async ()=>{
+        let fnLoadData = function() {
+            let promise = new Promise(function(resolve) {
+                resolve([
+                    {
+                        title: 'hello',
+                    },
+                    {
+                        title: 'world',
+                    }
+                ])
+            })
+
+            return promise
+        }
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+                fnLoadData: fnLoadData
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node3 = wrapper.vm.getById(3)
+        wrapper.vm.expand(node3)
+        await wrapper.vm.$nextTick()
+
+        expect(node3.directoryState).toMatch('expanded')
+        for (let item of wrapper.vm.items) {
+            expect(item.__.isVisible).toBeTruthy()
+        }
+        expect(node3.children.length).toBe(2)
+        expect(node3.children[1].title).toMatch('world')
+    })
+})
+
+describe('drag and drop', ()=>{
+    let dndTree = [
+        {
+            id: 1,
+            title: 'ROOT',
+            hasChild: true,
+            children: [
+                {
+                    id: 2,
+                    title: 'child 1'
+                },
+                {
+                    id: 3,
+                    title: 'child 2',
+                    hasChild: true,
+                    children: [
+                        {
+                            id: 4,
+                            title: 'child 2-1'
+                        },
+                        {
+                            id: 5,
+                            title: 'child 2-2'
+                        },
+                        {
+                            id: 6,
+                            title: 'child 2-3'
+                        }
+                    ]
+                },
+                {
+                    id: 7,
+                    title: 'child 3'
+                },
+                {
+                    id: 8,
+                    title: 'child 4'
+                }
+            ]
+        }
+    ]
+
+    it('data:items', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: dndTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let items = wrapper.vm.items
+
+        expect(items.length).toBe(8)
+        for (let i=0; i<8; i++) {
+            let item = items[i]
+            expect(item.__.dragOverArea).toBeNull()
+            expect(item.__.isDroppable).toBeTruthy()
+        }
+
     })
 })

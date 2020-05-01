@@ -1,18 +1,21 @@
 # TWTree
+[![GitHub](https://img.shields.io/github/license/tinywisp/twtree)](https://github.com/TinyWisp/twtree/blob/master/LICENSE)
+[![npm](https://img.shields.io/npm/v/twtree)](https://www.npmjs.com/package/twtree)
+[![codecov](https://codecov.io/gh/TinyWisp/twtree/branch/master/graph/badge.svg)](https://codecov.io/gh/TinyWisp/twtree)
 
  基于vue的树形组件。
 
 * [主要特色](#主要特色)
 * [开始使用](#开始使用)
-* [文档](#文档)
+* [文档](https://github.com/TinyWisp/twtree/wiki/%E6%96%87%E6%A1%A3)
 * [示例](#示例)
 * [开源协议](#开源协议)
 
 A highly customizable tree component.
 * [Features](#features)
 * [Getting Started](#getting-started)
-* [Document](#document)
-* [Demo](#demo)
+* [Document](https://github.com/TinyWisp/twtree/wiki/Document)
+* [Demos](#demos)
 * [License](#license)
 
 
@@ -86,7 +89,7 @@ A highly customizable tree component.
 ## Document
  *  [Document](https://github.com/TinyWisp/twtree/wiki/Document)
 
-## Demo
+## Demos
  *  [basic](https://tinywisp.github.io/twtree/#/example/basic)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue))*
  *  [checkbox](https://tinywisp.github.io/twtree/#/example/checkbox)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue))*
  *  [radio button](https://tinywisp.github.io/twtree/#/example/radio-button)  &nbsp; *([source](https://github.com/TinyWisp/twtree/blob/master/src/views/RadioButtonExample.vue))*
