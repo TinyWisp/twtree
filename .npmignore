@@ -6,5 +6,6 @@ docs/
 coverage/
 vue.config.js
 babel.config.js
+codecov.sh
 CHANGELOG.md
 *.map
