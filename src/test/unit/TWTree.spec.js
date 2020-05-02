@@ -458,22 +458,19 @@ describe('select', ()=>{
         expect(selected.length).toBe(1)
         expect(selected[0]).toBe(selectedOne)
 
-        wrapper.get({ref: 'node-5'}).trigger('click')
-        await wrapper.vm.$nextTick()
+        await wrapper.get({ref: 'node-5'}).trigger('click')
         selected = wrapper.vm.getSelected()
         selectedOne = wrapper.vm.getSelectedOne()
         expect(selected.length).toBe(1)
         expect(selectedOne).toBe(selected[0])
 
-        wrapper.get({ref: 'node-6'}).trigger('click')
-        await wrapper.vm.$nextTick()
+        await wrapper.get({ref: 'node-6'}).trigger('click')
         selected = wrapper.vm.getSelected()
         selectedOne = wrapper.vm.getSelectedOne()
         expect(selected.length).toBe(1)
         expect(selectedOne).toBe(selected[0])
 
-        wrapper.get({ref: 'node-6'}).trigger('click')
-        await wrapper.vm.$nextTick()
+        await wrapper.get({ref: 'node-6'}).trigger('click')
         selected = wrapper.vm.getSelected()
         selectedOne = wrapper.vm.getSelectedOne()
         expect(selected.length).toBe(1)
@@ -494,22 +491,19 @@ describe('select', ()=>{
         expect(selected.length).toBe(1)
         expect(selected[0]).toBe(selectedOne)
 
-        wrapper.get({ref: 'node-5'}).trigger('click')
-        await wrapper.vm.$nextTick()
+        await wrapper.get({ref: 'node-5'}).trigger('click')
         selected = wrapper.vm.getSelected()
         selectedOne = wrapper.vm.getSelectedOne()
         expect(selected.length).toBe(2)
         expect(selectedOne).toBe(selected[0])
 
-        wrapper.get({ref: 'node-7'}).trigger('click')
-        await wrapper.vm.$nextTick()
+        await wrapper.get({ref: 'node-7'}).trigger('click')
         selected = wrapper.vm.getSelected()
         selectedOne = wrapper.vm.getSelectedOne()
         expect(selected.length).toBe(3)
         expect(selectedOne).toBe(selected[0])
 
-        wrapper.get({ref: 'node-7'}).trigger('click')
-        await wrapper.vm.$nextTick()
+        await wrapper.get({ref: 'node-7'}).trigger('click')
         selected = wrapper.vm.getSelected()
         selectedOne = wrapper.vm.getSelectedOne()
         expect(selected.length).toBe(2)
@@ -1177,7 +1171,7 @@ describe('drag and drop', ()=>{
         }
     ]
 
-    it('data:items', async ()=>{
+    it('data: items', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
                 tree: dndTree
@@ -1193,6 +1187,45 @@ describe('drag and drop', ()=>{
             expect(item.__.dragOverArea).toBeNull()
             expect(item.__.isDroppable).toBeTruthy()
         }
-
     })
+
+    it('event: dragstart, dragover, dragend', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: dndTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node6 = wrapper.vm.getById(6)
+        expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
+        await wrapper.find({ref: 'node-' + node6.id}).trigger('dragstart', {
+            dataTransfer: {
+                setData: function(){},
+                setDragImage: function(){},
+                dropEffect: null
+            }
+        })
+        expect(wrapper.vm.dragAndDrop.dragNode).toBe(node6)
+
+        await wrapper.find({ref: 'node-' + node6.id}).trigger('dragover', {
+            pageX: 100,
+            pageY: 50
+        })
+        expect(wrapper.vm.dragAndDrop.overNode).toBe(node6)
+        expect(wrapper.vm.dragAndDrop.isDroppable).toBeFalsy()
+
+        let node4 = wrapper.vm.getById(4)
+        await wrapper.find({ref: 'node-' + node4.id}).trigger('dragover', {
+            pageX: 100,
+            pageY: 50
+        })
+        expect(wrapper.vm.dragAndDrop.overNode).toBe(node4)
+        expect(wrapper.vm.dragAndDrop.isDroppable).toBeTruthy()
+
+        await wrapper.find({ref: 'node-' + node6.id}).trigger('dragend')
+        expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
+    })
+
+
 })

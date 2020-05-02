@@ -470,7 +470,6 @@ export default {
       return 'twtree-node-' + this.autoIdCounter
     },
     edit(node) {
-      this.setAttr(node, '__', 'newTitle', node.title)
       this.setAttr(node, '__', 'isEditing', true)
       this.$emit('edit', node)
 
@@ -925,6 +924,8 @@ export default {
         this.dragLeave(this.dragAndDrop.overNode)
         this.dragAndDrop.overNode = null
       }
+      this.dragAndDrop.dragNode = null
+      this.dragAndDrop.overArea = null
       this.$emit('dragEnd', this.dragAndDrop)
     },
     dropEvent() {
@@ -951,6 +952,7 @@ export default {
           break
       }
 
+      this.dragAndDrop.dragNode = null
       this.$emit('drop', this.dragAndDrop)
     },
     dragLeaveTree(event) {

@@ -14,6 +14,7 @@ import SearchExample from '../views/SearchExample.vue'
 import MultiSelectExample from '../views/MultiSelectExample.vue'
 import RadioButtonExample from '../views/RadioButtonExample.vue'
 import SortExample from '../views/SortExample.vue'
+import NoRootExample from '../views/NoRootExample.vue'
 
 Vue.use(VueRouter)
 
@@ -95,6 +96,11 @@ const routes = [
     path: '/example/sort',
     name: 'sort-example',
     component: SortExample
+  },
+  {
+    path: '/example/no-root',
+    name: 'no-root-example',
+    component: NoRootExample
   }
 ]
 

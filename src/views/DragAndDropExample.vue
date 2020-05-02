@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeDrag="beforeDrag" :fnIsDroppable="isDroppable" @dragOver="dragOver" />
+      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeDrag="beforeDrag" :fnIsDroppable="isDroppable" @dragOver="showInfo" @dragEnd="showInfo" />
     </div>
     <span class="info">
       <span class="key">dragNode:</span> <span class="val">{{dragNode}}</span> <br>
@@ -105,10 +105,18 @@ export default {
 
       return true
     },
-    dragOver(dragAndDrop) {
-      this.dragNode = dragAndDrop.dragNode.title
-      this.overNode = dragAndDrop.overNode.title
-      this.overArea = dragAndDrop.overArea
+    showInfo() {
+      let tree = this.$refs.tree
+
+      this.dragNode = tree.dragAndDrop.dragNode !== null
+        ? tree.dragAndDrop.dragNode.title
+        : ''
+      this.overNode = tree.dragAndDrop.overNode !== null
+        ? tree.dragAndDrop.overNode.title
+        : ''
+      this.overArea = tree.dragAndDrop.overArea !== null
+        ? tree.dragAndDrop.overArea
+        : ''
     }
   }
 }
