@@ -2,6 +2,7 @@
 [![GitHub](https://img.shields.io/github/license/tinywisp/twtree)](https://github.com/TinyWisp/twtree/blob/master/LICENSE)
 [![npm](https://img.shields.io/npm/v/twtree)](https://www.npmjs.com/package/twtree)
 [![codecov](https://codecov.io/gh/TinyWisp/twtree/branch/master/graph/badge.svg)](https://codecov.io/gh/TinyWisp/twtree)
+![Travis (.org)](https://img.shields.io/travis/TinyWisp/twtree)
 
  基于vue的树形组件。
 
