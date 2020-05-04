@@ -1,4 +1,4 @@
-import TWTree from '../../components/TWTree.vue'
+import TWTree from '../../src/components/TWTree.vue'
 import { mount } from '@vue/test-utils'
 
 describe('basic', ()=>{
@@ -256,7 +256,7 @@ describe('basic', ()=>{
         expect(node5.__.pos).toBe(2)
     })
 
-    it('method: sort', async ()=>{
+    it('method: sort (fnCompare)', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
                 tree: commonTree
@@ -265,6 +265,7 @@ describe('basic', ()=>{
         await wrapper.vm.$nextTick()
 
         let node3 = wrapper.vm.getById(3)
+
         wrapper.vm.sort(node3, false, function(node1, node2) {
             return node2.id - node1.id
         })
@@ -274,6 +275,50 @@ describe('basic', ()=>{
         expect(node3.children[2].id).toBe(4)
     })
 
+
+    it('method: sort (fnCompare not provided)', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node3 = wrapper.vm.getById(3)
+
+        node3.children[0].title = 'aaaaa'
+        node3.children[1].title = 'ccccc'
+        node3.children[2].title = 'bbbbb'
+
+        wrapper.vm.sort(node3, false)
+
+        expect(node3.children[0].id).toBe(4)
+        expect(node3.children[1].id).toBe(6)
+        expect(node3.children[2].id).toBe(5)
+    })
+
+
+    it('method: sort (recursive = true)', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node3 = wrapper.vm.getById(3)
+        node3.children[0].title = 'aaaaa'
+        node3.children[1].title = 'ccccc'
+        node3.children[2].title = 'bbbbb'
+
+        let node1 = wrapper.vm.getById(1)
+        wrapper.vm.sort(node1, true)
+
+        expect(node3.children[0].id).toBe(4)
+        expect(node3.children[1].id).toBe(6)
+        expect(node3.children[2].id).toBe(5)
+    })
+   
     it('methods: search, clearSearchResult', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
@@ -963,6 +1008,31 @@ describe('checkbox (checkboxLinkage = false)', ()=>{
             }
         }
     })
+
+    it('methods: toggleCheckboxState', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: checkboxTree,
+                checkboxLinkage: false,
+                defaultAttrs: {
+                    checkbox: {
+                        show: true,
+                        state: 'unchecked',
+                        disable: false
+                    }
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+        wrapper.vm.setAttr(wrapper.vm.getById(5), 'checkbox', 'disable', false)
+
+        let node1 = wrapper.vm.getById(1)
+        wrapper.vm.toggleCheckbox(node1)
+        expect(node1.checkbox.state).toMatch('checked')
+
+        wrapper.vm.toggleCheckbox(node1)
+        expect(node1.checkbox.state).toMatch('unchecked')
+    })
 })
 
 
@@ -1062,6 +1132,24 @@ describe('directory', ()=>{
                 expect(item.__.isVisible).toBeFalsy()
             }
         }
+    })
+
+    it('method: toggleDirectoryState', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node1 = wrapper.vm.getById(1)
+        expect(node1.directoryState).toMatch('expanded')
+
+        wrapper.vm.toggleDirectoryState(node1)
+        expect(node1.directoryState).toMatch('collapsed')
+
+        wrapper.vm.toggleDirectoryState(node1)
+        expect(node1.directoryState).toMatch('expanded')
     })
 
     it('prop: fnLoadData (return an array)', async ()=>{
@@ -1225,6 +1313,137 @@ describe('drag and drop', ()=>{
 
         await wrapper.find({ref: 'node-' + node6.id}).trigger('dragend')
         expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
+    })
+})
+
+describe('no root node', ()=>{
+    let commonTree = [
+        {
+            id: 1,
+            title: 'node 1',
+            hasChild: true,
+            children: [
+                {
+                    id: 2,
+                    title: 'child 1'
+                },
+                {
+                    id: 3,
+                    title: 'child 2',
+                    hasChild: true,
+                    children: [
+                        {
+                            id: 4,
+                            title: 'child 2-1'
+                        },
+                        {
+                            id: 5,
+                            title: 'child 2-2'
+                        },
+                        {
+                            id: 6,
+                            title: 'child 2-3'
+                        }
+                    ]
+                },
+                {
+                    id: 7,
+                    title: 'child 3'
+                },
+                {
+                    id: 8,
+                    title: 'child 4'
+                }
+            ]
+        },
+        {
+            id: 9,
+            title: 'node 2',
+            hasChild: false
+        },
+        {
+            id: 10,
+            title: 'node 3',
+            hasChild: false
+        },
+        {
+            id: 11,
+            title: 'node 4',
+            hasChild: false
+        }
+    ]
+
+    it('method: create', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        wrapper.vm.create({
+            id: 100,
+            title: 'create node',
+            hasChild: false
+        }, null)
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.items.length).toBe(12)
+        expect(wrapper.vm.nodes.length).toBe(5)
+        expect(wrapper.vm.nodes[4].id).toBe(100)
+    })
+
+    it('method: remove', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node11 = wrapper.vm.getById(11)
+        wrapper.vm.remove(node11)
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.items.length).toBe(10)
+        expect(wrapper.vm.nodes.length).toBe(3)
+        expect(wrapper.vm.nodes[2].id).toBe(10)
+    })
+
+    it('method: move', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node5 = wrapper.vm.getById(5)
+        wrapper.vm.move(node5, null)
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.items.length).toBe(11)
+        expect(wrapper.vm.items[10].id).toBe(5)
+        expect(wrapper.vm.nodes[4].id).toBe(5)
+    })
+
+    it('method: sort', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        wrapper.vm.sort(null, false, function(node1, node2) {
+            return node2.id - node1.id
+        })
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.nodes[0].id).toBe(11)
+        expect(wrapper.vm.nodes[1].id).toBe(10)
+        expect(wrapper.vm.nodes[2].id).toBe(9)
+        expect(wrapper.vm.nodes[3].id).toBe(1)
     })
 
 
