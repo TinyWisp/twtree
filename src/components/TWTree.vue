@@ -31,6 +31,7 @@
               '--switcherMarginRight': item.style.switcherMarginRight,
               '--iconMarginRight': item.style.iconMarginRight,
               '--checkboxMarginRight': item.style.checkboxMarginRight,
+              '--extraFloat': item.style.extraFloatRight ? 'right' : 'none',
               '--mousex': item.__.mousex,
               '--mousey': item.__.mousey,
               '--marginTop': item.style.marginTop,
@@ -228,6 +229,7 @@ export default {
           selectedBgColor: '#bae7ff',
           dragOverBgColor: '#e7f4f9',
           iconMarginRight: '0.5em',
+          extraFloatRight: false, 
           checkboxMarginRight: '0.1em',
           switcherMarginRight: '0.1em',
           marginTop: 0,
@@ -347,6 +349,7 @@ export default {
         this.setAttr(node, 'style', 'switcherMarginRight', this.getAttr(node, 'style', 'switcherMarginRight'))
         this.setAttr(node, 'style', 'iconMarginRight',     this.getAttr(node, 'style', 'iconMarginRight'))
         this.setAttr(node, 'style', 'checkboxMarginRight', this.getAttr(node, 'style', 'checkboxMarginRight'))
+        this.setAttr(node, 'style', 'extraFloatRight',     this.getAttr(node, 'style', 'extraFloatRight'))
         this.setAttr(node, 'style', 'marginTop',           this.getAttr(node, 'style', 'marginTop'))
         this.setAttr(node, 'style', 'marginBottom',        this.getAttr(node, 'style', 'marginBottom'))
 
@@ -1268,6 +1271,7 @@ export default {
 .node .extra-wrapper {
   display: none;
   text-indent: 0;
+  float: var(--extraFloat);
 }
 .node:hover .extra-wrapper {
   display: inline-block;

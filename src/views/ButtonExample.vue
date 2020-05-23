@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" @blur="blur">
+      <TWTree :tree="tree" :defaultAttrs="{style:{extraFloatRight:true}}" ref="tree" class="tree" @blur="blur">
         <template v-slot:extra="{node}">
           <svg class="button create" viewBox="0 0 32 32" @click="create(node)">
             <path d="M16 2 L16 30 M2 16 L30 16" />
@@ -137,8 +137,8 @@ export default {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.tree .button.create {
-  margin-left: 3em;
+.tree .button.edit{
+  margin-right: 10em;
 }
 .tree .button:hover {
   stroke-width: 4;

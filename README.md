@@ -94,21 +94,21 @@ A highly customizable tree component.
 ## Demos
  demo | source
  --- | ---
- [basic](https://tinywisp.github.io/twtree/#/example/basic) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue)
- [checkbox](https://tinywisp.github.io/twtree/#/example/checkbox) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue)
- [radio button](https://tinywisp.github.io/twtree/#/example/radio-button) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/RadioButtonExample.vue)
- [ansyc loading](https://tinywisp.github.io/twtree/#/example/async) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/AsyncExample.vue)
- [edit](https://tinywisp.github.io/twtree/#/example/edit) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/EditExample.vue)
- [button](https://tinywisp.github.io/twtree/#/example/button) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/ButtonExample.vue)
- [drag and drop](https://tinywisp.github.io/twtree/#/example/drag-and-drop) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/DragAndDropExample.vue)
- [context menu](https://tinywisp.github.io/twtree/#/example/contextmenu) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/ContextMenuExample.vue)
- [search](https://tinywisp.github.io/twtree/#/example/search) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/SearchExample.vue)
- [multiple select](https://tinywisp.github.io/twtree/#/example/multi-select) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/MultiSelectExample.vue)
- [sort](https://tinywisp.github.io/twtree/#/example/sort) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/SortExample.vue)
- [no root](https://tinywisp.github.io/twtree/#/example/no-root) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/NoRootExample.vue)
- [custom appearance](https://tinywisp.github.io/twtree/#/example/custom-appearance) | [source](https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceExample.vue)
+ [basic](https://tinywisp.github.io/twtree/#/example/basic) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue)
+ [checkbox](https://tinywisp.github.io/twtree/#/example/checkbox) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue)
+ [radio button](https://tinywisp.github.io/twtree/#/example/radio-button) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/RadioButtonExample.vue)
+ [ansyc loading](https://tinywisp.github.io/twtree/#/example/async) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/AsyncExample.vue)
+ [edit](https://tinywisp.github.io/twtree/#/example/edit) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/EditExample.vue)
+ [button](https://tinywisp.github.io/twtree/#/example/button) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/ButtonExample.vue)
+ [drag and drop](https://tinywisp.github.io/twtree/#/example/drag-and-drop) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/DragAndDropExample.vue)
+ [context menu](https://tinywisp.github.io/twtree/#/example/contextmenu) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/ContextMenuExample.vue)
+ [search](https://tinywisp.github.io/twtree/#/example/search) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/SearchExample.vue)
+ [multiple select](https://tinywisp.github.io/twtree/#/example/multi-select) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/MultiSelectExample.vue)
+ [sort](https://tinywisp.github.io/twtree/#/example/sort) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/SortExample.vue)
+ [no root](https://tinywisp.github.io/twtree/#/example/no-root) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/NoRootExample.vue)
+ [custom appearance](https://tinywisp.github.io/twtree/#/example/custom-appearance) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceExample.vue)
  
 ## License
  * MIT
- * everyone can use it freely for commercial purpose.
+ * it is free for commercial use.
  

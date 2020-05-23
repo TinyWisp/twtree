@@ -215,6 +215,27 @@ describe('basic', ()=>{
         expect(node8.hasChild).toBeTruthy()
         expect(node8.children.length).toBe(1)
         expect(node8.children[0]).toBe(created)
+
+        wrapper.vm.create({
+            id: 11,
+            title: 'create node',
+            hasChild: false
+        }, null, 0)
+        created = wrapper.vm.getById(11)
+        expect(created.__.parent).toBeNull()
+        expect(wrapper.vm.items.length).toBe(11)
+        expect(wrapper.vm.items[0].id).toBe(11)
+        expect(wrapper.vm.items[1].id).toBe(1)
+
+        wrapper.vm.create({
+            id: 12,
+            title: 'create node',
+            hasChild: false
+        }, null)
+        created = wrapper.vm.getById(12)
+        expect(created.__.parent).toBeNull()
+        expect(wrapper.vm.items.length).toBe(12)
+        expect(wrapper.vm.items[11].id).toBe(12)
     })
 
     it('method: remove', async ()=>{
@@ -254,6 +275,18 @@ describe('basic', ()=>{
         expect(node3.children[2]).toBe(node5)
         expect(node3.children[1]).toBe(node6)
         expect(node5.__.pos).toBe(2)
+
+        wrapper.vm.move(node6, null)
+        expect(wrapper.vm.items.length).toBe(8)
+        expect(wrapper.vm.items[7].id).toBe(6)
+        expect(wrapper.vm.items[7].__.parent).toBeNull()
+        expect(wrapper.vm.items[7].__.pos).toBe(1)
+
+        wrapper.vm.move(node6, null, 0)
+        expect(wrapper.vm.items.length).toBe(8)
+        expect(wrapper.vm.items[0].id).toBe(6)
+        expect(wrapper.vm.items[0].__.parent).toBeNull()
+        expect(wrapper.vm.items[1].id).toBe(1)
     })
 
     it('method: sort (fnCompare)', async ()=>{

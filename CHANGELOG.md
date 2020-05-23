@@ -1,3 +1,6 @@
+1.2.0
+    add prop: node.style.extraFloatRight
+
 1.1.2
     fix bug: dragAndDrop.dragNode and dragAndDrop.overNode are not null when dragend event is triggered.
 
