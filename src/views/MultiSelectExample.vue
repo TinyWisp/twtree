@@ -1,7 +1,14 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" :multiSelect="true" class="tree" :defaultAttrs="{style:{marginTop: '2px', marginBottom: '2px'}}" />
+      <TWTree 
+        :tree="tree" 
+        ref="tree" 
+        :multiSelect="true" 
+        class="tree" 
+        :defaultAttrs="{style:{marginTop: '2px', marginBottom: '2px'}}" 
+        @select="refreshSelected" 
+        @deselect="refreshSelected" />
     </div>
     <span class="title">selected:</span>
     <span class="selected-item" v-for="item of selected" :key="item.title">{{item.title}}</span>
