@@ -12,7 +12,7 @@
 * [示例](#示例)
 * [开源协议](#开源协议)
 
-A highly customizable tree component.
+A highly customizable tree component for vue.
 * [Features](#features)
 * [Getting Started](#getting-started)
 * [Document](https://github.com/TinyWisp/twtree/wiki/Document)
@@ -41,6 +41,78 @@ A highly customizable tree component.
  引入
  ```
    import TWTree from 'twtree'
+ ```
+
+ 示例
+ ```javascript
+<template>
+  <div id="app">
+    <TWTree :tree="tree" ref="tree" class="tree" />
+  </div>
+</template>
+
+<script>
+import TWTree from 'twtree'
+
+export default {
+  name: 'App',
+  components: {
+    TWTree
+  },
+  data() {
+    return {
+      tree: [
+        {
+          id: 1,
+          title: 'ROOT',
+          hasChild: true,
+          children: [
+            {
+              id: 2,
+              title: 'child 1',
+            },
+            {
+              id: 3,
+              title: 'child 2',
+              hasChild: true,
+              children: [
+                {
+                  id: 4,
+                  title: 'child 2-1'
+                },
+                {
+                  id: 5,
+                  title: 'child 2-2'
+                },
+                {
+                  id: 6,
+                  title: 'child 2-3'
+                }
+              ],
+            },
+            {
+              id: 7,
+              title: 'child 3'
+            },
+            {
+              id: 8,
+              title: 'child 4'
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+</script>
+
+<style scoped>
+.tree {
+  width: 200px;
+  height: 300px;
+}
+</style>
+
  ```
 
 ## 示例
@@ -88,11 +160,83 @@ A highly customizable tree component.
    import TWTree from 'twtree'
  ```
 
+ usage
+ ```javascript
+<template>
+  <div id="app">
+    <TWTree :tree="tree" ref="tree" class="tree" />
+  </div>
+</template>
+
+<script>
+import TWTree from 'twtree'
+
+export default {
+  name: 'App',
+  components: {
+    TWTree
+  },
+  data() {
+    return {
+      tree: [
+        {
+          id: 1,
+          title: 'ROOT',
+          hasChild: true,
+          children: [
+            {
+              id: 2,
+              title: 'child 1',
+            },
+            {
+              id: 3,
+              title: 'child 2',
+              hasChild: true,
+              children: [
+                {
+                  id: 4,
+                  title: 'child 2-1'
+                },
+                {
+                  id: 5,
+                  title: 'child 2-2'
+                },
+                {
+                  id: 6,
+                  title: 'child 2-3'
+                }
+              ],
+            },
+            {
+              id: 7,
+              title: 'child 3'
+            },
+            {
+              id: 8,
+              title: 'child 4'
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+</script>
+
+<style scoped>
+.tree {
+  width: 200px;
+  height: 300px;
+}
+</style>
+
+ ```
+
 ## Document
  *  [Document](https://github.com/TinyWisp/twtree/wiki/Document)
 
 ## Demos
- demo | source
+ demo | code
  --- | ---
  [basic](https://tinywisp.github.io/twtree/#/example/basic) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue)
  [checkbox](https://tinywisp.github.io/twtree/#/example/checkbox) | [code](https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue)
