@@ -111,7 +111,7 @@
                 </svg>
               </slot>
             </div>
-            <div class="drag-image-wrapper" v-if="item.__.dragOverArea !== null">
+            <div class="drag-image-wrapper" v-if="item.__.dragOverArea !== null && dragAndDrop.dragNode !== null">
               <slot name="drag-image" v-bind:node="item" v-bind:dnd="dragAndDrop">
                 <span class="drag-image">{{dragAndDrop.dragNode.title}}</span>
               </slot>

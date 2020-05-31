@@ -1,3 +1,6 @@
+1.2.1
+    fix bug: #2
+
 1.2.0
     add prop: node.style.extraFloatRight
 
