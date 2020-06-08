@@ -1,6 +1,6 @@
 {
   "name": "twtree",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A highly customizable tree component for vue, which features checkbox, async loading, drag and drop, context menu and custom appearance.",
   "main": "lib/twtree.umd.min.js",
   "keywords": [
@@ -39,11 +39,11 @@
     "@vue/test-utils": "^1.0.0-beta.33",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
-    "babel-jest": "^25.4.0",
+    "babel-jest": "^26.0.1",
     "babel-preset-env": "^1.7.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "jest": "^25.4.0",
+    "jest": "^26.0.1",
     "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.10"
   },

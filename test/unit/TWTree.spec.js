@@ -1320,7 +1320,7 @@ describe('drag and drop', ()=>{
 
         let node6 = wrapper.vm.getById(6)
         expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
-        await wrapper.find({ref: 'node-' + node6.id}).trigger('dragstart', {
+        await wrapper.findComponent({ref: 'node-' + node6.id}).trigger('dragstart', {
             dataTransfer: {
                 setData: function(){},
                 setDragImage: function(){},
@@ -1329,7 +1329,7 @@ describe('drag and drop', ()=>{
         })
         expect(wrapper.vm.dragAndDrop.dragNode).toBe(node6)
 
-        await wrapper.find({ref: 'node-' + node6.id}).trigger('dragover', {
+        await wrapper.findComponent({ref: 'node-' + node6.id}).trigger('dragover', {
             pageX: 100,
             pageY: 50
         })
@@ -1337,14 +1337,14 @@ describe('drag and drop', ()=>{
         expect(wrapper.vm.dragAndDrop.isDroppable).toBeFalsy()
 
         let node4 = wrapper.vm.getById(4)
-        await wrapper.find({ref: 'node-' + node4.id}).trigger('dragover', {
+        await wrapper.findComponent({ref: 'node-' + node4.id}).trigger('dragover', {
             pageX: 100,
             pageY: 50
         })
         expect(wrapper.vm.dragAndDrop.overNode).toBe(node4)
         expect(wrapper.vm.dragAndDrop.isDroppable).toBeTruthy()
 
-        await wrapper.find({ref: 'node-' + node6.id}).trigger('dragend')
+        await wrapper.findComponent({ref: 'node-' + node6.id}).trigger('dragend')
         expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
     })
 })
