@@ -32,6 +32,9 @@
               '--iconMarginRight': item.style.iconMarginRight,
               '--checkboxMarginRight': item.style.checkboxMarginRight,
               '--extraFloat': item.style.extraFloatRight ? 'right' : 'none',
+              '--extraDisplay': item.style.extraAlwaysVisible ? 'inline-block' : 'none',
+              '--titleMaxWidth': item.style.titleMaxWidth,
+              '--titleOverflow': item.style.titleOverflow,
               '--mousex': item.__.mousex,
               '--mousey': item.__.mousey,
               '--marginTop': item.style.marginTop,
@@ -88,12 +91,14 @@
                   :class="{title:true, editing:item.__.isEditing}" 
                   :ref="'title-' + item.id" 
                   :contenteditable="item.__.isEditing"
+                  :title="item.__.titleTip"
                   @keydown="keydownEvent(item, $event)"
                   @keyup="keyupEvent(item, $event)"
                   @keypress="keypressEvent(item, $event)"
                   @input="inputEvent(item, $event)"
                   @focus="focusEvent(item, $event)"
-                  @blur="blurEvent(item)">{{item.title}}</span>
+                  @blur="blurEvent(item)"
+                  @mouseenter="mouseenterEvent(item)">{{item.title}}</span>
               </slot>
             </span>
             <span class="extra-wrapper">
@@ -229,9 +234,12 @@ export default {
           selectedBgColor: '#bae7ff',
           dragOverBgColor: '#e7f4f9',
           iconMarginRight: '0.5em',
-          extraFloatRight: false, 
+          extraFloatRight: false,
+          extraAlwaysVisible: false,
           checkboxMarginRight: '0.1em',
           switcherMarginRight: '0.1em',
+          titleMaxWidth: 'none',
+          titleOverflow: 'clip',
           marginTop: 0,
           marginBottom: 0
         },
@@ -243,7 +251,8 @@ export default {
           indent: '20px',
           height: '2em',
           mousex: 0,
-          mousey: 0
+          mousey: 0,
+          titleTip: ''
         }
       },
       dragAndDrop: {
@@ -350,6 +359,9 @@ export default {
         this.setAttr(node, 'style', 'iconMarginRight',     this.getAttr(node, 'style', 'iconMarginRight'))
         this.setAttr(node, 'style', 'checkboxMarginRight', this.getAttr(node, 'style', 'checkboxMarginRight'))
         this.setAttr(node, 'style', 'extraFloatRight',     this.getAttr(node, 'style', 'extraFloatRight'))
+        this.setAttr(node, 'style', 'extraAlwaysVisible',  this.getAttr(node, 'style', 'extraAlwaysVisible'))
+        this.setAttr(node, 'style', 'titleMaxWidth',       this.getAttr(node, 'style', 'titleMaxWidth'))
+        this.setAttr(node, 'style', 'titleOverflow',       this.getAttr(node, 'style', 'titleOverflow'))
         this.setAttr(node, 'style', 'marginTop',           this.getAttr(node, 'style', 'marginTop'))
         this.setAttr(node, 'style', 'marginBottom',        this.getAttr(node, 'style', 'marginBottom'))
 
@@ -362,6 +374,7 @@ export default {
         this.setAttr(node, '__', 'height',         this.getAttr(node, '__', 'height'))
         this.setAttr(node, '__', 'mousex',         this.getAttr(node, '__', 'mousex'))
         this.setAttr(node, '__', 'mousey',         this.getAttr(node, '__', 'mousey'))
+        this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
       }
 
@@ -489,6 +502,10 @@ export default {
     },
     quitEdit(node) {
       this.setAttr(node, '__', 'isEditing', false)
+      this.$nextTick().then(function(){
+        let titleElement = this.getTitleElement(node)
+        titleElement.scrollLeft = 0
+      }.bind(this))
       this.$emit('quitEdit', node)
     },
     getTitleElement(node) {
@@ -522,6 +539,13 @@ export default {
     },
     keypressEvent(node, event) {
       this.$emit('keypress', node, event)
+    },
+    mouseenterEvent(node) {
+      let titleElement = this.getTitleElement(node)
+      let tip = (titleElement.offsetWidth < titleElement.scrollWidth)
+        ? node.title
+        : ''
+      this.setAttr(node, '__', 'titleTip', tip)
     },
     getNewTitle(node) {
       let titleElement = this.getTitleElement(node)
@@ -1215,9 +1239,19 @@ export default {
   padding-left: 2px;
   padding-right: 5px;
   border-radius: 2px;
+  line-height: var(--height);
+  vertical-align: middle;
 }
 .node .title {
   width: auto;
+  overflow: hidden;
+  max-width: var(--titleMaxWidth);
+  text-overflow: var(--titleOverflow);
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+  height: var(--height);
+  padding-left: 0;
 }
 .node .title.editing {
   display: inline-block;
@@ -1226,6 +1260,9 @@ export default {
   padding-left: 5px;
   padding-right: 5px;
   text-indent: 0;
+  height: calc(var(--height) - 2px);
+  text-overflow: clip;
+  vertical-align: middle;
 }
 .node .switcher-wrapper {
   text-indent: 0;
@@ -1269,7 +1306,7 @@ export default {
   font-weight: bold;
 }
 .node .extra-wrapper {
-  display: none;
+  display: var(--extraDisplay);
   text-indent: 0;
   float: var(--extraFloat);
 }

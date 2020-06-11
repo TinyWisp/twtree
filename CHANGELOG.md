@@ -1,3 +1,6 @@
+1.3.0
+    add props: node.style.extraAlwaysVisible, node.style.titleMaxWidth, node.style.titleOverflow, node.__.titleTip
+
 1.2.2
     upgrade some dependencies
 
