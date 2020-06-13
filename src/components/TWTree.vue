@@ -33,7 +33,7 @@
               '--checkboxMarginRight': item.style.checkboxMarginRight,
               '--extraFloat': item.style.extraFloatRight ? 'right' : 'none',
               '--extraDisplay': item.style.extraAlwaysVisible ? 'inline-block' : 'none',
-              '--titleMaxWidth': item.style.titleMaxWidth,
+              '--titleMaxWidth': item.__.titleMaxWidth,
               '--titleOverflow': item.style.titleOverflow,
               '--mousex': item.__.mousex,
               '--mousey': item.__.mousey,
@@ -218,6 +218,7 @@ export default {
       nodes: JSON.parse(JSON.stringify(this.tree)),
       items: this.getItems(),
       autoIdCounter: 0,
+      treeWidth: 0,
       spareDefaultAttrs: {
         selected: false,
         directoryState: 'expanded',
@@ -252,6 +253,7 @@ export default {
           height: '2em',
           mousex: 0,
           mousey: 0,
+          titleMaxWidth: 'none',
           titleTip: ''
         }
       },
@@ -376,11 +378,19 @@ export default {
         this.setAttr(node, '__', 'mousey',         this.getAttr(node, '__', 'mousey'))
         this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
+
+        let titleMaxWidth = this.getAttr(node, 'style', 'titleMaxWidth');
+        if (titleMaxWidth[titleMaxWidth.length - 1] === '%') {
+          let percent = parseFloat(titleMaxWidth)
+          titleMaxWidth = Math.floor(this.treeWidth * percent / 100) + 'px'
+        }
+        this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
       }
 
       return items
     },
     refresh() {
+      this.treeWidth = this.$refs.tree.offsetWidth
       this.items = this.getItems()
       this.refreshAllDirectoryCheckboxState()
     },
