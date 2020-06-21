@@ -7,7 +7,8 @@
       :style="{
         '--dragImageOffsetX': dragImageOffsetX,
         '--dragImageOffsetY': dragImageOffsetY,
-        '--animationDuration': animationDuration
+        '--animationDuration': animationDuration,
+        '--treeWidth': treeWidth + 'px'
       }">
       <transition-group name="node">
         <template v-for="item of items">
@@ -22,7 +23,7 @@
               'drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable
             }"
             :style="{
-              'text-indent': item.__.fullIndent,
+              '--fullIndent': item.__.fullIndent,
               '--height': item.style.height,
               '--fontSize': item.style.fontSize,
               '--hoverBgColor': item.style.hoverBgColor,
@@ -86,20 +87,21 @@
                   </svg>
                 </slot>
               </span>
-              <slot name="title" v-bind:node="item">
-                <span 
-                  :class="{title:true, editing:item.__.isEditing}" 
-                  :ref="'title-' + item.id" 
-                  :contenteditable="item.__.isEditing"
-                  :title="item.__.titleTip"
-                  @keydown="keydownEvent(item, $event)"
-                  @keyup="keyupEvent(item, $event)"
-                  @keypress="keypressEvent(item, $event)"
-                  @input="inputEvent(item, $event)"
-                  @focus="focusEvent(item, $event)"
-                  @blur="blurEvent(item)"
-                  @mouseenter="mouseenterEvent(item)">{{item.title}}</span>
-              </slot>
+              <span class="title-wrapper" :ref="'title-' + item.id">
+                <slot name="title" v-bind:node="item">
+                  <span 
+                    :class="{title:true, editing:item.__.isEditing}" 
+                    :contenteditable="item.__.isEditing"
+                    :title="item.__.titleTip"
+                    @keydown="keydownEvent(item, $event)"
+                    @keyup="keyupEvent(item, $event)"
+                    @keypress="keypressEvent(item, $event)"
+                    @input="inputEvent(item, $event)"
+                    @focus="focusEvent(item, $event)"
+                    @blur="blurEvent(item)"
+                    @mouseenter="mouseenterEvent(item)">{{item.title}}</span>
+                </slot>
+              </span>
             </span>
             <span class="extra-wrapper">
               <slot name="extra" v-bind:node="item">
@@ -219,6 +221,7 @@ export default {
       items: this.getItems(),
       autoIdCounter: 0,
       treeWidth: 0,
+      treeWidthInterval: null,
       spareDefaultAttrs: {
         selected: false,
         directoryState: 'expanded',
@@ -344,6 +347,20 @@ export default {
           fullIndent = 'calc(' + indents.join(' + ') + ')'
         }
 
+        let titleMaxWidth = this.getAttr(node, 'style', 'titleMaxWidth')
+        let fullIndentVal = fullIndent.toString()
+        if (fullIndentVal.substring(0, 3) === 'calc') {
+          fullIndentVal = fullIndentVal.substring(5, fullIndent.length-1)
+        }
+        if (titleMaxWidth[0] === '-') {
+          if (titleMaxWidth[titleMaxWidth.length - 1] === '%') {
+            titleMaxWidth = ' - ' + (-1 * parseFloat(titleMaxWidth) / 100.0) + ' * var(--treeWidth)'
+          }
+          titleMaxWidth = 'calc(var(--treeWidth) - 1em - var(--switcherMarginRight) - 2px - 1em - var(--iconMarginRight) ' + titleMaxWidth + ' - (' + fullIndentVal + '))'
+        } else if(titleMaxWidth[titleMaxWidth.length - 1] === '%') {
+          titleMaxWidth = 'calc(' + (parseFloat(titleMaxWidth) / 100.0) + ' * var(--treeWidth))'
+        }
+
         this.setAttr(node, 'directoryState',  this.getDirectoryState(node))
         this.setAttr(node, 'selected',        this.getAttr(node, 'selected'))
 
@@ -378,12 +395,6 @@ export default {
         this.setAttr(node, '__', 'mousey',         this.getAttr(node, '__', 'mousey'))
         this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
-
-        let titleMaxWidth = this.getAttr(node, 'style', 'titleMaxWidth');
-        if (titleMaxWidth[titleMaxWidth.length - 1] === '%') {
-          let percent = parseFloat(titleMaxWidth)
-          titleMaxWidth = Math.floor(this.treeWidth * percent / 100) + 'px'
-        }
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
       }
 
@@ -521,7 +532,7 @@ export default {
     getTitleElement(node) {
       let refId = 'title-' + node.id
       if (this.$refs.hasOwnProperty(refId)) {
-        return this.$refs[refId][0]
+        return this.$refs[refId][0].childNodes[0]
       }
 
       return null
@@ -1191,10 +1202,23 @@ export default {
         } else if (state === 'collapsed') {
           this.expand(node)
         }
+    },
+    resizeTree() {
+      this.treeWidth = this.$refs.tree.offsetWidth
     }
   },
   mounted() {
     this.refresh()
+
+    this.treeWidthInterval = setInterval(function(){
+      let treeWidth = this.$refs.tree.offsetWidth
+      if (this.treeWidth !== treeWidth) {
+        this.treeWidth = treeWidth
+      }
+    }.bind(this), 300)
+  },
+  beforeDestroy() {
+    clearInterval(this.treeWidthInterval)
   }
 }
 </script>
@@ -1222,6 +1246,7 @@ export default {
   font-size: var(--fontSize);
   margin-top: var(--marginTop);
   margin-bottom: var(--marginBottom);
+  text-indent: var(--fullIndent);
  }
 .node-enter-to, .node-leave {
   height: var(--height);
@@ -1325,35 +1350,39 @@ export default {
 }
 .node .drag-arrow-wrapper {
   height: 0;
-  width: 100%;
+  width: 0;
   border: 0;
+  text-indent: 0;
   position: absolute;
-  left: 0;
+  left: calc(var(--fullIndent) + 1em);
   display: none;
-  overflow: visible;
-  z-index: 10;
   flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
   align-items: center;
+  overflow: hidden;
+  z-index: 10;
 }
 .node .drag-arrow-wrapper .arrow {
-  position: relative;
-  width: 20px;
-  height: 20px;
-  left: -8px;
-  top: -10px;
+  width: 1.7em;
+  height: 2.6em;
   stroke: #5cb85c;
   fill: #5cb85c;
+  overflow: visible;
 }
 .node.drag-over-prev .drag-arrow-wrapper {
-  display: block;
+  display: flex;
+  overflow: visible;
   top: 0;
 }
 .node.drag-over-next .drag-arrow-wrapper {
-  display: block;
+  display: flex;
+  overflow: visible;
   bottom: 0;
 }
 .node.drag-over-self .drag-arrow-wrapper {
-  display: block;
+  display: flex;
+  overflow: visible;
   top: 50%;
 }
 .node.drag-over-self .icon-and-title {

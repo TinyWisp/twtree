@@ -1,3 +1,6 @@
+1.4.0
+    modify: prop node.style.titleMaxWidth can be assigned with a negative value.
+
 1.3.1
     fix: node.style.titleMaxWidth with a percentage value not working properly.
     add a prop: node.__.titleMaxWidth

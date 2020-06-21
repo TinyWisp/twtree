@@ -48,6 +48,11 @@
           </svg> 
           <span class="drag-image-title">{{dnd.dragNode.title}}</span>
         </template>
+        <template v-slot:drag-arrow>
+          <svg viewBox="0 0 32 32" :style="{overflow: 'visible'}" width="1.7em" height="2em" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M22 6 L30 16 22 26 M30 16 L2 16" />
+          </svg>
+        </template>
       </TWTree>
     </div>
 
@@ -107,7 +112,15 @@
 
     <div class="title">limit title width</div>
     <div class="panel">
-      <TWTree :tree="commonTree" class="tree" :defaultAttrs="{style:{titleMaxWidth: '3em', titleOverflow: 'ellipsis'}}">
+      <TWTree :tree="widthTree" class="tree" :defaultAttrs="{style:{titleMaxWidth: '3em', titleOverflow: 'ellipsis'}}">
+      </TWTree>
+    </div>
+    <div class="panel">
+      <TWTree :tree="widthTree" class="tree" :defaultAttrs="{style:{titleMaxWidth: '20%', titleOverflow: 'ellipsis'}}">
+      </TWTree>
+    </div>
+    <div class="panel">
+      <TWTree :tree="widthTree" class="tree" :defaultAttrs="{style:{titleMaxWidth: '-20%', titleOverflow: 'ellipsis'}}">
       </TWTree>
     </div>
 
@@ -269,7 +282,49 @@ export default {
             }
           ]
         }
+      ],
+
+      widthTree: [
+        {
+          id: 1,
+          title: 'ROOT',
+          hasChild: true,
+          children: [
+            {
+              id: 2,
+              title: 'hello, world! hello, world! hello, world! hello, world! hello, world!',
+            },
+            {
+              id: 3,
+              title: 'hello, world! hello, world! hello, world! hello, world! hello, world!',
+              hasChild: true,
+              children: [
+                {
+                  id: 4,
+                  title: 'hello, world! hello, world! hello, world! hello, world! hello, world!'
+                },
+                {
+                  id: 5,
+                  title: 'hello, world! hello, world! hello, world! hello, world! hello, world!'
+                },
+                {
+                  id: 6,
+                  title: 'hello, world! hello, world! hello, world! hello, world! hello, world!'
+                }
+              ],
+            },
+            {
+              id: 7,
+              title: 'hello, world! hello, world! hello, world! hello, world! hello, world!'
+            },
+            {
+              id: 8,
+              title: 'hello, world! hello, world! hello, world! hello, world! hello, world!'
+            }
+          ]
+        }
       ]
+
 
 
     }
