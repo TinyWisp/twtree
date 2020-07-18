@@ -3,15 +3,16 @@
     <div class="panel">
       <TWTree 
         :tree="tree" 
-        ref="tree" 
+        ref="tree"
         class="tree" 
+        :checkboxLinkage = "false"
         :defaultAttrs="{
           checkbox: {
             show: true
           }
         }"
         @check="refresh()"
-        @uncheck="refresh()" />
+        @uncheck="refresh()"/>
     </div>
     <div class="result">
       <ul class="list">
@@ -33,6 +34,7 @@
         </li>
       </ul>
     </div>
+
   </div>
 </template>
 
@@ -120,12 +122,6 @@ export default {
   width: 800px;
   margin-left: auto;
   margin-right: auto;
-}
-.title {
-    width: auto;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 24px;
 }
 .panel {
   width: 100%;

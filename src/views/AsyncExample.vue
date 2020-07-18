@@ -30,13 +30,11 @@ export default {
     loadData(node) {
       let url = 'load.json?id=' + node.id;
       let promise = new Promise(function(resolve, reject) {
-        setTimeout(function() {
-          axios.get(url).then(function(response){
-            resolve(response.data)
-          }, function(error) {
-            reject(error)
-          })
-        }, 500)
+        axios.get(url).then(function(response){
+          resolve(response.data)
+        }, function(error) {
+          reject(error)
+        })
       })
 
       return promise

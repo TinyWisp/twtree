@@ -1,13 +1,20 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeContextMenu="beforeContextMenu">
-          <template v-slot:contextmenu="{node}">
-            <ul class="menu" v-if="node.__.depth > 0">
-              <li class="menu-item" @click="create">create</li>
-              <li class="menu-item" @click="remove">remove</li>
-            </ul>
-          </template>
+      <TWTree :tree="tree" ref="ctree" class="tree" :defaultAttrs="{checkbox:{show:true}}">
+        <template v-slot:checkbox="{node}">
+          <svg class="checkbox-icon checked" viewBox="0 0 24 24" v-if="node.checkbox.state === 'checked'">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <svg class="checkbox-icon unchecked" viewBox="0 0 24 24" v-else-if="node.checkbox.state === 'unchecked'">
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+          <svg class="checkbox-icon undetermined" viewBox="0 0 24 24" v-else-if="node.checkbox.state === 'undetermined'">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </template>
       </TWTree>
     </div>
   </div>
@@ -17,13 +24,12 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'contextmenu-example',
+  name: 'custom-appearance-checkbox-example',
   components: {
     TWTree
   },
   data() {
     return {
-      counter: 100,
       tree: [
         {
           id: 1,
@@ -45,8 +51,7 @@ export default {
                 },
                 {
                   id: 5,
-                  title: 'no context menu',
-                  showContextMenu: false
+                  title: 'child 2-2'
                 },
                 {
                   id: 6,
@@ -65,27 +70,7 @@ export default {
           ]
         }
       ]
-    }
-  },
-  methods: {
-    create() {
-      this.counter += 1
-      let tree = this.$refs.tree
-      let node = tree.getSelectedOne()
-      let child = {
-        id:  this.counter,
-        title: 'hello, world!' + this.counter,
-        hasChild: false
-      }
-      tree.create(child, node)
-    },
-    remove() {
-      let tree = this.$refs.tree
-      let node = tree.getSelectedOne()
-      tree.remove(node)
-    },
-    beforeContextMenu(node) {
-      return node.showContextMenu !== false
+
     }
   }
 }
@@ -110,25 +95,21 @@ export default {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
+  position: relative;
+  margin-bottom: 100px;
 }
 .panel .tree {
   width: 50%;
 }
-.menu {
-  width: 10em;
-  height: 5em;
-  border: 1px solid gray;
-  background-color: white;
-  padding: 10px 0px;
-  list-style-type: none;
-  box-shadow: 5px 5px 5px 0px rgba(230,231,230,1);
-  border-radius: 3px;
-}
-.menu .menu-item {
-  line-height: 2em;
-  text-indent: 2em;
-}
-.menu .menu-item:hover {
-  background-color: lightblue;
+.checkbox-icon {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    stroke: #eb801c;
+    stroke-width: 2px;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    margin-right: 0.3em;
 }
 </style>

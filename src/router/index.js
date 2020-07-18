@@ -8,7 +8,6 @@ import EditExample from '../views/EditExample.vue'
 import DragAndDropExample from '../views/DragAndDropExample.vue'
 import ButtonExample from '../views/ButtonExample.vue'
 import ContextMenuExample from '../views/ContextMenuExample.vue'
-import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
 import CustomAppearanceExample from '../views/CustomAppearanceExample.vue'
 import SearchExample from '../views/SearchExample.vue'
 import MultiSelectExample from '../views/MultiSelectExample.vue'
@@ -66,11 +65,6 @@ const routes = [
     path: '/example/contextmenu',
     name: 'contextmenu-example',
     component: ContextMenuExample
-  },
-  {
-    path: '/example/a-lot-of-nodes',
-    name: 'a-lot-of-nodes-example',
-    component: ALotOfNodesExample
   },
   {
     path: '/example/custom-appearance',

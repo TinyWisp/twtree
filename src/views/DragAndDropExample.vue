@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeDrag="beforeDrag" :fnIsDroppable="isDroppable" @dragOver="showInfo" @dragEnd="showInfo" />
+      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeDrag="beforeDrag" :fnIsDroppable="isDroppable" @dragover="showInfo" @dragend="showInfo" />
     </div>
     <span class="info">
       <span class="key">dragNode:</span> <span class="val">{{dragNode}}</span> <br>
@@ -15,7 +15,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'basic-example',
+  name: 'drag-and-drop-example',
   components: {
     TWTree
   },

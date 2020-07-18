@@ -124,6 +124,9 @@ export default {
   width: 7em;
   vertical-align: middle;
 }
+.btn:first-of-type {
+  margin-right: 3em;
+}
 .input {
   width: 3em;
   vertical-align: middle;

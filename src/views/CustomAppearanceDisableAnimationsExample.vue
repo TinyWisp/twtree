@@ -1,14 +1,10 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeContextMenu="beforeContextMenu">
-          <template v-slot:contextmenu="{node}">
-            <ul class="menu" v-if="node.__.depth > 0">
-              <li class="menu-item" @click="create">create</li>
-              <li class="menu-item" @click="remove">remove</li>
-            </ul>
-          </template>
-      </TWTree>
+      <TWTree 
+        :tree="tree" 
+        animationDuration="0"
+        class="tree" />
     </div>
   </div>
 </template>
@@ -17,13 +13,12 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'contextmenu-example',
+  name: 'custom-appearance-disable-animations-example',
   components: {
     TWTree
   },
   data() {
     return {
-      counter: 100,
       tree: [
         {
           id: 1,
@@ -45,8 +40,7 @@ export default {
                 },
                 {
                   id: 5,
-                  title: 'no context menu',
-                  showContextMenu: false
+                  title: 'child 2-2'
                 },
                 {
                   id: 6,
@@ -65,27 +59,7 @@ export default {
           ]
         }
       ]
-    }
-  },
-  methods: {
-    create() {
-      this.counter += 1
-      let tree = this.$refs.tree
-      let node = tree.getSelectedOne()
-      let child = {
-        id:  this.counter,
-        title: 'hello, world!' + this.counter,
-        hasChild: false
-      }
-      tree.create(child, node)
-    },
-    remove() {
-      let tree = this.$refs.tree
-      let node = tree.getSelectedOne()
-      tree.remove(node)
-    },
-    beforeContextMenu(node) {
-      return node.showContextMenu !== false
+
     }
   }
 }
@@ -110,25 +84,10 @@ export default {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
+  position: relative;
+  margin-bottom: 100px;
 }
 .panel .tree {
   width: 50%;
-}
-.menu {
-  width: 10em;
-  height: 5em;
-  border: 1px solid gray;
-  background-color: white;
-  padding: 10px 0px;
-  list-style-type: none;
-  box-shadow: 5px 5px 5px 0px rgba(230,231,230,1);
-  border-radius: 3px;
-}
-.menu .menu-item {
-  line-height: 2em;
-  text-indent: 2em;
-}
-.menu .menu-item:hover {
-  background-color: lightblue;
 }
 </style>

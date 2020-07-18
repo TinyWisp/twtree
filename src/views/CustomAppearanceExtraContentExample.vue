@@ -1,13 +1,18 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeContextMenu="beforeContextMenu">
-          <template v-slot:contextmenu="{node}">
-            <ul class="menu" v-if="node.__.depth > 0">
-              <li class="menu-item" @click="create">create</li>
-              <li class="menu-item" @click="remove">remove</li>
-            </ul>
-          </template>
+      <TWTree 
+        class="tree" 
+        :tree="tree" 
+        :defaultAttrs="{
+            style: {
+                extraFloatRight:true
+        }}">
+        <template v-slot:extra>
+          <svg viewBox="0 0 32 32" class="extra-content" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z" />
+          </svg>
+        </template>
       </TWTree>
     </div>
   </div>
@@ -17,13 +22,12 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'contextmenu-example',
+  name: 'custom-appearance-extra-content-example',
   components: {
     TWTree
   },
   data() {
     return {
-      counter: 100,
       tree: [
         {
           id: 1,
@@ -33,6 +37,9 @@ export default {
             {
               id: 2,
               title: 'child 1',
+              style: {
+                extraAlwaysVisible: true
+              }
             },
             {
               id: 3,
@@ -45,8 +52,7 @@ export default {
                 },
                 {
                   id: 5,
-                  title: 'no context menu',
-                  showContextMenu: false
+                  title: 'child 2-2'
                 },
                 {
                   id: 6,
@@ -65,27 +71,7 @@ export default {
           ]
         }
       ]
-    }
-  },
-  methods: {
-    create() {
-      this.counter += 1
-      let tree = this.$refs.tree
-      let node = tree.getSelectedOne()
-      let child = {
-        id:  this.counter,
-        title: 'hello, world!' + this.counter,
-        hasChild: false
-      }
-      tree.create(child, node)
-    },
-    remove() {
-      let tree = this.$refs.tree
-      let node = tree.getSelectedOne()
-      tree.remove(node)
-    },
-    beforeContextMenu(node) {
-      return node.showContextMenu !== false
+
     }
   }
 }
@@ -110,25 +96,20 @@ export default {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
+  position: relative;
+  margin-bottom: 100px;
 }
 .panel .tree {
   width: 50%;
 }
-.menu {
-  width: 10em;
-  height: 5em;
-  border: 1px solid gray;
-  background-color: white;
-  padding: 10px 0px;
-  list-style-type: none;
-  box-shadow: 5px 5px 5px 0px rgba(230,231,230,1);
-  border-radius: 3px;
-}
-.menu .menu-item {
-  line-height: 2em;
-  text-indent: 2em;
-}
-.menu .menu-item:hover {
-  background-color: lightblue;
+.extra-content {
+  width: 0.8em;
+  height: 0.8em;
+  stroke-width: 2;
+  fill: red;
+  stroke: red;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-right: 10em;
 }
 </style>

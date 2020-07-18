@@ -19,11 +19,11 @@
       <TWTree 
         :tree="customIconTree" ref="citree" class="tree">
           <template v-slot:icon="{node}">
-            <img class="node-icon" src="../assets/folder.svg" v-if="node.hasChild && node.directoryState === 'collapsed'"/>
-            <img class="node-icon" src="../assets/folder-open.svg" v-else-if="node.hasChild && node.directoryState === 'expanded'"/>
-            <img class="node-icon" src="../assets/video.svg" v-else-if="!node.hasChild && node.type === 'video'"/>
-            <img class="node-icon" src="../assets/audio.svg" v-else-if="!node.hasChild && node.type === 'audio'"/>
-            <img class="node-icon" src="../assets/text.svg" v-else />
+            <img class="node-icon" src="folder.svg" v-if="node.hasChild && node.directoryState === 'collapsed'"/>
+            <img class="node-icon" src="folder-open.svg" v-else-if="node.hasChild && node.directoryState === 'expanded'"/>
+            <img class="node-icon" src="video.svg" v-else-if="!node.hasChild && node.type === 'video'"/>
+            <img class="node-icon" src="audio.svg" v-else-if="!node.hasChild && node.type === 'audio'"/>
+            <img class="node-icon" src="text.svg" v-else />
           </template>
           <template v-slot:switcher="{node}">
             <svg class="switcher-icon collapsed" viewBox="-3 -3 38 38" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3px" v-if="node.directoryState === 'collapsed'">
@@ -87,6 +87,14 @@
         }
       }"
       ref="bctree" 
+      class="tree" />
+    </div>
+    <div class="panel">
+      <TWTree 
+      :tree="commonTree" 
+      @expand="stripes"
+      @collapse="stripes"
+      ref="stripedTree" 
       class="tree" />
     </div>
 
@@ -328,6 +336,22 @@ export default {
 
 
     }
+  },
+  methods: {
+    stripes() {
+      let stripedTree = this.$refs.stripedTree
+      stripedTree.traverse(function(node) {
+        if (node.__.isVisible) {
+          let bgColor = node.__.dpos % 2 === 1
+                        ? 'lightblue'
+                        : 'transparent';
+          stripedTree.setAttr(node, 'style', 'bgColor', bgColor)
+        }
+      })
+    }
+  },
+  mounted() {
+    this.stripes()
   }
 }
 </script>

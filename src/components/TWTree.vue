@@ -1,7 +1,7 @@
 <template>
-  <div class="tree-wrapper" tabindex="1" @blur="treeBlurEvent">
+  <div class="twtree-wrapper" tabindex="1" @blur="treeBlurEvent">
     <ul 
-      class="tree"
+      class="twtree"
       @dragleave="dragLeaveTree($event)"
       ref="tree"
       :style="{
@@ -10,36 +10,37 @@
         '--animationDuration': animationDuration,
         '--treeWidth': treeWidth + 'px'
       }">
-      <transition-group name="node">
+      <transition-group name="twtree-node">
         <template v-for="item of items">
           <li
             v-if="item.__.isVisible"
             :class="{
-              node:             true, 
-              selected:         item.selected,
-              'search-result':  item.__.isSearchResult,
-              'drag-over-prev': item.__.dragOverArea === 'prev' && item.__.isDroppable,
-              'drag-over-next': item.__.dragOverArea === 'next' && item.__.isDroppable,
-              'drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable
+              'twtree-node':                true, 
+              'twtree-node-selected':       item.selected,
+              'twtree-node-search-result':  item.__.isSearchResult,
+              'twtree-node-drag-over-prev': item.__.dragOverArea === 'prev' && item.__.isDroppable,
+              'twtree-node-drag-over-next': item.__.dragOverArea === 'next' && item.__.isDroppable,
+              'twtree-node-drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable
             }"
             :style="{
-              '--fullIndent': item.__.fullIndent,
-              '--height': item.style.height,
-              '--fontSize': item.style.fontSize,
-              '--hoverBgColor': item.style.hoverBgColor,
-              '--selectedBgColor': item.style.selectedBgColor,
-              '--dragOverBgColor': item.style.dragOverBgColor,
+              '--fullIndent':          item.__.fullIndent,
+              '--height':              item.style.height,
+              '--fontSize':            item.style.fontSize,
+              '--bgColor':             item.style.bgColor,
+              '--hoverBgColor':        item.style.hoverBgColor,
+              '--selectedBgColor':     item.style.selectedBgColor,
+              '--dragOverBgColor':     item.style.dragOverBgColor,
               '--switcherMarginRight': item.style.switcherMarginRight,
-              '--iconMarginRight': item.style.iconMarginRight,
+              '--iconMarginRight':     item.style.iconMarginRight,
               '--checkboxMarginRight': item.style.checkboxMarginRight,
-              '--extraFloat': item.style.extraFloatRight ? 'right' : 'none',
-              '--extraDisplay': item.style.extraAlwaysVisible ? 'inline-block' : 'none',
-              '--titleMaxWidth': item.__.titleMaxWidth,
-              '--titleOverflow': item.style.titleOverflow,
-              '--mousex': item.__.mousex,
-              '--mousey': item.__.mousey,
-              '--marginTop': item.style.marginTop,
-              '--marginBottom': item.style.marginBottom
+              '--extraFloat':          item.style.extraFloatRight ? 'right' : 'none',
+              '--extraDisplay':        item.style.extraAlwaysVisible ? 'inline-block' : 'none',
+              '--titleMaxWidth':       item.__.titleMaxWidth,
+              '--titleOverflow':       item.style.titleOverflow,
+              '--mousex':              item.__.mousex,
+              '--mousey':              item.__.mousey,
+              '--marginTop':           item.style.marginTop,
+              '--marginBottom':        item.style.marginBottom
             }"
             :draggable="true"
             @click = "clickEvent(item, $event)"
@@ -50,47 +51,47 @@
             @drop="dropEvent()"
             :ref="'node-' + item.id"
             :key="item.id">
-            <span class="switcher-wrapper" @click.stop="toggleDirectoryState(item)">
-              <slot name="switcher" v-bind:node="item">
-                <svg class="switcher-icon expanded" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
+            <span class="twtree-switcher-wrapper" @click.stop="toggleDirectoryState(item)">
+              <slot name="twtree-switcher" v-bind:node="item">
+                <svg class="twtree-switcher-icon twtree-switcher-expanded" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
                   <path d="M30 10 L16 26 2 10 Z" />
                 </svg>
-                <svg class="switcher-icon collapsed" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-else-if="item.directoryState === 'collapsed'">
+                <svg class="twtree-switcher-icon twtree-switcher-collapsed" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-else-if="item.directoryState === 'collapsed'">
                   <path d="M10 30 L26 16 10 2 Z" />
                 </svg>
-                <svg class="switcher-icon loading" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else-if="item.directoryState === 'loading'">
+                <svg class="twtree-switcher-icon twtree-switcher-loading" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else-if="item.directoryState === 'loading'">
                   <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
                 </svg>
               </slot>
             </span>
-            <span class="checkbox-wrapper" v-if="item.checkbox.show" @click.stop="toggleCheckbox(item)">
+            <span class="twtree-checkbox-wrapper" v-if="item.checkbox.show" @click.stop="toggleCheckbox(item)">
               <slot name="checkbox" v-bind:node="item">
                 <span
                   :class="{
-                    checkbox:     true,
-                    checked:      item.checkbox.state === 'checked',
-                    unchecked:    item.checkbox.state === 'unchecked',
-                    undetermined: item.checkbox.state === 'undetermined',
-                    disabled:     item.checkbox.disable
+                    'twtree-checkbox':              true,
+                    'twtree-checkbox-checked':      item.checkbox.state === 'checked',
+                    'twtree-checkbox-unchecked':    item.checkbox.state === 'unchecked',
+                    'twtree-checkbox-undetermined': item.checkbox.state === 'undetermined',
+                    'twtree-checkbox-disabled':     item.checkbox.disable
                   }">
                 </span>
               </slot>
             </span>
-            <span class="icon-and-title" :ref="'icon-and-title-' + item.id ">
-              <span class="icon-wrapper">
+            <span class="twtree-icon-and-title" :ref="'icon-and-title-' + item.id ">
+              <span class="twtree-icon-wrapper">
                 <slot name="icon" v-bind:node="item">
-                  <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-if="item.hasChild && (item.directoryState === 'collapsed' || item.directoryState === 'expanded')">
+                  <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="twtree-icon" v-if="item.hasChild && (item.directoryState === 'collapsed' || item.directoryState === 'expanded')">
                     <path d="M2 26 L30 26 30 7 14 7 10 4 2 4 Z M30 12 L2 12" />
                   </svg>
-                  <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon" v-else>
+                  <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="twtree-icon" v-else>
                     <path d="M6 2 L6 30 26 30 26 10 18 2 Z M18 2 L18 10 26 10" />
                   </svg>
                 </slot>
               </span>
-              <span class="title-wrapper" :ref="'title-' + item.id">
-                <slot name="title" v-bind:node="item">
+              <span class="twtree-title-wrapper" :ref="'title-' + item.id">
+                <slot name="twtree-title" v-bind:node="item">
                   <span 
-                    :class="{title:true, editing:item.__.isEditing}" 
+                    :class="{'twtree-title':true, 'twtree-title-editing':item.__.isEditing}" 
                     :contenteditable="item.__.isEditing"
                     :title="item.__.titleTip"
                     @keydown="keydownEvent(item, $event)"
@@ -103,24 +104,24 @@
                 </slot>
               </span>
             </span>
-            <span class="extra-wrapper">
+            <span class="twtree-extra-wrapper">
               <slot name="extra" v-bind:node="item">
               </slot>
             </span>
-            <div class="contextmenu-wrapper" v-if="item.__.showContextMenu">
+            <div class="twtree-contextmenu-wrapper" v-if="item.__.showContextMenu">
               <slot name="contextmenu" v-bind:node="item">
               </slot>
             </div>
-            <div class="drag-arrow-wrapper" v-if="item.__.dragOverArea !== null">
+            <div class="twtree-drag-arrow-wrapper" v-if="item.__.dragOverArea !== null">
               <slot name="drag-arrow" v-bind:node="item">
-                <svg class="arrow" viewBox="0 0 24 24">
+                <svg class="twtree-arrow" viewBox="0 0 24 24">
                   <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
                 </svg>
               </slot>
             </div>
-            <div class="drag-image-wrapper" v-if="item.__.dragOverArea !== null && dragAndDrop.dragNode !== null">
+            <div class="twtree-drag-image-wrapper" v-if="item.__.dragOverArea !== null && dragAndDrop.dragNode !== null">
               <slot name="drag-image" v-bind:node="item" v-bind:dnd="dragAndDrop">
-                <span class="drag-image">{{dragAndDrop.dragNode.title}}</span>
+                <span class="twtree-drag-image">{{dragAndDrop.dragNode.title}}</span>
               </slot>
             </div>
           </li>
@@ -234,6 +235,7 @@ export default {
           height: '2em',
           indent: '20px',
           fontSize: '12px',
+          bgColor: 'transparent',
           hoverBgColor: '#e7f4f9',
           selectedBgColor: '#bae7ff',
           dragOverBgColor: '#e7f4f9',
@@ -317,6 +319,8 @@ export default {
         }
       }
 
+      let dpos = 0;
+
       for (let i=0; i<items.length; i++) {
         let node = items[i]
 
@@ -371,6 +375,7 @@ export default {
         this.setAttr(node, 'style', 'height',              this.getAttr(node, 'style', 'height'))
         this.setAttr(node, 'style', 'indent',              this.getAttr(node, 'style', 'indent'))
         this.setAttr(node, 'style', 'fontSize',            this.getAttr(node, 'style', 'fontSize'))
+        this.setAttr(node, 'style', 'bgColor',             this.getAttr(node, 'style', 'bgColor'))
         this.setAttr(node, 'style', 'hoverBgColor',        this.getAttr(node, 'style', 'hoverBgColor'))
         this.setAttr(node, 'style', 'selectedBgColor',     this.getAttr(node, 'style', 'selectedBgColor'))
         this.setAttr(node, 'style', 'dragOverBgColor',     this.getAttr(node, 'style', 'dragOverBgColor'))
@@ -384,6 +389,7 @@ export default {
         this.setAttr(node, 'style', 'marginTop',           this.getAttr(node, 'style', 'marginTop'))
         this.setAttr(node, 'style', 'marginBottom',        this.getAttr(node, 'style', 'marginBottom'))
 
+        this.setAttr(node, '__', 'dpos',           isVisible ? dpos : -1)
         this.setAttr(node, '__', 'gpos',           i)
         this.setAttr(node, '__', 'isVisible',      isVisible)
         this.setAttr(node, '__', 'isEditing',      this.getAttr(node, '__', 'isEditing'))
@@ -396,6 +402,10 @@ export default {
         this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
+
+        if (isVisible) {
+          dpos++
+        }
       }
 
       return items
@@ -527,7 +537,7 @@ export default {
         let titleElement = this.getTitleElement(node)
         titleElement.scrollLeft = 0
       }.bind(this))
-      this.$emit('quitEdit', node)
+      this.$emit('quitedit', node)
     },
     getTitleElement(node) {
       let refId = 'title-' + node.id
@@ -809,6 +819,7 @@ export default {
       if (this.fnLoadData === null) {
         this.setAttr(node, 'directoryState', 'expanded')
         this.refresh()
+        this.$emit('expand', node)
         return
       }
 
@@ -823,6 +834,7 @@ export default {
             node.children = children
             this.setAttr(node, 'directoryState', 'expanded')
             this.refresh()
+            this.$emit('expand', node)
           }.bind(this))
           prom.catch(function(e) {
             this.setAttr(node, 'directoryState', 'collapsed')
@@ -837,6 +849,7 @@ export default {
           node.children = children
           this.setAttr(node, 'directoryState', 'expanded')
           this.refresh()
+          this.$emit('expand', node)
         }
       }
     },
@@ -856,6 +869,7 @@ export default {
 
       this.setAttr(node, 'directoryState', 'collapsed')
       this.refresh()
+      this.$emit('collapse', node)
     },
     getElement(node) {
       let refId = 'node-' + node.id
@@ -924,7 +938,7 @@ export default {
       event.dataTransfer.setDragImage(ghostElement, 0, 0)
       event.dataTransfer.dropEffect = 'move'
 
-      this.$emit('dragStart', this.dragAndDrop)
+      this.$emit('dragstart', this.dragAndDrop)
     },
     dragOverEvent(node, event) {
       if (this.dragAndDrop.overNode !== node) {
@@ -955,17 +969,17 @@ export default {
       this.setAttr(node, '__', 'isDroppable',  this.dragAndDrop.isDroppable)
       event.preventDefault()
 
-      this.$emit('dragOver', this.dragAndDrop)
+      this.$emit('dragover', this.dragAndDrop)
     },
     dragEnter(node) {
       this.dragAndDrop.overNode = node
-      this.$emit('dragEnter', this.dragAndDrop, node)
+      this.$emit('dragenter', this.dragAndDrop, node)
     },
     dragLeave(node) {
       if (node !== null) {
         this.setAttr(node, '__', 'dragOverArea', null)
       }
-      this.$emit('dragLeave', this.dragAndDrop, node)
+      this.$emit('dragleave', this.dragAndDrop, node)
     },
     dragEndEvent() {
       if (this.dragAndDrop.overNode !== null) {
@@ -974,7 +988,7 @@ export default {
       }
       this.dragAndDrop.dragNode = null
       this.dragAndDrop.overArea = null
-      this.$emit('dragEnd', this.dragAndDrop)
+      this.$emit('dragend', this.dragAndDrop)
     },
     dropEvent() {
       if (this.dragAndDrop.isDroppable === false) {
@@ -1023,7 +1037,7 @@ export default {
       let oldState = this.getAttr(node, 'checkbox', 'state')
       if (oldState !== state) {
         this.setAttr(node, 'checkbox', 'state', state)
-        this.$emit('checkboxStateChange', node, oldState, state)
+        this.$emit('checkbox-state-change', node, oldState, state)
       }
     },
     check(node) {
@@ -1225,7 +1239,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.tree-wrapper .tree {
+.twtree-wrapper .twtree {
   position: relative;
   padding-inline-start: 0;
   text-align: left;
@@ -1235,11 +1249,12 @@ export default {
   padding-bottom: 5px;
   white-space: nowrap;
   width: 100%;
+  margin-top: 0;
 }
-.tree-wrapper:focus {
+.twtree-wrapper:focus {
   outline: 0;
 }
-.node {
+.twtree-node {
   cursor: pointer;
   position: relative;
   line-height: var(--height);
@@ -1247,28 +1262,29 @@ export default {
   margin-top: var(--marginTop);
   margin-bottom: var(--marginBottom);
   text-indent: var(--fullIndent);
+  background-color: var(--bgColor);
  }
-.node-enter-to, .node-leave {
+.twtree-node-enter-to, .twtree-node-leave {
   height: var(--height);
   opacity: 1;
 }
-.node-enter, .node-leave-to {
+.twtree-node-enter, .twtree-node-leave-to {
   height: 0;
   opacity: 0;
 }
-.node-enter-active, .node-leave-active {
+.twtree-node-enter-active, .twtree-node-leave-active {
   transition: height var(--animationDuration), opacity var(--animationDuration);
 }
-.node-move {
+.twtree-node-move {
   transition: transform (--animationDuration);
 }
-.node:hover {
+.twtree-node:hover {
   background-color: var(--hoverBgColor);
 }
-.node.selected {
+.twtree-node.twtree-node-selected {
   background-color: var(--selectedBgColor);
 }
-.node .icon-and-title {
+.twtree-node .twtree-icon-and-title {
   display: inline-block;
   text-indent: 0;
   padding-left: 2px;
@@ -1277,7 +1293,7 @@ export default {
   line-height: var(--height);
   vertical-align: middle;
 }
-.node .title {
+.twtree-node .twtree-title {
   width: auto;
   overflow: hidden;
   max-width: var(--titleMaxWidth);
@@ -1288,7 +1304,7 @@ export default {
   height: var(--height);
   padding-left: 0;
 }
-.node .title.editing {
+.twtree-node .twtree-title.twtree-title-editing {
   display: inline-block;
   border: 1px solid blue;
   background-color: white;
@@ -1299,7 +1315,7 @@ export default {
   text-overflow: clip;
   vertical-align: middle;
 }
-.node .switcher-wrapper {
+.twtree-node .twtree-switcher-wrapper {
   text-indent: 0;
   vertical-align: middle;
   display: inline-block;
@@ -1309,12 +1325,12 @@ export default {
   overflow: visible;
   margin-right: var(--switcherMarginRight)
 }
-.node .switcher-wrapper .switcher-icon {
+.twtree-node .twtree-switcher-wrapper .twtree-switcher-icon {
   width: 1em;
   height: 1em;
   vertical-align: middle;
 }
-.node .switcher-wrapper .switcher-icon.loading {
+.twtree-node .twtree-switcher-wrapper .twtree-switcher-icon.twtree-switcher-loading {
   animation-name: spin;
   animation-duration: 500ms;
   animation-iteration-count: infinite;
@@ -1328,27 +1344,27 @@ export default {
         transform:rotate(360deg);
     }
 }
-.node .icon-wrapper {
+.twtree-node .twtree-icon-wrapper {
   margin-right: var(--iconMarginRight);
 }
-.node .icon-wrapper .icon {
+.twtree-node .twtree-icon-wrapper .twtree-icon {
   width: 1em;
   height: 1em;
   vertical-align: middle;
 }
-.node.search-result .title {
+.twtree-node.twtree-node-search-result .twtree-title {
   color: brown;
   font-weight: bold;
 }
-.node .extra-wrapper {
+.twtree-node .twtree-extra-wrapper {
   display: var(--extraDisplay);
   text-indent: 0;
   float: var(--extraFloat);
 }
-.node:hover .extra-wrapper {
+.twtree-node:hover .twtree-extra-wrapper {
   display: inline-block;
 }
-.node .drag-arrow-wrapper {
+.twtree-node .twtree-drag-arrow-wrapper {
   height: 0;
   width: 0;
   border: 0;
@@ -1363,39 +1379,39 @@ export default {
   overflow: hidden;
   z-index: 10;
 }
-.node .drag-arrow-wrapper .arrow {
+.twtree-node .twtree-drag-arrow-wrapper .twtree-arrow {
   width: 1.7em;
   height: 2.6em;
   stroke: #5cb85c;
   fill: #5cb85c;
   overflow: visible;
 }
-.node.drag-over-prev .drag-arrow-wrapper {
+.twtree-node.twtree-node-drag-over-prev .twtree-drag-arrow-wrapper {
   display: flex;
   overflow: visible;
   top: 0;
 }
-.node.drag-over-next .drag-arrow-wrapper {
+.twtree-node.twtree-node-drag-over-next .twtree-drag-arrow-wrapper {
   display: flex;
   overflow: visible;
   bottom: 0;
 }
-.node.drag-over-self .drag-arrow-wrapper {
+.twtree-node.twtree-node-drag-over-self .twtree-drag-arrow-wrapper {
   display: flex;
   overflow: visible;
   top: 50%;
 }
-.node.drag-over-self .icon-and-title {
+.twtree-node.twtree-node-drag-over-self .twtree-icon-and-title {
   background-color: var(--dragOverBgColor);
 }
-.node.not-droppable .not-droppable-sign {
+.twtree-node.twtree-not-droppable .twtree-not-droppable-sign {
   text-indent: 0;
   position: absolute;
   left: var(--mousex);
   top: calc(var(--mousey) + 0.5em);
   z-index: 10;
 }
-.node .drag-image-wrapper {
+.twtree-node .twtree-drag-image-wrapper {
   display: block;
   position: absolute;
   z-index: 11;
@@ -1403,7 +1419,7 @@ export default {
   top: calc(var(--mousey) + var(--dragImageOffsetY));
   text-indent: 0;
 }
-.node .drag-image-wrapper .drag-image {
+.twtree-node .twtree-drag-image-wrapper .twtree-drag-image {
   text-indent: 0;
   width: auto;
   height: 1.5em;
@@ -1413,12 +1429,12 @@ export default {
   border-radius: 5px;
   background-color: #bae7ff;
 }
-.node .checkbox-wrapper {
+.twtree-node .twtree-checkbox-wrapper {
   display: inline-block;
   text-indent: 0;
   margin-right: var(--checkboxMarginRight);
 }
-.node .checkbox-wrapper .checkbox {
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox {
   display: inline-block;
   width: 1em;
   height: 1em;
@@ -1428,7 +1444,7 @@ export default {
   vertical-align: middle;
   position: relative;
 }
-.node .checkbox-wrapper .checkbox.checked:after {
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-checked:after {
   content: "";
   background-color: transparent;
   position: absolute;
@@ -1443,26 +1459,26 @@ export default {
     -ms-transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
 }
-.node .checkbox-wrapper .checkbox.checked {
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-checked {
   color: white;
   background-color: #2d8cf0;
   border-color: #2d8cf0;
 }
-.node .checkbox-wrapper .checkbox.checked.disabled {
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-checked.twtree-checkbox-disabled {
   border-color: #dcdee2;
   background-color: #f5f5f5;
   cursor: not-allowed;
 }
-.node .checkbox-wrapper .checkbox.checked.disabled:after {
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-checked.twtree-checkbox-disabled:after {
   border-color: #a6a6a6;
 }
-.node .checkbox-wrapper .checkbox.unchecked {
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-unchecked {
   background-color: white;
 }
-.node .checkbox-wrapper .checkbox.unchecked.disabled {
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-unchecked.twtree-checkbox-disabled {
   background-color: #f5f5f5;
 }
-.node .checkbox-wrapper .checkbox.undetermined:after{
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-undetermined:after{
   content: '';
   border: 0;
   padding: 0;
@@ -1474,19 +1490,19 @@ export default {
   top: calc(50% - 1px);
   background-color: white;
 }
-.node .checkbox-wrapper .checkbox.undetermined{
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-undetermined{
   color: white;
   background-color: #2d8cf0;
   border-color: #2d8cf0;
 }
-.node .checkbox-wrapper .checkbox.undetermined.disabled{
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-undetermined.twtree-checkbox-disabled{
   border-color: #dcdee2;
   background-color: #f5f5f5;
 }
-.node .checkbox-wrapper .checkbox.undetermined.disabled:after{
+.twtree-node .twtree-checkbox-wrapper .twtree-checkbox.twtree-checkbox-undetermined.twtree-checkbox-disabled:after{
   background-color: #a6a6a6;
 }
-.node .contextmenu-wrapper {
+.twtree-node .twtree-contextmenu-wrapper {
   position: absolute;
   display: block;
   left: var(--mousex);
