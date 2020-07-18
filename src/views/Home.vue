@@ -35,6 +35,7 @@ import CheckboxWithoutLinkageExample from './CheckboxWithoutLinkageExample.vue'
 import AsyncExample from './AsyncExample.vue'
 import EditExample from './EditExample.vue'
 import DragAndDropExample from './DragAndDropExample.vue'
+import DisableDragAndDropExample from './DisableDragAndDropExample.vue'
 import ButtonExample from './ButtonExample.vue'
 import ContextMenuExample from './ContextMenuExample.vue'
 import SearchExample from './SearchExample.vue'
@@ -61,6 +62,7 @@ export default {
     AsyncExample, 
     EditExample, 
     DragAndDropExample,
+    DisableDragAndDropExample,
     ButtonExample,
     ContextMenuExample,
     SearchExample,
@@ -169,6 +171,15 @@ export default {
           component:     'DragAndDropExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/DragAndDropExample.vue',
           codePenUrl:    'https://codepen.io/tinywisp/pen/LYGBrgp'
+        },
+        {
+          title: {
+            en:          'disable drag and drop',
+            zh:          '禁止拖放'
+          },
+          component:     'DisableDragAndDropExample',
+          sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/DisableDragAndDropExample.vue',
+          codePenUrl:    'https://codepen.io/tinywisp/pen/zYrMoxE'
         },
         {
           title: {
