@@ -116,31 +116,6 @@ export default {
 </script>
 
 <style scoped>
-.example-wrapper {
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.title {
-    width: auto;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 24px;
-}
-.panel {
-  width: 100%;
-  min-height: 500px;
-  box-sizing: border-box;
-  padding: 10px;
-  margin: 20px 0 20px 0;
-  border: 1px solid gray;
-  box-shadow: 0 0 5px #ccc;
-  border-radius: 5px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
 .panel .tree {
   width: 50%;
 }
@@ -156,6 +131,7 @@ export default {
   flex-grow: 1;
   width: 30%;
   list-style: none;
+  padding-left: 0;
 }
 .result .list .head {
   font-size: 18px;

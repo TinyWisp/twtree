@@ -640,8 +640,14 @@ export default {
       }
 
       if (this.contextMenu.node !== node) {
-        this.hideContextMenuOnDisplay()
+        let selected = this.getSelected()
+        for (let item of selected) {
+          if (item !== node ) {
+            this.deselect(item)
+          }
+        }
         this.select(node)
+        this.hideContextMenuOnDisplay()
       }
 
       let nodeOffset = this.getOffset(node)

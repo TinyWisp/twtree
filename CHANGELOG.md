@@ -1,3 +1,6 @@
+2.1.0
+    fix: multiple selection is enabled when the user right click a node
+
 2.0.0
     add a prop: node.__.dpos
     add events: expand, collapse
@@ -47,11 +50,11 @@
         contextmenu-wrapper -> twtree-contextmenu-wrapper
 
 1.4.0
-    modify: prop node.style.titleMaxWidth can be assigned with a negative value.
+    modify: prop node.style.titleMaxWidth is able to be assigned with a negative value.
 
 1.3.1
     fix: node.style.titleMaxWidth with a percentage value not working properly.
-    add a prop: node.__.titleMaxWidth
+    add a prop: node.style.titleMaxWidth
 
 1.3.0
     add props: node.style.extraAlwaysVisible, node.style.titleMaxWidth, node.style.titleOverflow, node.__.titleTip

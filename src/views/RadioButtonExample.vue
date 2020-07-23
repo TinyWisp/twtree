@@ -155,25 +155,6 @@ export default {
 </script>
 
 <style scoped>
-.example-wrapper {
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.panel {
-  width: 100%;
-  min-height: 500px;
-  box-sizing: border-box;
-  padding: 10px;
-  margin: 20px 0 20px 0;
-  border: 1px solid gray;
-  box-shadow: 0 0 5px #ccc;
-  border-radius: 5px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
 .panel .tree {
   width: 50%;
 }

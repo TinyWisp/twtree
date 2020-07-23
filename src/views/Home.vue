@@ -4,9 +4,28 @@
       <span class="title">{{text[locale]['headerTitle']}}</span>
     </div>
 
+    <hr/>
+    <table class="demos-table">
+      <thead>
+        <tr>
+          <th>demo</th>
+          <th>source code</th>
+          <th>codepen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, i) in items" :key="'tr_' + i">
+          <td><a :href="'#' + item.anchor">{{item.title[locale]}}</a></td>
+          <td><a :href="item.sourceCodeUrl" target="_blank">{{text[locale]['codeLinkText']}}</a></td>
+          <td><a :href="item.codepenUrl" target="_blank">{{text[locale]['codepenLinkText']}}</a></td>
+        </tr>
+      </tbody>
+    </table>
+
     <template v-for="(item, i) in items">
       <hr :key="'hr_' + i"/>
       <div class="row" :key="'row_' + i">
+        <a :name='item.anchor'></a>
         <span class="title">
           {{item.title[locale]}}
         </span>
@@ -19,7 +38,7 @@
           <svg class="try-link-icon" viewBox="0 0 100 100" stroke="currentcolor">
             <path d="M100 34.2c-.4-2.6-3.3-4-5.3-5.3-3.6-2.4-7.1-4.7-10.7-7.1-8.5-5.7-17.1-11.4-25.6-17.1-2-1.3-4-2.7-6-4-1.4-1-3.3-1-4.8 0-5.7 3.8-11.5 7.7-17.2 11.5L5.2 29C3 30.4.1 31.8 0 34.8c-.1 3.3 0 6.7 0 10v16c0 2.9-.6 6.3 2.1 8.1 6.4 4.4 12.9 8.6 19.4 12.9 8 5.3 16 10.7 24 16 2.2 1.5 4.4 3.1 7.1 1.3 2.3-1.5 4.5-3 6.8-4.5 8.9-5.9 17.8-11.9 26.7-17.8l9.9-6.6c.6-.4 1.3-.8 1.9-1.3 1.4-1 2-2.4 2-4.1V37.3c.1-1.1.2-2.1.1-3.1 0-.1 0 .2 0 0zM54.3 12.3L88 34.8 73 44.9 54.3 32.4V12.3zm-8.6 0v20L27.1 44.8 12 34.8l33.7-22.5zM8.6 42.8L19.3 50 8.6 57.2V42.8zm37.1 44.9L12 65.2l15-10.1 18.6 12.5v20.1zM50 60.2L34.8 50 50 39.8 65.2 50 50 60.2zm4.3 27.5v-20l18.6-12.5 15 10.1-33.6 22.4zm37.1-30.5L80.7 50l10.8-7.2-.1 14.4z"></path>
           </svg>
-          <a :href="item.codePenUrl" :title="text[locale]['codepenLinkTip']" class="link" target="_blank">{{text[locale]['codepenLinkText']}}</a>
+          <a :href="item.codepenUrl" :title="text[locale]['codepenLinkTip']" class="link" target="_blank">{{text[locale]['codepenLinkText']}}</a>
         </span>
         <component :is="item.component"/>
       </div>
@@ -106,8 +125,9 @@ export default {
             zh:          '基本功能'
           },
           component:     'BasicExample',
+          anchor:        'basic',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/oNbyRwj'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/oNbyRwj'
         },
         {
           title: {
@@ -115,197 +135,219 @@ export default {
             zh:          '复选框'
           },
           component:     'CheckboxExample',
+          anchor:        'checkbox',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/NWxBMob'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/NWxBMob'
         },
         {
           title: {
             en:          'checkbox: no linkage relationship between parent and child nodes',
             zh:          '复选框: 无联动'
           },
+          anchor:        'checkbox-without-linkage',
           component:     'CheckboxWithoutLinkageExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxWithoutLinkageExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/BajGavr'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/BajGavr'
         },
         {
           title: {
             en:          'radio button',
             zh:          '单选框'
           },
+          anchor:        'radio-button',
           component:     'RadioButtonExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/RadioButtonExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/gOPjKPM'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/gOPjKPM'
         },
         {
           title:{
             en:          'async loading',
             zh:          '异步加载'
           },
+          anchor:        'async',
           component:     'AsyncExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/AsyncExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/RwrBBRj'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/RwrBBRj'
         },
         {
           title:{
             en:          'edit',
             zh:          '编辑'
           },
+          anchor:        'edit',
           component:     'EditExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/EditExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/jOWpKdv'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/jOWpKdv'
         },
         {
           title: {
             en:          'button',
             zh:          '按钮'
           },
+          anchor:        'button',
           component:     'ButtonExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/ButtonExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/oNbMywg'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/oNbMywg'
         },
         {
           title: {
             en:          'drag and drop',
             zh:          '拖放'
           },
+          anchor:        'drag-and-drop',
           component:     'DragAndDropExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/DragAndDropExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/LYGBrgp'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/LYGBrgp'
         },
         {
           title: {
             en:          'disable drag and drop',
             zh:          '禁止拖放'
           },
+          anchor:        'disable-drag-and-drop',
           component:     'DisableDragAndDropExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/DisableDragAndDropExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/zYrMoxE'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/zYrMoxE'
         },
         {
           title: {
             en:          'context menu',
             zh:          '右键菜单'
           },
+          anchor:        'context-menu',
           component:     'ContextMenuExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/ContextMenuExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/gOPjKGg'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/gOPjKGg'
         },
         {
           title: {
             en:          'search',
             zh:          '查找'
           },
+          anchor:        'search',
           component:     'SearchExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/SearchExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/bGEjjNj'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/bGEjjNj'
         },
         {
           title: {
             en:          'multiple select',
             zh:          '多选'
           },
+          anchor:        'multi-select',
           component:     'MultiSelectExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/MultiSelectExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/qBbyKwb'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/qBbyKwb'
         },
         {
           title: {
             en:          'sort',
             zh:          '排序'
           },
+          anchor:        'sort',
           component:     'SortExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/SortExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/NWxBBGO'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/NWxBBGO'
         },
         {
           title: {
             en:          'no root node',
             zh:          '无根结点'
           },
+          anchor:        'no-root-node',
           component:     'NoRootExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/NoRootExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/qBbyKeZ'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/qBbyKeZ'
         },
         {
           title: {
             en:          'custom appearance: size',
             zh:          '自定义外观: 大小'
           },
+          anchor:        'custom-appearance-size',
           component:     'CustomAppearanceSizeExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceSizeExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/GRoXZOj'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/GRoXZOj'
         },
         {
           title: {
             en:          'custom appearance: icon',
             zh:          '自定义外观: 图标'
           },
+          anchor:        'custom-appearance-icon',
           component:     'CustomAppearanceIconExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceIconExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/eYJLZjb'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/eYJLZjb'
         },
         {
           title: {
             en:          'custom appearance: drag and drop',
             zh:          '自定义外观: 拖放操作的图像及箭头'
           },
+          anchor:        'custom-appearance-drag-and-drop',
           component:     'CustomAppearanceDragAndDropExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceDragAndDropExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/dyGqXON'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/dyGqXON'
         },
         {
           title: {
             en:          'custom appearance: checkbox',
             zh:          '自定义外观: 复选框'
           },
+          anchor:        'custom-appearance-checkbox',
           component:     'CustomAppearanceCheckboxExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceCheckboxExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/vYLzKmJ'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/vYLzKmJ'
         },
         {
           title: {
             en:          'custom appearance: background color',
             zh:          '自定义外观: 背景色'
           },
+          anchor:        'custom-appearance-background-color',
           component:     'CustomAppearanceBackgroundColorExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceBackgroundColorExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/RwrYRLj'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/RwrYRLj'
         },
         {
           title: {
             en:          'custom appearance: stripes',
             zh:          '自定义外观: 条纹'
           },
+          anchor:        'custom-appearance-stripes',
           component:     'CustomAppearanceStripesExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceStripesExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/oNbPLpW'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/oNbPLpW'
         },
         {
           title: {
             en:          'custom appearance: disable animations',
             zh:          '自定义外观: 禁止动画效果'
           },
+          anchor:        'custom-appearance-disable-animations',
           component:     'CustomAppearanceDisableAnimationsExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceDisableAnimationsExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/ZEQMOxY'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/ZEQMOxY'
         },
         {
           title: {
             en:          'custom appearance: extra content',
             zh:          '自定义外观: 附加内容'
           },
+          anchor:        'custom-appearance-extra-content',
           component:     'CustomAppearanceExtraContentExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceExtraContentExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/NWxLrMo'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/NWxLrMo'
         },
         {
           title: {
             en:          'custom appearance: limit title width',
             zh:          '自定义外观: 限制标题宽度'
           },
+          anchor:        'custom-appearance-limit-title-width',
           component:     'CustomAppearanceLimitTitleWidthExample',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceLimitTitleWidthExample.vue',
-          codePenUrl:    'https://codepen.io/tinywisp/pen/yLexJQL'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/yLexJQL'
         }
       ]
     }
@@ -320,6 +362,33 @@ export default {
   }
 }
 </script>
+
+<style>
+@media only screen and (max-width: 800px) {
+  .example-wrapper {
+    width: 100% !important;
+  }
+}
+.example-wrapper {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.panel {
+  width: 100%;
+  min-height: 500px;
+  box-sizing: border-box;
+  padding: 10px;
+  margin: 20px 0 20px 0;
+  border: 1px solid gray;
+  box-shadow: 0 0 5px #ccc;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+</style>
 
 <style scoped>
 .header {
@@ -390,5 +459,24 @@ hr {
   margin-right: 0.5em;
   vertical-align: middle;
   fill: brown;
+}
+.demos-table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+.demos-table th {
+  border: 1px solid black;
+  padding: 8px;
+}
+.demos-table td {
+  border: 1px solid black;
+  padding: 8px;
+}
+.demos-table tr td:first-of-type {
+  text-align: left;
+}
+.demos-table a {
+  text-decoration: none;
 }
 </style>
