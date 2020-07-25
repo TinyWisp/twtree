@@ -1,3 +1,6 @@
+2.1.1
+    upgrade some dependencies
+
 2.1.0
     fix: multiple selection is enabled when the user right click a node
 
