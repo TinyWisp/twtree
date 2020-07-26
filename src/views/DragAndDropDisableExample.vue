@@ -13,7 +13,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'disable-drag-and-drop-example',
+  name: 'drag-and-drop-disable-example',
   components: {
     TWTree
   },

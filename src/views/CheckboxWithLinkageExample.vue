@@ -40,7 +40,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'checkbox-example',
+  name: 'checkbox-with-linkage-example',
   components: {
     TWTree
   },

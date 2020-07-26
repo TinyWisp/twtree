@@ -1,3 +1,7 @@
+2.2.0
+    add props: node.style.showIcon, node.style.showSwitcher
+    fix a bug: method isDroppable sometimes doesn't work improperly 
+
 2.1.1
     upgrade some dependencies
 

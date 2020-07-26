@@ -51,7 +51,7 @@
             @drop="dropEvent()"
             :ref="'node-' + item.id"
             :key="item.id">
-            <span class="twtree-switcher-wrapper" @click.stop="toggleDirectoryState(item)">
+            <span class="twtree-switcher-wrapper" v-if="item.style.showSwitcher" @click.stop="toggleDirectoryState(item)">
               <slot name="twtree-switcher" v-bind:node="item">
                 <svg class="twtree-switcher-icon twtree-switcher-expanded" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
                   <path d="M30 10 L16 26 2 10 Z" />
@@ -78,7 +78,7 @@
               </slot>
             </span>
             <span class="twtree-icon-and-title" :ref="'icon-and-title-' + item.id ">
-              <span class="twtree-icon-wrapper">
+              <span class="twtree-icon-wrapper" v-if="item.style.showIcon">
                 <slot name="icon" v-bind:node="item">
                   <svg viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="twtree-icon" v-if="item.hasChild && (item.directoryState === 'collapsed' || item.directoryState === 'expanded')">
                     <path d="M2 26 L30 26 30 7 14 7 10 4 2 4 Z M30 12 L2 12" />
@@ -247,7 +247,9 @@ export default {
           titleMaxWidth: 'none',
           titleOverflow: 'clip',
           marginTop: 0,
-          marginBottom: 0
+          marginBottom: 0,
+          showSwitcher: true,
+          showIcon: true
         },
         __: {
           isEditing: false,
@@ -388,6 +390,8 @@ export default {
         this.setAttr(node, 'style', 'titleOverflow',       this.getAttr(node, 'style', 'titleOverflow'))
         this.setAttr(node, 'style', 'marginTop',           this.getAttr(node, 'style', 'marginTop'))
         this.setAttr(node, 'style', 'marginBottom',        this.getAttr(node, 'style', 'marginBottom'))
+        this.setAttr(node, 'style', 'showSwitcher',        this.getAttr(node, 'style', 'showSwitcher'))
+        this.setAttr(node, 'style', 'showIcon',            this.getAttr(node, 'style', 'showIcon'))
 
         this.setAttr(node, '__', 'dpos',           isVisible ? dpos : -1)
         this.setAttr(node, '__', 'gpos',           i)
@@ -914,7 +918,7 @@ export default {
         }
       }
 
-      if (this.dragAndDrop.dragNode.parent === this.dragAndDrop.overNode.parent) {
+      if (this.dragAndDrop.dragNode.__.parent === this.dragAndDrop.overNode.__.parent) {
         let dragNodePos = this.getAttr(this.dragAndDrop.dragNode, '__', 'pos')
         let overNodePos = this.getAttr(this.dragAndDrop.overNode, '__', 'pos')
         if (this.dragAndDrop.overArea === 'prev' && overNodePos === dragNodePos + 1) {

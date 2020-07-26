@@ -25,7 +25,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'custom-appearance-drag-and-drop-example',
+  name: 'drag-and-drop-custom-appearance-example',
   components: {
     TWTree
   },
