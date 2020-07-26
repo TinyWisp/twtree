@@ -6,9 +6,7 @@
     <span class="info">
       <span class="key">dragNode:</span> <span class="val">{{dragNode}}</span> <br>
       <span class="key">overNode:</span> <span class="val">{{overNode}}</span> <br>
-      <span class="key">overArea:</span> <span class="val">{{overArea}}</span> <br>
-      <span class="key">__.dragOverArea:</span> <span class="val">{{internalDragOverArea}}</span> <br>
-      <span class="key">__.isDroppable:</span> <span class="val">{{internalIsDroppable}}</span> <br>
+      <span class="key">overArea:</span> <span class="val">{{overArea}}</span>
     </span>
   </div>
 </template>
@@ -26,8 +24,6 @@ export default {
       dragNode: '',
       overNode: '',
       overArea: '',
-      internalDragOverArea: '',
-      internalIsDroppable: '',
       tree: [
         {
           id: 1,
@@ -91,12 +87,6 @@ export default {
       this.overArea = tree.dragAndDrop.overArea !== null
         ? tree.dragAndDrop.overArea
         : ''
-      this.internalDragOverArea = tree.dragAndDrop.overNode !== null
-        ? tree.dragAndDrop.overNode.__.dragOverArea
-        : ''
-      this.internalIsDroppable  = tree.dragAndDrop.overNode !== null && tree.dragAndDrop.overNode.__.isDroppable === true
-            ? 'true'
-            : 'false'
     }
   }
 }

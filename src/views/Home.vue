@@ -292,7 +292,9 @@ export default {
                           ? node.title
                           : node.__.parent.title + ': ' + node.title
         }
-        this.$router.push(node.route)
+        if (this.$route.path !== node.route) {
+          this.$router.push(node.route)
+        }
       }
     }
   },
