@@ -1,3 +1,6 @@
+2.3.0
+    add a method: reload()
+
 2.2.0
     add props: node.style.showIcon, node.style.showSwitcher
     fix a bug: method isDroppable sometimes doesn't work improperly 

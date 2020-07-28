@@ -355,15 +355,7 @@ describe('basic', ()=>{
     it('methods: search, clearSearchResult', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
-                tree: commonTree,
-                checkboxLinkage: true,
-                defaultAttrs: {
-                    checkbox: {
-                        show: true,
-                        state: 'unchecked',
-                        disable: false
-                    }
-                }
+                tree: commonTree
             }
         })
         await wrapper.vm.$nextTick()
@@ -393,15 +385,7 @@ describe('basic', ()=>{
     it('methods: edit, quitEdit', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
-                tree: commonTree,
-                checkboxLinkage: true,
-                defaultAttrs: {
-                    checkbox: {
-                        show: true,
-                        state: 'unchecked',
-                        disable: false
-                    }
-                }
+                tree: commonTree
             }
         })
         await wrapper.vm.$nextTick()
@@ -415,6 +399,27 @@ describe('basic', ()=>{
         wrapper.vm.quitEdit(node6)
         await wrapper.vm.$nextTick()
         expect(node6.__.isEditing).toBeFalsy()
+    })
+
+    it('method: reload', async ()=>{
+        let tree = JSON.parse(JSON.stringify(commonTree))
+
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: tree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.items.length).toBe(8)
+        tree[0]['children'].push({
+            id: 100,
+            title: 'node100'
+        })
+        wrapper.vm.reload()
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.items.length).toBe(9)
+        expect(wrapper.vm.getById(100)).not.toBeNull()
     })
 })
 

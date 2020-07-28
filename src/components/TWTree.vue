@@ -414,6 +414,10 @@ export default {
 
       return items
     },
+    reload() {
+      this.nodes = this.tree;
+      this.refresh();
+    },
     refresh() {
       this.treeWidth = this.$refs.tree.offsetWidth
       this.items = this.getItems()
