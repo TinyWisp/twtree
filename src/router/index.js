@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import BasicExample from '../views/BasicExample.vue'
 import AsyncExample from '../views/AsyncExample.vue'
 import EditExample from '../views/EditExample.vue'
 import ButtonExample from '../views/ButtonExample.vue'
@@ -10,7 +9,10 @@ import SearchExample from '../views/SearchExample.vue'
 import MultiSelectExample from '../views/MultiSelectExample.vue'
 import RadioButtonExample from '../views/RadioButtonExample.vue'
 import SortExample from '../views/SortExample.vue'
-import NoRootExample from '../views/NoRootExample.vue'
+
+import GettingStartedDisplayATreeExample from '../views/GettingStartedDisplayATreeExample.vue'
+import GettingStartedBasicOperationsExample from '../views/GettingStartedBasicOperationsExample.vue'
+import GettingStartedSetPropsExample from '../views/GettingStartedSetPropsExample.vue'
 
 import DragAndDropBasicExample from '../views/DragAndDropBasicExample.vue'
 import DragAndDropAdvancedExample from '../views/DragAndDropAdvancedExample.vue'
@@ -20,6 +22,11 @@ import DragAndDropCustomAppearanceExample from '../views/DragAndDropCustomAppear
 import CheckboxWithLinkageExample from '../views/CheckboxWithLinkageExample.vue'
 import CheckboxWithoutLinkageExample from '../views/CheckboxWithoutLinkageExample.vue'
 import CheckboxCustomAppearanceExample from '../views/CheckboxCustomAppearanceExample.vue'
+
+import RootNodeNoRootNodeExample from '../views/RootNodeNoRootNodeExample.vue'
+import RootNodeNoSwitcherExample from '../views/RootNodeNoSwitcherExample.vue'
+import RootNodeCheckingExample from '../views/RootNodeCheckingExample.vue'
+import RootNodeCustomAppearanceExample from '../views/RootNodeCustomAppearanceExample.vue'
 
 import CustomAppearanceSizeExample from '../views/CustomAppearanceSizeExample.vue'
 import CustomAppearanceIconExample from '../views/CustomAppearanceIconExample.vue'
@@ -35,12 +42,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: '/example/basic',
-  },
-  {
-    path: '/example/basic',
-    name: 'basic-example',
-    component: BasicExample
+    redirect: '/example/getting-started/display-a-tree',
   },
   {
     path: '/example/async',
@@ -83,12 +85,22 @@ const routes = [
     name: 'sort-example',
     component: SortExample
   },
-  {
-    path: '/example/no-root',
-    name: 'no-root-example',
-    component: NoRootExample
-  },
 
+  {
+    path: '/example/getting-started/display-a-tree',
+    name: 'getting-started-display-a-tree-example',
+    component: GettingStartedDisplayATreeExample
+  },
+  {
+    path: '/example/getting-started/basic-operations',
+    name: 'getting-started-basic-operations-example',
+    component: GettingStartedBasicOperationsExample
+  },
+  {
+    path: '/example/getting-started/set-props',
+    name: 'getting-started-set-props-example',
+    component: GettingStartedSetPropsExample
+  },
 
   {
     path: '/example/checkbox/with-linkage',
@@ -125,6 +137,27 @@ const routes = [
     path: '/example/drag-and-drop/custom-appearance',
     name: 'drag-and-drop-custom-appearance-example',
     component: DragAndDropCustomAppearanceExample
+  },
+
+  {
+    path: '/example/root-node/no-root-node',
+    name: 'root-node-no-root-node-example',
+    component: RootNodeNoRootNodeExample
+  },
+  {
+    path: '/example/root-node/no-switcher',
+    name: 'root-node-no-switcher-example',
+    component: RootNodeNoSwitcherExample
+  },
+  {
+    path: '/example/root-node/checking',
+    name: 'root-node-checking-example',
+    component: RootNodeCheckingExample
+  },
+  {
+    path: '/example/root-node/custom-appearance',
+    name: 'root-node-custom-appearance-example',
+    component: RootNodeCustomAppearanceExample
   },
 
   {

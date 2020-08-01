@@ -1,3 +1,9 @@
+2.4.0
+    add a prop: fnAfterCalculate
+    fix: 
+        slot 'title' not working
+        slot 'switcher' not working
+
 2.3.0
     add a method: reload()
 

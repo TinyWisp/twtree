@@ -12,7 +12,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'display-a-tree-example',
+  name: 'getting-started-display-a-tree-example',
   components: {
     TWTree
   },

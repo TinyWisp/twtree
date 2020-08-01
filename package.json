@@ -1,6 +1,6 @@
 {
   "name": "twtree",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "A highly customizable tree component for vue, which features checkbox, async loading, drag and drop, context menu and custom appearance.",
   "main": "lib/twtree.umd.min.js",
   "module": "lib/twtree.esm.js",

@@ -52,7 +52,7 @@
             :ref="'node-' + item.id"
             :key="item.id">
             <span class="twtree-switcher-wrapper" v-if="item.style.showSwitcher" @click.stop="toggleDirectoryState(item)">
-              <slot name="twtree-switcher" v-bind:node="item">
+              <slot name="switcher" v-bind:node="item">
                 <svg class="twtree-switcher-icon twtree-switcher-expanded" viewBox="-7 -3 46 46" fill="currentColor" aria-hidden="true" v-if="item.directoryState === 'expanded'">
                   <path d="M30 10 L16 26 2 10 Z" />
                 </svg>
@@ -89,7 +89,7 @@
                 </slot>
               </span>
               <span class="twtree-title-wrapper" :ref="'title-' + item.id">
-                <slot name="twtree-title" v-bind:node="item">
+                <slot name="title" v-bind:node="item">
                   <span 
                     :class="{'twtree-title':true, 'twtree-title-editing':item.__.isEditing}" 
                     :contenteditable="item.__.isEditing"
@@ -208,6 +208,11 @@ export default {
       default: null
     },
     fnBeforeContextMenu: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    fnAfterCalculate: {
       type: Function,
       required: false,
       default: null
@@ -406,6 +411,10 @@ export default {
         this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
+
+        if (this.fnAfterCalculate !== null) {
+          this.fnAfterCalculate(node)
+        }
 
         if (isVisible) {
           dpos++

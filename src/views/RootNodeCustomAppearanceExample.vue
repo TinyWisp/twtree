@@ -1,11 +1,18 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree 
-        :tree="tree"
-        :fnAfterCalculate="fnAfterCalculate" 
-        ref="tree" 
-        class="tree" />
+      <TWTree :tree="tree" class="tree">
+          <template v-slot:icon="{node}">
+            <svg v-if="node.__.parent === null" class="root-node-icon" viewBox="0 0 32 32" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z" />
+            </svg>
+          </template>
+           <template v-slot:title="{node}">
+            <span v-if="node.__.parent === null" class="root-node-title">
+              {{node.title}}
+            </span>
+          </template>
+      </TWTree>
     </div>
   </div>
 </template>
@@ -14,12 +21,13 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'custom-appearance-stripes-example',
+  name: 'root-node-custom-appearance-example',
   components: {
     TWTree
   },
   data() {
     return {
+      text: '',
       tree: [
         {
           id: 1,
@@ -62,20 +70,6 @@ export default {
       ]
 
     }
-  },
-  methods: {
-    fnAfterCalculate(node) {
-      let tree = this.$refs.tree
-      if (node.__.isVisible) {
-        let bgColor = node.__.dpos % 2 === 1
-                    ? 'lightblue'
-                    : 'transparent';
-        tree.setAttr(node, 'style', 'bgColor', bgColor)
-      }
-    }
-  },
-  mounted() {
-      this.stripes()
   }
 }
 </script>
@@ -83,5 +77,16 @@ export default {
 <style scoped>
 .panel .tree {
   width: 50%;
+}
+.root-node-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: brown;
+  stroke: brown;
+}
+.root-node-title {
+  font-weight: bold;
+  color: brown;
 }
 </style>

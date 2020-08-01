@@ -1,6 +1,5 @@
 <template>
   <div class="example-wrapper">
-    <button class="btn" @click="createTopNode()" >create a top level node</button>
     <button class="btn" @click="create()" >create</button>
     <button class="btn" @click="remove()" >remove</button>
     <button class="btn" @click="edit()" >edit</button>
@@ -15,7 +14,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'no-root-example',
+  name: 'getting-started-basic-operations-example',
   components: {
     TWTree
   },
@@ -26,7 +25,7 @@ export default {
       tree: [
         {
           id: 1,
-          title: 'node 1',
+          title: 'ROOT',
           hasChild: true,
           children: [
             {
@@ -61,22 +60,6 @@ export default {
               title: 'child 4'
             }
           ]
-        },
-        {
-            id: 9,
-            title: 'node 2'
-        },
-        {
-            id: 10,
-            title: 'node 3'
-        },
-        {
-            id: 11,
-            title: 'node 4'
-        },
-        {
-            id: 12,
-            title: 'node 5'
         }
       ]
     }
@@ -116,15 +99,6 @@ export default {
       } else {
         tree.search(this.keyword)
       }
-    },
-    createTopNode() {
-        this.counter += 1
-        let tree = this.$refs.tree
-        tree.create({
-            id: this.counter,
-            title: 'hello, world!' + this.counter,
-            hasChild: false
-        }, null)
     }
   }
 }
@@ -135,8 +109,7 @@ export default {
   width: 50%;
 }
 .btn {
-  min-width: 100px;
-  width: auto;
+  width: 100px;
   margin-right: 20px;
 }
 </style>

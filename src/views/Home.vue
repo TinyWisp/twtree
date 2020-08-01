@@ -75,13 +75,33 @@ export default {
 
       menuTree: [
         {
-          title_en:      'basic',
-          title_zh:      '基本功能',
-          route:         '/example/basic',
-          sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/BasicExample.vue',
-          codepenUrl:    'https://codepen.io/tinywisp/pen/oNbyRwj'
+          title_en:      'getting started',
+          title_zh:      '开始使用',
+          hasChild:      true,
+          children:      [
+            {
+              title_en:      'display a tree',
+              title_zh:      '显示一颗树',
+              route:         '/example/getting-started/display-a-tree',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/GettingStartedDisplayATreeExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/MWKNvvb'
+            },
+            {
+              title_en:      'basic operations',
+              title_zh:      '基本操作',
+              route:         '/example/getting-started/basic-operations',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/GettingStartedBasicOperationsExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/oNbyRwj'
+            },
+            {
+              title_en:      'set nodes\' default props',
+              title_zh:      '设置结点的缺省属性',
+              route:         '/example/getting-started/set-props',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/GettingStartedSetPropsExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/ExPqvqp'
+            }
+          ]
         },
-
 
         {
           title_en:      'drag and drop',
@@ -205,12 +225,41 @@ export default {
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/SortExample.vue',
           codepenUrl:    'https://codepen.io/tinywisp/pen/NWxBBGO'
         },
+
         {
-          title_en:      'no root node',
-          title_zh:      '无根结点',
-          route:         '/example/no-root',
-          sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/NoRootExample.vue',
-          codepenUrl:    'https://codepen.io/tinywisp/pen/qBbyKeZ'
+          title_en:      'root node',
+          title_zh:      '根结点',
+          hasChild:      true,
+          children:      [
+            {
+              title_en:      'no root node',
+              title_zh:      '无根结点',
+              route:         '/example/root-node/no-root-node',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/RootNodeNoRootNodeExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/qBbyKeZ'
+            },
+            {
+              title_en:      'no expander/collapser',
+              title_zh:      '无展开/折叠图标',
+              route:         '/example/root-node/no-switcher',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/RootNodeNoSwitcherExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/gOPVRBj'
+            },
+            {
+              title_en:      'check if a node is the root node',
+              title_zh:      '判断是否根结点',
+              route:         '/example/root-node/checking',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/RootNodeCheckingExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/xxZvrQg'
+            },
+            {
+              title_en:      'custom appearance',
+              title_zh:      '自定义外观',
+              route:         '/example/root-node/custom-appearance',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/RootNodeCustomAppearanceExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/WNrVEOv'
+            }
+          ]
         },
 
         {

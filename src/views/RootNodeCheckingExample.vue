@@ -2,11 +2,11 @@
   <div class="example-wrapper">
     <div class="panel">
       <TWTree 
-        :tree="tree"
-        :fnAfterCalculate="fnAfterCalculate" 
-        ref="tree" 
-        class="tree" />
+      :tree="tree"
+      class="tree"
+      @select="check" />
     </div>
+    <span class="output">{{text}}</span>
   </div>
 </template>
 
@@ -14,12 +14,13 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'custom-appearance-stripes-example',
+  name: 'root-node-checking-example',
   components: {
     TWTree
   },
   data() {
     return {
+      text: '',
       tree: [
         {
           id: 1,
@@ -64,18 +65,11 @@ export default {
     }
   },
   methods: {
-    fnAfterCalculate(node) {
-      let tree = this.$refs.tree
-      if (node.__.isVisible) {
-        let bgColor = node.__.dpos % 2 === 1
-                    ? 'lightblue'
-                    : 'transparent';
-        tree.setAttr(node, 'style', 'bgColor', bgColor)
-      }
+    check(node) {
+      this.text = node.__.parent === null
+                  ? 'node "' + node.title + '" is the root node'
+                  : 'node "' + node.title + '" is not the root node'
     }
-  },
-  mounted() {
-      this.stripes()
   }
 }
 </script>
