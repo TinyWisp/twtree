@@ -109,4 +109,8 @@ export default {
     height: 1em;
     vertical-align: middle;
 }
+.switcher-icon {
+    width: 1em;
+    height: 1em;
+}
 </style>
