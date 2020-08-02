@@ -9,7 +9,7 @@
 * [主要特色](#主要特色)
 * [开始使用](#开始使用)
 * [文档](https://github.com/TinyWisp/twtree/wiki/%E6%96%87%E6%A1%A3)
-* [示例](https://tinywisp.github.io/twtree/)
+* [示例](https://tinywisp.gitee.io/twtree/)
 * [开源协议](#开源协议)
 
 A highly customizable tree component for vue.
@@ -116,7 +116,7 @@ export default {
  ```
 
 ## 示例
- *  [示例](https://tinywisp.github.io/twtree/)
+ *  [示例](https://tinywisp.gitee.io/twtree/)
 
 ## 开源协议
  * MIT
