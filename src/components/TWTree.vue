@@ -412,7 +412,7 @@ export default {
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
 
-        if (this.fnAfterCalculate !== null) {
+        if (typeof(this.fnAfterCalculate) === 'function') {
           this.fnAfterCalculate(node)
         }
 
@@ -424,7 +424,7 @@ export default {
       return items
     },
     reload() {
-      this.nodes = this.tree;
+      this.nodes = JSON.parse(JSON.stringify(this.tree)),
       this.refresh();
     },
     refresh() {
@@ -943,7 +943,7 @@ export default {
         }
       }
 
-      if (this.fnIsDroppable !== null) {
+      if (typeof(this.fnIsDroppable) === 'function') {
         return this.fnIsDroppable(this.dragAndDrop)
       }
 
@@ -1191,10 +1191,6 @@ export default {
         let rs = this.refreshDirectoryCheckboxStateRecursively(tnode)
         hasChecked = hasChecked || rs.hasChecked
         hasUnchecked = hasUnchecked || rs.hasUnchecked
-
-        if (hasChecked && hasUnchecked) {
-          break
-        }
       }
 
       if (hasChecked && hasUnchecked) {

@@ -9,6 +9,7 @@ import SearchExample from '../views/SearchExample.vue'
 import MultiSelectExample from '../views/MultiSelectExample.vue'
 import RadioButtonExample from '../views/RadioButtonExample.vue'
 import SortExample from '../views/SortExample.vue'
+import ReloadExample from '../views/ReloadExample.vue'
 
 import GettingStartedDisplayATreeExample from '../views/GettingStartedDisplayATreeExample.vue'
 import GettingStartedBasicOperationsExample from '../views/GettingStartedBasicOperationsExample.vue'
@@ -31,6 +32,7 @@ import RootNodeCustomAppearanceExample from '../views/RootNodeCustomAppearanceEx
 import CustomAppearanceSizeExample from '../views/CustomAppearanceSizeExample.vue'
 import CustomAppearanceIconExample from '../views/CustomAppearanceIconExample.vue'
 import CustomAppearanceNoIconsExample from '../views/CustomAppearanceNoIconsExample.vue'
+import CustomAppearanceNoDirectoryTogglesExample from '../views/CustomAppearanceNoDirectoryTogglesExample.vue'
 import CustomAppearanceBackgroundColorExample from '../views/CustomAppearanceBackgroundColorExample.vue'
 import CustomAppearanceStripesExample from '../views/CustomAppearanceStripesExample.vue'
 import CustomAppearanceDisableAnimationsExample from '../views/CustomAppearanceDisableAnimationsExample.vue'
@@ -84,6 +86,11 @@ const routes = [
     path: '/example/sort',
     name: 'sort-example',
     component: SortExample
+  },
+  {
+    path: '/example/reload',
+    name: 'reload-example',
+    component: ReloadExample
   },
 
   {
@@ -174,6 +181,11 @@ const routes = [
     path: '/example/custom-appearance/no-icons',
     name: 'custom-appearance-no-icons-example',
     component: CustomAppearanceNoIconsExample
+  },
+  {
+    path: '/example/custom-appearance/no-directory-toggles',
+    name: 'custom-appearance-no-directory-toggles-example',
+    component: CustomAppearanceNoDirectoryTogglesExample
   },
   {
     path: '/example/custom-appearance/background-color',

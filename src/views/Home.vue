@@ -9,7 +9,8 @@
           :tree="menuTree"
           :defaultAttrs="{
             style: {
-              titleMaxWidth: '-10%'
+              titleMaxWidth: '-5%',
+              titleOverflow: 'ellipsis'
             }
           }"
           @select="showDemo"/>
@@ -31,6 +32,8 @@
             <path d="M100 34.2c-.4-2.6-3.3-4-5.3-5.3-3.6-2.4-7.1-4.7-10.7-7.1-8.5-5.7-17.1-11.4-25.6-17.1-2-1.3-4-2.7-6-4-1.4-1-3.3-1-4.8 0-5.7 3.8-11.5 7.7-17.2 11.5L5.2 29C3 30.4.1 31.8 0 34.8c-.1 3.3 0 6.7 0 10v16c0 2.9-.6 6.3 2.1 8.1 6.4 4.4 12.9 8.6 19.4 12.9 8 5.3 16 10.7 24 16 2.2 1.5 4.4 3.1 7.1 1.3 2.3-1.5 4.5-3 6.8-4.5 8.9-5.9 17.8-11.9 26.7-17.8l9.9-6.6c.6-.4 1.3-.8 1.9-1.3 1.4-1 2-2.4 2-4.1V37.3c.1-1.1.2-2.1.1-3.1 0-.1 0 .2 0 0zM54.3 12.3L88 34.8 73 44.9 54.3 32.4V12.3zm-8.6 0v20L27.1 44.8 12 34.8l33.7-22.5zM8.6 42.8L19.3 50 8.6 57.2V42.8zm37.1 44.9L12 65.2l15-10.1 18.6 12.5v20.1zM50 60.2L34.8 50 50 39.8 65.2 50 50 60.2zm4.3 27.5v-20l18.6-12.5 15 10.1-33.6 22.4zm37.1-30.5L80.7 50l10.8-7.2-.1 14.4z"></path>
           </svg>
           <a :href="demo.codepenUrl" :title="text[locale]['codepenLinkTip']" class="link" target="_blank">{{text[locale]['codepenLinkText']}}</a>
+        </span>
+        <span class="note" v-html="demo.note">
         </span>
         <router-view/>
       </div>
@@ -69,6 +72,7 @@ export default {
 
       demo: {
         title: '',
+        note: '',
         sourceCodeUrl: '',
         codepenUrl: ''
       },
@@ -80,7 +84,7 @@ export default {
           hasChild:      true,
           children:      [
             {
-              title_en:      'display a tree',
+              title_en:      'displaying a tree',
               title_zh:      '显示一颗树',
               route:         '/example/getting-started/display-a-tree',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/GettingStartedDisplayATreeExample.vue',
@@ -94,8 +98,11 @@ export default {
               codepenUrl:    'https://codepen.io/tinywisp/pen/oNbyRwj'
             },
             {
-              title_en:      'set nodes\' default props',
-              title_zh:      '设置结点的缺省属性',
+              title_en:      'setting props of nodes',
+              title_zh:      '设置结点的属性',
+              note_en:       'use prop \'defaultAttrs\' to set the default props of the nodes. ' + 
+                             'if a node doesn\'t have a prop, which exists in the \'defaultAttrs\', then this prop\'s value in \'defaultAttrs\' will be assigned to this prop of the node.',
+              note_zh:       'defaultAttrs，可用来设置结点的缺省属性。<br>当结点没有某个属性，而defaultAttrs中有时，则会使用defaultAttrs中的该属性。',
               route:         '/example/getting-started/set-props',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/GettingStartedSetPropsExample.vue',
               codepenUrl:    'https://codepen.io/tinywisp/pen/ExPqvqp'
@@ -123,7 +130,7 @@ export default {
               codepenUrl:    'https://codepen.io/tinywisp/pen/LYGBrgp'
             },
             {
-              title_en:      'disable drag and drop',
+              title_en:      'disabling drag and drop',
               title_zh:      '禁止拖放操作',
               route:         '/example/drag-and-drop/disable',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/DragAndDropDisableExample.vue',
@@ -145,14 +152,14 @@ export default {
           hasChild:      true,
           children:      [
             {
-              title_en:      'with linkage relationship between parent and child nodes',
+              title_en:      'parent-child linkage',
               title_zh:      '父子结点联动',
               route:         '/example/checkbox/with-linkage',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxWithLinkageExample.vue',
               codepenUrl:    'https://codepen.io/tinywisp/pen/NWxBMob'
             },
             {
-              title_en:      'without linkage relationship between parent and child nodes',
+              title_en:      'no parent-child linkage',
               title_zh:      '父子结点无联动',
               route:         '/example/checkbox/without-linkage',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CheckboxWithoutLinkageExample.vue',
@@ -184,14 +191,14 @@ export default {
           codepenUrl:    'https://codepen.io/tinywisp/pen/RwrBBRj'
         },
         {
-          title_en:      'edit',
+          title_en:      'editing',
           title_zh:      '编辑',
           route:         '/example/edit',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/EditExample.vue',
           codepenUrl:    'https://codepen.io/tinywisp/pen/jOWpKdv'
         },
         {
-          title_en:      'button',
+          title_en:      'buttons',
           title_zh:      '按钮',
           route:         '/example/button',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/ButtonExample.vue',
@@ -205,21 +212,21 @@ export default {
           codepenUrl:    'https://codepen.io/tinywisp/pen/gOPjKGg'
         },
         {
-          title_en:      'search',
+          title_en:      'searching',
           title_zh:      '查找',
           route:         '/example/search',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/SearchExample.vue',
           codepenUrl:    'https://codepen.io/tinywisp/pen/bGEjjNj'
         },
         {
-          title_en:      'multiple select',
+          title_en:      'multiple selecting',
           title_zh:      '多选',
           route:         '/example/multi-select',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/MultiSelectExample.vue',
           codepenUrl:    'https://codepen.io/tinywisp/pen/qBbyKwb'
         },
         {
-          title_en:      'sort',
+          title_en:      'sorting',
           title_zh:      '排序',
           route:         '/example/sort',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/SortExample.vue',
@@ -240,13 +247,13 @@ export default {
             },
             {
               title_en:      'no expander/collapser',
-              title_zh:      '无展开/折叠图标',
+              title_zh:      '无展开/折叠按钮',
               route:         '/example/root-node/no-switcher',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/RootNodeNoSwitcherExample.vue',
               codepenUrl:    'https://codepen.io/tinywisp/pen/gOPVRBj'
             },
             {
-              title_en:      'check if a node is the root node',
+              title_en:      'checking if a node is the root node',
               title_zh:      '判断是否根结点',
               route:         '/example/root-node/checking',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/RootNodeCheckingExample.vue',
@@ -275,7 +282,7 @@ export default {
               codepenUrl:    'https://codepen.io/tinywisp/pen/GRoXZOj'
             },
             {
-              title_en:      'icon',
+              title_en:      'icons',
               title_zh:      '图标',
               route:         '/example/custom-appearance/icon',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceIconExample.vue',
@@ -287,6 +294,13 @@ export default {
               route:         '/example/custom-appearance/no-icons',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceNoIconsExample.vue',
               codepenUrl:    'https://codepen.io/tinywisp/pen/NWxmvRp'
+            },
+            {
+              title_en:      'no directory toggles',
+              title_zh:      '无目录展开/折叠按钮',
+              route:         '/example/custom-appearance/no-directory-toggles',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceNoDirectoryTogglesExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/eYZOZLL'
             },
             {
               title_en:      'background color',
@@ -304,7 +318,7 @@ export default {
               codepenUrl:    'https://codepen.io/tinywisp/pen/oNbPLpW'
             },
             {
-              title_en:      'disable animations',
+              title_en:      'disabling animations',
               title_zh:      '禁止动画效果',
               route:         '/example/custom-appearance/disable-animations',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceDisableAnimationsExample.vue',
@@ -318,7 +332,7 @@ export default {
               codepenUrl:    'https://codepen.io/tinywisp/pen/NWxLrMo'
             },
             {
-              title_en:      'limit title width',
+              title_en:      'limiting widths of titles',
               title_zh:      '限制标题宽度',
               route:         '/example/custom-appearance/limit-title-width',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/CustomAppearanceLimitTitleWidthExample.vue',
@@ -339,7 +353,8 @@ export default {
           codepenUrl:    node.codepenUrl,
           title:         node.__.parent === null
                           ? node.title
-                          : node.__.parent.title + ': ' + node.title
+                          : node.__.parent.title + ': ' + node.title,
+          note:          node.note
         }
         if (this.$route.path !== node.route) {
           this.$router.push(node.route)
@@ -356,8 +371,12 @@ export default {
     }
 
     this.$refs.tree.traverse(function (node) {
-      let key = 'title_' + this.locale
-      node.title = node[key]
+      let titleKey = 'title_' + this.locale
+      let noteKey  = 'note_' + this.locale
+      node.title = node[titleKey]
+      node.note  = node.hasOwnProperty(noteKey)
+        ? node[noteKey]
+        : ''
     }.bind(this))
 
     let routePath = this.$route.path
@@ -444,6 +463,7 @@ export default {
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: center;
+  align-items: center;
 }
 .title {
   text-align: center;
@@ -452,7 +472,7 @@ export default {
   margin-bottom: 1em;
 }
 .links {
-  margin-bottom: 5em;
+  margin-bottom: 2em;
 }
 .link {
   text-decoration: none;
@@ -478,5 +498,11 @@ export default {
   margin-right: 0.5em;
   vertical-align: middle;
   fill: brown;
+}
+.note {
+  display: block;
+  width: 800px;
+  text-align: left;
+  min-height: 2em;
 }
 </style>

@@ -2,10 +2,13 @@
   <div class="example-wrapper">
     <div class="panel">
       <TWTree 
-        :tree="tree"
-        :fnAfterCalculate="fnAfterCalculate" 
-        ref="tree" 
-        class="tree" />
+      :tree="tree"
+      :defaultAttrs="{
+        style: {
+          showSwitcher: false,
+        }
+      }"
+      class="tree" />
     </div>
   </div>
 </template>
@@ -14,7 +17,7 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'custom-appearance-stripes-example',
+  name: 'custom-appearance-no-directory-toggles-example',
   components: {
     TWTree
   },
@@ -61,17 +64,6 @@ export default {
         }
       ]
 
-    }
-  },
-  methods: {
-    fnAfterCalculate(node) {
-      let tree = this.$refs.tree
-      if (node.__.isVisible) {
-        let bgColor = node.__.dpos % 2 === 1
-                    ? 'lightblue'
-                    : 'transparent';
-        tree.setAttr(node, 'style', 'bgColor', bgColor)
-      }
     }
   }
 }

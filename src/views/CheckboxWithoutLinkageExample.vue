@@ -68,10 +68,7 @@ export default {
               children: [
                 {
                   id: 4,
-                  title: 'no checkbox',
-                  checkbox: {
-                    show: false
-                  }
+                  title: 'child 2-1'
                 },
                 {
                   id: 5,
@@ -82,13 +79,12 @@ export default {
                 },
                 {
                   id: 6,
-                  title: 'checkbox disabled',
+                  title: 'child 2-3',
                   checkbox: {
-                    state: 'checked',
-                    disable: true
+                    state: 'checked'
                   }
                 }
-              ],
+              ]
             },
             {
               id: 7,

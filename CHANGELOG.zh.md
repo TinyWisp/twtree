@@ -1,41 +1,41 @@
 2.5.0  
-- fixed:  
-    - method 'refreshDirectoryCheckboxStateRecursively(node)' doesn't work properly.  
-    - method 'reload()' will cause the mutations of prop 'tree'.
+- 修正:  
+    - 方法 'refreshDirectoryCheckboxStateRecursively(node)' 中的错误。  
+    - 方法 'reload()' 会导致对tree属性的修改。
 
 2.4.0
-- added
-    - prop 'fnAfterCalculate(node)'
-- fixed: 
-    - slot 'title' doesn't work.
-    - slot 'switcher' doesn't work.
+- 添加
+    - 属性 'fnAfterCalculate(node)'
+- 修正: 
+    - 插槽 'title' 无效。
+    - 插槽 'switcher' 无效。
 
 2.3.0
-- added:
-    - method 'reload()'
+- 添加:
+    - 方法 'reload()'
 
 2.2.0
-- added:
-    - node prop 'node.style.showIcon'
-    - node prop 'node.style.showSwitcher'
-- fixed:
-    - method 'isDroppable' sometimes doesn't work properly 
+- 添加:
+    - 结点属性 'node.style.showIcon'
+    - 结点属性 'node.style.showSwitcher'
+- 修正:
+    - 方法 'isDroppable(node)'在某些情形下不正常。
 
 2.1.1
-- security:
-    - upgrade some dependencies.
+- 安全性:
+    - 升级一些依赖包.
 
 2.1.0
-- fixed: 
-    - multiple selection is enabled when the user right clicks a node.
+- 修正: 
+    - 右键点击结点的时候，会多选。
 
 2.0.0
-- added:
-    - node prop 'node.__.dpos'
-    - event 'expand'
-    - event 'collapse'
-- changed:
-    - rename some events: 
+- 添加:
+    - 结点属性 'node.__.dpos'
+    - 事件 'expand'
+    - 事件 'collapse'
+- 改动:
+    - 重命名以下事件: 
         - dragOver  -> dragover
         - dragStart -> dragstart
         - dragEnter -> dragenter
@@ -43,7 +43,7 @@
         - dragEnd   -> dragend
         - quitEdit  -> quitedit
         - checkboxStateChange -> checkboxstatechange
-    - rename css classes:
+    - 重命名以下css样式:
         - tree-wrapper        -> twtree-wrapper
         - tree                -> twtree
         - node                -> twtree-node
@@ -81,52 +81,52 @@
         - contextmenu-wrapper -> twtree-contextmenu-wrapper
 
 1.4.0
-- changed: 
-    - node prop 'node.style.titleMaxWidth' is able to be assigned with a negative value.
+- 改动: 
+    - 结点属性 'node.style.titleMaxWidth' 可被赋予负值。
 
 1.3.1
-- fixed: 
-    - node prop 'node.style.titleMaxWidth' with a percentage value doesn't work properly.
-- added:
-    - node prop 'node.style.titleMaxWidth'
+- 修正: 
+    - 结点属性 'node.style.titleMaxWidth' 的值为百分比的时候效果不正确。
+- 添加:
+    - 结点属性 'node.style.titleMaxWidth'
 
 1.3.0
-- added:
-    - node prop 'node.style.extraAlwaysVisible'
-    - node prop 'node.style.titleMaxWidth'
-    - node prop 'node.style.titleOverflow'
-    - node prop 'node.__.titleTip'
+- 添加:
+    - 结点属性 'node.style.extraAlwaysVisible'
+    - 结点属性 'node.style.titleMaxWidth'
+    - 结点属性 'node.style.titleOverflow'
+    - 结点属性 'node.__.titleTip'
 
 1.2.2
-- security:
-    - upgrade some dependencies.
+- 安全性:
+    - 升级一些依赖包.
 
 1.2.1
-- fixed: 
+- 修正: 
     - #2
 
 1.2.0
-- added:
-    - node prop 'node.style.extraFloatRight'
+- 添加:
+    - 结点属性 'node.style.extraFloatRight'
 
 1.1.2
-- fixed: 
-    - 'dragAndDrop.dragNode' and 'dragAndDrop.overNode' are not null when dragend event is triggered.
+- 修正: 
+    - 'dragAndDrop.dragNode' 和 'dragAndDrop.overNode' 在dragend事件触发后不为空。
 
 1.1.1
-- removed:
-    - method 'getSearchResult()'
-- changed:
-    - method 'search(keyword, fnMatch)' returns matched nodes
+- 移除:
+    - 方法 'getSearchResult()'
+- 改动:
+    - 方法 'search(keyword, fnMatch)' 返回匹配的结点。
 
 1.1.0
-- removed:
+- 移除:
     - prop 'fnMatch'
-- changed:
+- 改动:
     - search(keyword) -> search(keyword, fnMatch)
     - refreshItems() -> refresh()
-- added:
-    - method 'sort(node, recursive, fnCompare)'
+- 添加:
+    - 方法 'sort(node, recursive, fnCompare)'
 
 1.0.0
-- the first stable version
+- 第一个稳定版本

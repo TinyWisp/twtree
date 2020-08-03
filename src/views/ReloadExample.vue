@@ -1,11 +1,11 @@
 <template>
   <div class="example-wrapper">
+    <button @click="create">create</button>
     <div class="panel">
-      <TWTree 
-        :tree="tree"
-        :fnAfterCalculate="fnAfterCalculate" 
-        ref="tree" 
-        class="tree" />
+      <TWTree
+      ref="tree"
+      :tree="tree"
+      class="tree" />
     </div>
   </div>
 </template>
@@ -14,12 +14,13 @@
 import TWTree from '../components/TWTree.vue'
 
 export default {
-  name: 'custom-appearance-stripes-example',
+  name: 'reload-example',
   components: {
     TWTree
   },
   data() {
     return {
+      autoId: 100,
       tree: [
         {
           id: 1,
@@ -64,15 +65,14 @@ export default {
     }
   },
   methods: {
-    fnAfterCalculate(node) {
-      let tree = this.$refs.tree
-      if (node.__.isVisible) {
-        let bgColor = node.__.dpos % 2 === 1
-                    ? 'lightblue'
-                    : 'transparent';
-        tree.setAttr(node, 'style', 'bgColor', bgColor)
+      create() {
+        this.tree[0]['children'].push({
+          id : this.autoId,
+          title: 'hello, world' + this.autoId
+        })
+        this.$refs.tree.reload()
+        this.autoId++
       }
-    }
   }
 }
 </script>
