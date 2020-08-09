@@ -1,3 +1,7 @@
+2.6.0
+- fixed:
+    - in firefox, a text file icon follows the mouse pointer when the user is dragging a node.
+
 2.5.0  
 - fixed:  
     - method 'refreshDirectoryCheckboxStateRecursively(node)' doesn't work properly.  

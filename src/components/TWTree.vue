@@ -228,6 +228,7 @@ export default {
       autoIdCounter: 0,
       treeWidth: 0,
       treeWidthInterval: null,
+      emptyImage: null,
       spareDefaultAttrs: {
         selected: false,
         directoryState: 'expanded',
@@ -955,10 +956,9 @@ export default {
         return
       }
 
-      let ghostElement = document.createElement('span')
       this.dragAndDrop.dragNode = node
-      event.dataTransfer.setData('text', node.id);
-      event.dataTransfer.setDragImage(ghostElement, 0, 0)
+      event.dataTransfer.setData('twtree-node', node.id)
+      event.dataTransfer.setDragImage(this.emptyImage, 0, 0)
       event.dataTransfer.dropEffect = 'move'
 
       this.$emit('dragstart', this.dragAndDrop)
@@ -1242,6 +1242,8 @@ export default {
   },
   mounted() {
     this.refresh()
+    this.emptyImage = new Image()
+    this.emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
 
     this.treeWidthInterval = setInterval(function(){
       let treeWidth = this.$refs.tree.offsetWidth

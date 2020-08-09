@@ -102,7 +102,7 @@ export default {
   width: 50%;
 }
 .btn {
-  width: 7em;
+  width: auto;
   vertical-align: middle;
 }
 .btn:first-of-type {

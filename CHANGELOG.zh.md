@@ -1,3 +1,7 @@
+2.6.0
+- 修正:
+    - 拖动结点时，firefox中会显示一个文本文件图标。
+
 2.5.0  
 - 修正:  
     - 方法 'refreshDirectoryCheckboxStateRecursively(node)' 中的错误。  
