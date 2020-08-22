@@ -1,18 +1,22 @@
+2.7.0
+- security:
+    - upgraded some dependencies.
+
 2.6.0
 - fixed:
-    - in firefox, a text file icon follows the mouse pointer when the user is dragging a node.
+    - in firefox, a text file icon followed the mouse pointer when the user was dragging a node.
 
 2.5.0  
 - fixed:  
-    - method 'refreshDirectoryCheckboxStateRecursively(node)' doesn't work properly.  
-    - method 'reload()' will cause the mutations of prop 'tree'.
+    - the refreshDirectoryCheckboxStateRecursively(node) method did't work properly.  
+    - the reload() method caused mutations of the tree property.
 
 2.4.0
 - added
     - prop 'fnAfterCalculate(node)'
 - fixed: 
-    - slot 'title' doesn't work.
-    - slot 'switcher' doesn't work.
+    - the title slot didn't work.
+    - the switcher slot didn't work.
 
 2.3.0
 - added:
@@ -20,26 +24,26 @@
 
 2.2.0
 - added:
-    - node prop 'node.style.showIcon'
-    - node prop 'node.style.showSwitcher'
+    - the node.style.showIcon property
+    - the node.style.showSwitcher property
 - fixed:
-    - method 'isDroppable' sometimes doesn't work properly 
+    - the isDroppable method sometimes didn't work properly 
 
 2.1.1
 - security:
-    - upgrade some dependencies.
+    - upgraded some dependencies.
 
 2.1.0
 - fixed: 
-    - multiple selection is enabled when the user right clicks a node.
+    - multiple selection was enabled when the user right clicked a node.
 
 2.0.0
 - added:
-    - node prop 'node.__.dpos'
-    - event 'expand'
-    - event 'collapse'
+    - the node.__.dpos property
+    - the expand event
+    - the collapse event
 - changed:
-    - rename some events: 
+    - event names: 
         - dragOver  -> dragover
         - dragStart -> dragstart
         - dragEnter -> dragenter
@@ -47,7 +51,7 @@
         - dragEnd   -> dragend
         - quitEdit  -> quitedit
         - checkboxStateChange -> checkboxstatechange
-    - rename css classes:
+    - css class names:
         - tree-wrapper        -> twtree-wrapper
         - tree                -> twtree
         - node                -> twtree-node
@@ -86,24 +90,24 @@
 
 1.4.0
 - changed: 
-    - node prop 'node.style.titleMaxWidth' is able to be assigned with a negative value.
+    - the node.style.titleMaxWidth property is able to be assigned a negative value now.
 
 1.3.1
 - fixed: 
-    - node prop 'node.style.titleMaxWidth' with a percentage value doesn't work properly.
+    - the node.style.titleMaxWidth property assigned a percentage value didn't work properly.
 - added:
-    - node prop 'node.style.titleMaxWidth'
+    - the node.style.titleMaxWidth property
 
 1.3.0
 - added:
-    - node prop 'node.style.extraAlwaysVisible'
-    - node prop 'node.style.titleMaxWidth'
-    - node prop 'node.style.titleOverflow'
-    - node prop 'node.__.titleTip'
+    - the node style.extraAlwaysVisible property
+    - the node style.titleMaxWidth property
+    - the node style.titleOverflow property
+    - the node __.titleTip property
 
 1.2.2
 - security:
-    - upgrade some dependencies.
+    - upgraded some dependencies.
 
 1.2.1
 - fixed: 
@@ -111,26 +115,26 @@
 
 1.2.0
 - added:
-    - node prop 'node.style.extraFloatRight'
+    - the node.style.extraFloatRight property
 
 1.1.2
 - fixed: 
-    - 'dragAndDrop.dragNode' and 'dragAndDrop.overNode' are not null when dragend event is triggered.
+    - dragAndDrop.dragNode and dragAndDrop.overNode were not null when a dragend event was triggered.
 
 1.1.1
 - removed:
-    - method 'getSearchResult()'
+    - the getSearchResult() method
 - changed:
-    - method 'search(keyword, fnMatch)' returns matched nodes
+    - the search(keyword, fnMatch) method returns matched nodes now.
 
 1.1.0
 - removed:
-    - prop 'fnMatch'
+    - the fnMatch property
 - changed:
     - search(keyword) -> search(keyword, fnMatch)
     - refreshItems() -> refresh()
 - added:
-    - method 'sort(node, recursive, fnCompare)'
+    - sort(node, recursive, fnCompare) method
 
 1.0.0
 - the first stable version

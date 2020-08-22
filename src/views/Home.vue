@@ -100,8 +100,8 @@ export default {
             {
               title_en:      'setting props of nodes',
               title_zh:      '设置结点的属性',
-              note_en:       'use prop \'defaultAttrs\' to set the default props of the nodes. ' + 
-                             'if a node doesn\'t have a prop, which exists in the \'defaultAttrs\', then this prop\'s value in \'defaultAttrs\' will be assigned to this prop of the node.',
+              note_en:       'use \'defaultAttrs\' property to set the default properties of the nodes. ' + 
+                             'if a node doesn\'t have a property, which exists in the \'defaultAttrs\', then this property\'s value in \'defaultAttrs\' will be assigned to this property of the node.',
               note_zh:       'defaultAttrs，可用来设置结点的缺省属性。<br>当结点没有某个属性，而defaultAttrs中有时，则会使用defaultAttrs中的该属性。',
               route:         '/example/getting-started/set-props',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/src/views/GettingStartedSetPropsExample.vue',
@@ -356,39 +356,40 @@ export default {
                           : node.__.parent.title + ': ' + node.title,
           note:          node.note
         }
-        if (this.$route.path !== node.route) {
-          this.$router.push(node.route)
+        let currentPath = this.$route.path.replace(/^\/[a-zA-Z]*/, '')
+        if (currentPath !== node.route) {
+          this.$router.push('/' + this.locale + node.route)
         }
+      }
+    },
+    init() {
+      this.locale = this.$route.params.lang === 'zh'
+        ? 'zh'
+        : 'en'
+
+      this.$refs.tree.traverse(function (node) {
+        let titleKey = 'title_' + this.locale
+        let noteKey  = 'note_' + this.locale
+        node.title = node[titleKey]
+        node.note  = node.hasOwnProperty(noteKey)
+          ? node[noteKey]
+          : ''
+      }.bind(this))
+
+      let routePath = this.$route.path.replace(/^\/[a-zA-Z]*/, '')
+      let gotoNode = null
+      this.$refs.tree.traverse(function (node) {
+        if (node.hasOwnProperty('route') && node.route === routePath) {
+          gotoNode = node
+        }
+      }.bind(this))
+      if (gotoNode !== null) {
+        this.$refs.tree.select(gotoNode)
       }
     }
   },
   mounted() {
-    let lang = navigator.languages
-        ? navigator.languages[0]
-        : (navigator.language || navigator.userLanguage)
-    if (lang.indexOf('zh') === 0) {
-      this.locale = 'zh'
-    }
-
-    this.$refs.tree.traverse(function (node) {
-      let titleKey = 'title_' + this.locale
-      let noteKey  = 'note_' + this.locale
-      node.title = node[titleKey]
-      node.note  = node.hasOwnProperty(noteKey)
-        ? node[noteKey]
-        : ''
-    }.bind(this))
-
-    let routePath = this.$route.path
-    let gotoNode = null
-    this.$refs.tree.traverse(function (node) {
-      if (node.hasOwnProperty('route') && node.route === routePath) {
-        gotoNode = node
-      }
-    }.bind(this))
-    if (gotoNode !== null) {
-      this.$refs.tree.select(gotoNode)
-    }
+    this.init()
   }
 }
 </script>

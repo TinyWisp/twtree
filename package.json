@@ -1,6 +1,6 @@
 {
   "name": "twtree",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "description": "A highly customizable tree component for vue, which features checkbox, async loading, drag and drop, context menu and custom appearance.",
   "main": "lib/twtree.umd.min.js",
   "module": "lib/twtree.esm.js",
@@ -34,28 +34,28 @@
   "dependencies": {
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
-    "vue": "^2.6.10",
+    "vue": "^2.6.12",
     "vue-axios": "^2.1.5",
-    "vue-router": "^3.1.5"
+    "vue-router": "^3.4.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.3.1",
-    "@vue/cli-plugin-eslint": "^4.3.1",
-    "@vue/cli-service": "^4.3.1",
-    "@vue/test-utils": "^1.0.3",
+    "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-commonjs": "^11.1.0",
+    "@vue/cli-plugin-babel": "^4.5.4",
+    "@vue/cli-plugin-eslint": "^4.5.4",
+    "@vue/cli-service": "^4.5.4",
+    "@vue/test-utils": "^1.0.4",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
-    "babel-jest": "^26.0.1",
+    "babel-jest": "^26.3.0",
     "babel-preset-env": "^1.7.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "jest": "^26.0.1",
+    "jest": "^26.4.1",
+    "rollup": "^2.26.4",
+    "rollup-plugin-vue": "^5.1.9",
     "vue-jest": "^3.0.5",
-    "vue-template-compiler": "^2.6.10",
-    "rollup": "^2.21.0",
-    "@rollup/plugin-buble": "^0.21.3",
-    "@rollup/plugin-commonjs": "^11.1.0",
-    "rollup-plugin-vue": "^5.1.9"
+    "vue-template-compiler": "^2.6.12"
   },
   "eslintConfig": {
     "root": true,

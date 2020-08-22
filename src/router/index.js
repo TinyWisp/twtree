@@ -44,171 +44,179 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: '/example/getting-started/display-a-tree',
+    redirect: '/en/example/getting-started/display-a-tree',
+  },
+   {
+    path: '/en/',
+    redirect: '/en/example/getting-started/display-a-tree',
   },
   {
-    path: '/example/async',
+    path: '/zh/',
+    redirect: '/zh/example/getting-started/display-a-tree',
+  },
+  {
+    path: '/:lang/example/async',
     name: 'async-example',
     component: AsyncExample
   },
   {
-    path: '/example/edit',
+    path: '/:lang/example/edit',
     name: 'edit-example',
     component: EditExample
   },
   {
-    path: '/example/button',
+    path: '/:lang/example/button',
     name: 'button-example',
     component: ButtonExample
   },
   {
-    path: '/example/contextmenu',
+    path: '/:lang/example/contextmenu',
     name: 'contextmenu-example',
     component: ContextMenuExample
   },
 
   {
-    path: '/example/search',
+    path: '/:lang/example/search',
     name: 'search-example',
     component: SearchExample
   },
   {
-    path: '/example/multi-select',
+    path: '/:lang/example/multi-select',
     name: 'multi-select-example',
     component: MultiSelectExample
   },
   {
-    path: '/example/radio-button',
+    path: '/:lang/example/radio-button',
     name: 'radio-button-example',
     component: RadioButtonExample
   },
   {
-    path: '/example/sort',
+    path: '/:lang/example/sort',
     name: 'sort-example',
     component: SortExample
   },
   {
-    path: '/example/reload',
+    path: '/:lang/example/reload',
     name: 'reload-example',
     component: ReloadExample
   },
 
   {
-    path: '/example/getting-started/display-a-tree',
+    path: '/:lang/example/getting-started/display-a-tree',
     name: 'getting-started-display-a-tree-example',
     component: GettingStartedDisplayATreeExample
   },
   {
-    path: '/example/getting-started/basic-operations',
+    path: '/:lang/example/getting-started/basic-operations',
     name: 'getting-started-basic-operations-example',
     component: GettingStartedBasicOperationsExample
   },
   {
-    path: '/example/getting-started/set-props',
+    path: '/:lang/example/getting-started/set-props',
     name: 'getting-started-set-props-example',
     component: GettingStartedSetPropsExample
   },
 
   {
-    path: '/example/checkbox/with-linkage',
+    path: '/:lang/example/checkbox/with-linkage',
     name: 'checkbox-with-linkage-example',
     component: CheckboxWithLinkageExample
   },
   {
-    path: '/example/checkbox/without-linkage',
+    path: '/:lang/example/checkbox/without-linkage',
     name: 'checkbox-without-linkage-example',
     component: CheckboxWithoutLinkageExample
   },
   {
-    path: '/example/checkbox/custom-appearance',
+    path: '/:lang/example/checkbox/custom-appearance',
     name: 'checkbox-custom-appearance-example',
     component: CheckboxCustomAppearanceExample
   },
 
   {
-    path: '/example/drag-and-drop/basic',
+    path: '/:lang/example/drag-and-drop/basic',
     name: 'drag-and-drop-basic-example',
     component: DragAndDropBasicExample
   },
   {
-    path: '/example/drag-and-drop/advanced',
+    path: '/:lang/example/drag-and-drop/advanced',
     name: 'drag-and-drop-advanced-example',
     component: DragAndDropAdvancedExample
   },
   {
-    path: '/example/drag-and-drop/disable',
+    path: '/:lang/example/drag-and-drop/disable',
     name: 'drag-and-drop-disable-example',
     component: DragAndDropDisableExample
   },
   {
-    path: '/example/drag-and-drop/custom-appearance',
+    path: '/:lang/example/drag-and-drop/custom-appearance',
     name: 'drag-and-drop-custom-appearance-example',
     component: DragAndDropCustomAppearanceExample
   },
 
   {
-    path: '/example/root-node/no-root-node',
+    path: '/:lang/example/root-node/no-root-node',
     name: 'root-node-no-root-node-example',
     component: RootNodeNoRootNodeExample
   },
   {
-    path: '/example/root-node/no-switcher',
+    path: '/:lang/example/root-node/no-switcher',
     name: 'root-node-no-switcher-example',
     component: RootNodeNoSwitcherExample
   },
   {
-    path: '/example/root-node/checking',
+    path: '/:lang/example/root-node/checking',
     name: 'root-node-checking-example',
     component: RootNodeCheckingExample
   },
   {
-    path: '/example/root-node/custom-appearance',
+    path: '/:lang/example/root-node/custom-appearance',
     name: 'root-node-custom-appearance-example',
     component: RootNodeCustomAppearanceExample
   },
 
   {
-    path: '/example/custom-appearance/size',
+    path: '/:lang/example/custom-appearance/size',
     name: 'custom-appearance-size-example',
     component: CustomAppearanceSizeExample
   },
   {
-    path: '/example/custom-appearance/icon',
+    path: '/:lang/example/custom-appearance/icon',
     name: 'custom-appearance-icon-example',
     component: CustomAppearanceIconExample
   },
   {
-    path: '/example/custom-appearance/no-icons',
+    path: '/:lang/example/custom-appearance/no-icons',
     name: 'custom-appearance-no-icons-example',
     component: CustomAppearanceNoIconsExample
   },
   {
-    path: '/example/custom-appearance/no-directory-toggles',
+    path: '/:lang/example/custom-appearance/no-directory-toggles',
     name: 'custom-appearance-no-directory-toggles-example',
     component: CustomAppearanceNoDirectoryTogglesExample
   },
   {
-    path: '/example/custom-appearance/background-color',
+    path: '/:lang/example/custom-appearance/background-color',
     name: 'custom-appearance-background-color-example',
     component: CustomAppearanceBackgroundColorExample
   },
   {
-    path: '/example/custom-appearance/stripes',
+    path: '/:lang/example/custom-appearance/stripes',
     name: 'custom-appearance-stripes-example',
     component: CustomAppearanceStripesExample
   },
   {
-    path: '/example/custom-appearance/disable-animations',
+    path: '/:lang/example/custom-appearance/disable-animations',
     name: 'custom-appearance-disable-animations-example',
     component: CustomAppearanceDisableAnimationsExample
   },
   {
-    path: '/example/custom-appearance/extra-content',
+    path: '/:lang/example/custom-appearance/extra-content',
     name: 'custom-appearance-extra-content-example',
     component: CustomAppearanceExtraContentExample
   },
   {
-    path: '/example/custom-appearance/limit-title-width',
+    path: '/:lang/example/custom-appearance/limit-title-width',
     name: 'custom-appearance-limit-title-width-example',
     component: CustomAppearanceLimitTitleWidthExample
   }

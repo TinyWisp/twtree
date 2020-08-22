@@ -9,14 +9,14 @@
 * [主要特色](#主要特色)
 * [开始使用](#开始使用)
 * [文档](https://github.com/TinyWisp/twtree/wiki/%E6%96%87%E6%A1%A3)
-* [示例](https://tinywisp.gitee.io/twtree/)
+* [示例](https://tinywisp.gitee.io/twtree/#/zh/)
 * [开源协议](#开源协议)
 
 A highly customizable tree component for vue.
 * [Features](#features)
 * [Getting Started](#getting-started)
 * [Document](https://github.com/TinyWisp/twtree/wiki/Document)
-* [Demos](https://tinywisp.github.io/twtree/)
+* [Demos](https://tinywisp.github.io/twtree/#/en/)
 * [License](#license)
 
 
