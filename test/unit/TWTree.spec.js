@@ -351,6 +351,27 @@ describe('basic', ()=>{
         expect(node3.children[1].id).toBe(6)
         expect(node3.children[2].id).toBe(5)
     })
+
+    it('method: sort (node = null)', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: commonTree
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        let node3 = wrapper.vm.getById(3)
+        node3.children[0].title = 'aaaaa'
+        node3.children[1].title = 'ccccc'
+        node3.children[2].title = 'bbbbb'
+
+        let node1 = wrapper.vm.getById(1)
+        wrapper.vm.sort(null, true)
+
+        expect(node3.children[0].id).toBe(4)
+        expect(node3.children[1].id).toBe(6)
+        expect(node3.children[2].id).toBe(5)
+    })
    
     it('methods: search, clearSearchResult', async ()=>{
         let wrapper = mount(TWTree, {
@@ -1252,6 +1273,58 @@ describe('directory', ()=>{
         }
         expect(node3.children.length).toBe(2)
         expect(node3.children[1].title).toMatch('world')
+    })
+
+    it('method: fnBeforeExpand', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+                defaultAttrs: {
+                    directoryState: 'collapsed'
+                },
+                fnBeforeExpand: function() {
+                    return false
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.getById(1).directoryState).toMatch('collapsed')
+        wrapper.vm.expand(wrapper.vm.getById(1))
+        expect(wrapper.vm.getById(1).directoryState).toMatch('collapsed')
+        for (let item of wrapper.vm.items) {
+            if (item.id === 1) {
+                expect(item.__.isVisible).toBeTruthy()
+            } else {
+                expect(item.__.isVisible).toBeFalsy()
+            }
+        }
+    })
+
+    it('method: fnBeforeCollapse', async ()=>{
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: directoryTree,
+                defaultAttrs: {
+                    directoryState: 'expanded'
+                },
+                fnBeforeCollapse: function() {
+                    return false
+                }
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.getById(1).directoryState).toMatch('expanded')
+        wrapper.vm.collapse(wrapper.vm.getById(1))
+        expect(wrapper.vm.getById(1).directoryState).toMatch('expanded')
+        for (let item of wrapper.vm.items) {
+            if (item.__.parent !== null && item.__.parent.id === 3) {
+                expect(item.__.isVisible).toBeFalsy()
+            } else {
+                expect(item.__.isVisible).toBeTruthy()
+            }
+        }
     })
 })
 
