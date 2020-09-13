@@ -1,5 +1,5 @@
 // Import vue component
-import TWTree from './components/TWTree.vue';
+import TWTree from './TWTree.vue';
 
 // Declare install function executed by Vue.use()
 export function install(Vue) {

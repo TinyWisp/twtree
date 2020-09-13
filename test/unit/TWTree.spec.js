@@ -1,4 +1,4 @@
-import TWTree from '../../src/components/TWTree.vue'
+import TWTree from '../../src/TWTree.vue'
 import { mount } from '@vue/test-utils'
 
 describe('basic', ()=>{
