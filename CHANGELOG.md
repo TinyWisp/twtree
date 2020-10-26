@@ -1,3 +1,7 @@
+2.9.0
+- security:
+    - upgraded some dependencies.
+
 2.8.0
 - security:
     - upgraded some dependencies.
