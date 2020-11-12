@@ -167,6 +167,10 @@ export default {
       type: Boolean,
       default: false
     },
+    autoReload: {
+      type: Boolean,
+      default: true
+    },
     fnLoadData: {
       type: Function,
       required: false,
@@ -279,6 +283,16 @@ export default {
       contextMenu: {
         node: null
       }
+    }
+  },
+  watch: {
+    tree: {
+      handler () {
+        if (this.autoReload === true) {
+          this.reload()
+        }
+      },
+      deep: true
     }
   },
   methods: {

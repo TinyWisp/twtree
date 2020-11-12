@@ -442,6 +442,45 @@ describe('basic', ()=>{
         expect(wrapper.vm.items.length).toBe(9)
         expect(wrapper.vm.getById(100)).not.toBeNull()
     })
+
+    it('property: autoReload=true', async ()=>{
+        let tree = JSON.parse(JSON.stringify(commonTree))
+
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: tree,
+                autoReload: true
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        tree[0].title = 'hello, world!'
+        await wrapper.vm.$nextTick()
+        setTimeout(function () {
+            expect(wrapper.vm.items.length).toBe(8)
+            expect(wrapper.vm.items[0].title).toBe('hello, world!')
+        }, 0)
+    })
+
+     it('property: autoReload=false', async ()=>{
+        let tree = JSON.parse(JSON.stringify(commonTree))
+
+        let wrapper = mount(TWTree, {
+            propsData: {
+                tree: tree,
+                autoReload: false
+            }
+        })
+        await wrapper.vm.$nextTick()
+
+        tree[0].title = 'hello, world!'
+        await wrapper.vm.$nextTick()
+
+        setTimeout(function () {
+            expect(wrapper.vm.items.length).toBe(8)
+            expect(wrapper.vm.items[0].title).toBe('ROOT')
+        }, 0)
+    })
 })
 
 describe('select', ()=>{

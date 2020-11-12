@@ -1,3 +1,7 @@
+2.10.0
+- added:
+    - the autoReload property
+
 2.9.0
 - security:
     - upgraded some dependencies.
@@ -20,7 +24,7 @@
     - the reload() method caused mutations of the tree property.
 
 2.4.0
-- added
+- added:
     - prop 'fnAfterCalculate(node)'
 - fixed: 
     - the title slot didn't work.
