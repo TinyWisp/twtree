@@ -1,3 +1,7 @@
+2.11.0
+- fixed:
+    - if the context menu was focusable, the click events wouldn't be triggered when the user clicked a menu item.
+
 2.10.0
 - added:
     - the autoReload property

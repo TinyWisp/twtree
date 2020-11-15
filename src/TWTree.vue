@@ -696,8 +696,11 @@ export default {
         this.setAttr(this.contextMenu.node, '__', 'showContextMenu', false)
       }
     },
-    treeBlurEvent() {
-      this.hideContextMenuOnDisplay()
+    treeBlurEvent(e) {
+      let relatedTarget = e.relatedTarget
+      if (this.contextMenu.node !== null && !this.getElement(this.contextMenu.node).contains(relatedTarget)) {
+        this.hideContextMenuOnDisplay()
+      }
     },
     create(node, parentNode, pos) {
       if (parentNode === null) {

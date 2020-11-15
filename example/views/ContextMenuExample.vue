@@ -3,9 +3,9 @@
     <div class="panel">
       <TWTree :tree="tree" ref="tree" class="tree" :fnBeforeContextMenu="beforeContextMenu">
           <template v-slot:contextmenu="{node}">
-            <ul class="menu" v-if="node.__.depth > 0">
+            <ul class="menu">
               <li class="menu-item" @click="create">create</li>
-              <li class="menu-item" @click="remove">remove</li>
+              <li class="menu-item" @click="remove" v-if="node.__.depth > 1">remove</li>
             </ul>
           </template>
       </TWTree>
