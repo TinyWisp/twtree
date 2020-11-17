@@ -1,3 +1,6 @@
+2.13.0
+- same as 2.12.0
+
 2.12.0
 - added:
     - the fnBeforeDrop property
