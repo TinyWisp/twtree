@@ -5,6 +5,7 @@ dist/
 docs/
 test/
 coverage/
+example/
 rollup.config.js
 vue.config.js
 babel.config.js
