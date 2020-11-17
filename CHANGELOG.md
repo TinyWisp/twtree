@@ -1,3 +1,13 @@
+2.12.0
+- added:
+    - the fnBeforeDrop property
+    - the pressEnterToBlur property
+    - the createAndEdit(node, parentNode, pos) method
+    - the blur(node) method
+- changed:
+    - the implementation of the input boxes.
+    - the border color of the input boxes.
+
 2.11.0
 - fixed:
     - if the context menu was focusable, the click events wouldn't be triggered when the user clicked a menu item.

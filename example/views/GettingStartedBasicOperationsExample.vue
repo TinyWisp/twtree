@@ -1,6 +1,7 @@
 <template>
   <div class="example-wrapper">
     <button class="btn" @click="create()" >create</button>
+    <button class="btn" @click="createAndEdit()" style="width: 150px;">create and edit</button>
     <button class="btn" @click="remove()" >remove</button>
     <button class="btn" @click="edit()" >edit</button>
     <input type="text" v-model="keyword" placeholder="search" @input="search()">
@@ -67,8 +68,6 @@ export default {
   methods: {
     blur(node) {
       let tree = this.$refs.tree
-      let newTitle = tree.getNewTitle(node)
-      tree.setTitle(node, newTitle)
       tree.quitEdit(node)
     },
     create() {
@@ -81,6 +80,17 @@ export default {
         hasChild: false
       }
       tree.create(child, node)
+    },
+    createAndEdit() {
+      this.counter += 1
+      let tree = this.$refs.tree
+      let node = tree.getSelectedOne()
+      let child = {
+        id:  this.counter,
+        title: 'hello, world!' + this.counter,
+        hasChild: false
+      }
+      tree.createAndEdit(child, node)
     },
     remove() {
       let tree = this.$refs.tree

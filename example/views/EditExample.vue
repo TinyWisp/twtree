@@ -63,8 +63,6 @@ export default {
   methods: {
     blur(node) {
       let tree = this.$refs.tree
-      let newTitle = tree.getNewTitle(node)
-      tree.setTitle(node, newTitle)
       tree.quitEdit(node)
     },
     edit() {

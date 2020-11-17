@@ -90,17 +90,30 @@
               </span>
               <span class="twtree-title-wrapper" :ref="'title-' + item.id">
                 <slot name="title" v-bind:node="item">
-                  <span 
-                    :class="{'twtree-title':true, 'twtree-title-editing':item.__.isEditing}" 
-                    :contenteditable="item.__.isEditing"
+                  <template v-if="item.__.isEditing">
+                    <input
+                      type="text"
+                      v-model="item.title"
+                      class="twtree-title twtree-title-editing"
+                      :title="item.__.titleTip"
+                      :ref="'title-input-' + item.id"
+                      :style="{width: item.__.inputWidth}"
+                      @keydown="keydownEvent(item, $event)"
+                      @keyup="keyupEvent(item, $event)"
+                      @keypress="keypressEvent(item, $event)"
+                      @input="inputEvent(item, $event)"
+                      @focus="focusEvent(item, $event)"
+                      @blur="blurEvent(item)"
+                      @mouseenter="mouseenterEvent(item)"/>
+                    <span
+                      :ref="'title-hidden-' + item.id"
+                      class="twtree-title twtree-title-editing hidden">{{item.title}}</span>
+                  </template>
+                  <span
+                    v-else
+                    class="twtree-title"
                     :title="item.__.titleTip"
-                    @keydown="keydownEvent(item, $event)"
-                    @keyup="keyupEvent(item, $event)"
-                    @keypress="keypressEvent(item, $event)"
-                    @input="inputEvent(item, $event)"
-                    @focus="focusEvent(item, $event)"
-                    @blur="blurEvent(item)"
-                    @mouseenter="mouseenterEvent(item)">{{item.title}}</span>
+                  >{{item.title}}</span>
                 </slot>
               </span>
             </span>
@@ -167,6 +180,10 @@ export default {
       type: Boolean,
       default: false
     },
+    pressEnterToBlur: {
+      type: Boolean,
+      default: true
+    },
     autoReload: {
       type: Boolean,
       default: true
@@ -217,6 +234,11 @@ export default {
       default: null
     },
     fnAfterCalculate: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    fnBeforeDrop: {
       type: Function,
       required: false,
       default: null
@@ -549,22 +571,20 @@ export default {
       return 'twtree-node-' + this.autoIdCounter
     },
     edit(node) {
+      this.setAttr(node, '__', 'inputWidth', (node.title.length + 1) + 'em')
       this.setAttr(node, '__', 'isEditing', true)
       this.$emit('edit', node)
 
-      let titleElement = this.getTitleElement(node)
       this.$nextTick().then(function(){
-        let range = document.createRange()
-        let selection = window.getSelection()
-        range.setStart(titleElement.childNodes[0], node.title.length)
-        range.collapse(true)
-        selection.removeAllRanges()
-        selection.addRange(range)
-        titleElement.focus()
-      })
+        this.setAttr(node, '__', 'inputWidth', this.getHiddenTitleWidth(node))
+        let input = this.getTitleElement(node)
+        input.select()
+        input.focus()
+      }.bind(this))
     },
     quitEdit(node) {
       this.setAttr(node, '__', 'isEditing', false)
+
       this.$nextTick().then(function(){
         let titleElement = this.getTitleElement(node)
         titleElement.scrollLeft = 0
@@ -580,10 +600,16 @@ export default {
       return null
     },
     focus(node) {
-      let titleElement = this.getTitleElement(node)
-      setTimeout(function(){
+      if (this.getAttr(node, '__', 'isEditing') === true) {
+        let titleElement = this.getTitleElement(node)
         titleElement.focus()
-      }.bind(this), 100)
+      }
+    },
+    blur(node) {
+      if (this.getAttr(node, '__', 'isEditing') === true) {
+        let titleElement = this.getTitleElement(node)
+        titleElement.blur()
+      }
     },
     focusEvent(node, event) {
       this.$emit('focus', node, event)
@@ -595,9 +621,14 @@ export default {
       this.$emit('input', node, event)
     },
     keydownEvent(node, event) {
+      if (this.pressEnterToBlur && event.keyCode === 13) {
+        this.blur(node)
+      }
       this.$emit('keydown', node, event)
     },
     keyupEvent(node, event) {
+      this.setAttr(node, '__', 'inputWidth', this.getHiddenTitleWidth(node))
+
       this.$emit('keyup', node, event)
     },
     keypressEvent(node, event) {
@@ -610,11 +641,18 @@ export default {
         : ''
       this.setAttr(node, '__', 'titleTip', tip)
     },
+    getHiddenTitleWidth(node) {
+      let hiddenRefId = 'title-hidden-' + node.id
+      if (this.$refs.hasOwnProperty(hiddenRefId)) {
+        let hiddenTitle = this.$refs[hiddenRefId][0]
+        let width = hiddenTitle.clientWidth
+        return (width + 10) + 'px'
+      } else {
+        return (node.title.length + 1) + 'ch'
+      }
+    },
     getNewTitle(node) {
-      let titleElement = this.getTitleElement(node)
-      let newTitle = titleElement.innerText
-
-      return newTitle
+      return node.title
     },
     getSelected() {
       let selected = []
@@ -725,6 +763,13 @@ export default {
       
       this.refresh()
       this.$emit('create', node)
+    },
+    createAndEdit(node, parentNode, pos) {
+      this.create(node, parentNode, pos)
+      this.$nextTick().then(() => {
+        let createdNode = this.getById(node.id)
+        this.edit(createdNode)
+      })
     },
     remove(node) {
       let parent = this.getAttr(node, '__', 'parent')
@@ -1032,6 +1077,10 @@ export default {
     },
     dropEvent() {
       if (this.dragAndDrop.isDroppable === false) {
+        return
+      }
+
+      if (typeof(this.fnBeforeDrop) === 'function' && this.fnBeforeDrop(this.dragAndDrop) === false) {
         return
       }
 
@@ -1344,14 +1393,20 @@ export default {
 }
 .twtree-node .twtree-title.twtree-title-editing {
   display: inline-block;
-  border: 1px solid blue;
+  border: 1px solid #2196F3;
+  outline: 1px solid #2196F3;
   background-color: white;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding: 0 5px;
   text-indent: 0;
-  height: calc(var(--height) - 2px);
+  height: calc(var(--height) - 5px);
+  line-height: calc(var(--height) - 5px);
   text-overflow: clip;
   vertical-align: middle;
+  border-radius: 0.16em;
+}
+.twtree-node .twtree-title.twtree-title-editing.hidden {
+  position: absolute;
+  visibility: hidden;
 }
 .twtree-node .twtree-switcher-wrapper {
   text-indent: 0;

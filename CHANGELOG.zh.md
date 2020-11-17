@@ -1,9 +1,19 @@
+2.12.0
+- 添加:
+    - 属性 fnBeforeDrop
+    - 属性 pressEnterToBlur
+    - 方法 createAndEdit(node, parentNode, pos)
+    - 方法 blur(node)
+- 修改:
+    - 编辑结点时，输入框由contenteditable的span变为input，用户可从node.title直接获取用户编辑的内容，不再需要getNewTitle方法
+    - 输入框的边框颜色由黑色变为蓝色
+
 2.11.0
 - 修正:
     - 如果右键菜单可取得焦点，则点击菜单项时，不会产生click事件。
 
 2.10.0
-- 添加
+- 添加:
     - 属性 'autoReload'
 
 2.9.0
