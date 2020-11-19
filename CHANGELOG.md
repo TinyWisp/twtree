@@ -1,5 +1,9 @@
+2.14.0
+- added:
+    - the autoHideContextMenu property
+
 2.13.0
-- same as 2.12.0
+- it's the same as 2.12.0. just publish it again for some reasons.
 
 2.12.0
 - added:

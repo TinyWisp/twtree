@@ -188,6 +188,10 @@ export default {
       type: Boolean,
       default: true
     },
+    autoHideContextMenu: {
+      type: Boolean,
+      default: true
+    },
     fnLoadData: {
       type: Function,
       required: false,
@@ -702,7 +706,10 @@ export default {
         }
         this.select(node)
       }
-      this.hideContextMenuOnDisplay()
+
+      if (this.autoHideContextMenu === true) {
+        this.hideContextMenuOnDisplay()
+      }
     },
     contextMenuEvent(node, event) {
       if (typeof(this.fnBeforeContextMenu) === 'function' && this.fnBeforeContextMenu(node, event) === false) {
@@ -736,7 +743,7 @@ export default {
     },
     treeBlurEvent(e) {
       let relatedTarget = e.relatedTarget
-      if (this.contextMenu.node !== null && !this.getElement(this.contextMenu.node).contains(relatedTarget)) {
+      if (this.contextMenu.node !== null && this.autoHideContextMenu === true && !this.getElement(this.contextMenu.node).contains(relatedTarget)) {
         this.hideContextMenuOnDisplay()
       }
     },
