@@ -1,3 +1,20 @@
+3.0.0
+- 添加:
+    - 属性 enableDragNodeOut
+    - 属性 enableDropExternalElement
+    - 属性 useDefaultIsDroppable
+    - 属性 useDefaultDrop
+    - 属性 treeId
+    - 属性 dragAndDrop.status
+    - 插槽 input slot
+- 修正:
+    - 当用户拖动一个结点跨过一个结点的边缘时，鼠标及缩略图会闪烁。
+    - 编辑一个结点的标题时，输入框的宽度不能很好地适应内容的长度。
+    - 一个结点进入编辑模式时，内容不是选中状态。
+    - 当父容器有overflow:hidden属性时，右键菜单可能会被遮挡。
+- 安全性:
+    - 升级一些依赖包.
+
 2.14.0
 - 添加:
     - 属性 autoHideContextMenu

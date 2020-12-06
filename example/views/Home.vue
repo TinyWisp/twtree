@@ -142,7 +142,29 @@ export default {
               route:         '/example/drag-and-drop/custom-appearance',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropCustomAppearanceExample.vue',
               codepenUrl:    'https://codepen.io/tinywisp/pen/dyGqXON'
-            }
+            },
+            {
+              title_en:      'dragging a node out',
+              title_zh:      '将结点拖动到树的外部',
+              route:         '/example/drag-and-drop/drag-a-node-out',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropDragANodeOutExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/wvzGXwM'
+            },
+            {
+              title_en:      'dropping an external element',
+              title_zh:      '将外部元素拖放到树上',
+              route:         '/example/drag-and-drop/drop-an-external-element',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropDropAnExternalElementExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/VwKadaO'
+            },
+            {
+              title_en:      'multiple trees',
+              title_zh:      '多棵树',
+              route:         '/example/drag-and-drop/multiple-trees',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropMultipleTreesExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/NWRNzpp'
+            },
+
           ]
         },
 

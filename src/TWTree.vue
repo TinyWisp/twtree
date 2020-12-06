@@ -1,16 +1,16 @@
 <template>
   <div class="twtree-wrapper" tabindex="1" @blur="treeBlurEvent">
-    <ul 
-      class="twtree"
-      @dragleave="dragLeaveTree($event)"
-      ref="tree"
-      :style="{
-        '--dragImageOffsetX': dragImageOffsetX,
-        '--dragImageOffsetY': dragImageOffsetY,
-        '--animationDuration': animationDuration,
-        '--treeWidth': treeWidth + 'px'
-      }">
-      <transition-group name="twtree-node">
+      <transition-group
+        tag="ul" 
+        name="twtree-node"
+        class="twtree"
+        ref="tree"
+        :style="{
+          '--dragImageOffsetX': dragImageOffsetX,
+          '--dragImageOffsetY': dragImageOffsetY,
+          '--animationDuration': animationDuration,
+          '--treeWidth': treeWidth + 'px'
+        }">
         <template v-for="item of items">
           <li
             v-if="item.__.isVisible"
@@ -47,8 +47,9 @@
             @contextmenu = "contextMenuEvent(item, $event)"
             @dragstart="dragStartEvent(item, $event)"
             @dragover="dragOverEvent(item, $event)"
-            @dragend="dragEndEvent()"
-            @drop="dropEvent()"
+            @dragend="dragEndEvent($event)"
+            @drop="dropEvent($event)"
+            @dragenter="dragEnterEvent($event)"
             :ref="'node-' + item.id"
             :key="item.id">
             <span class="twtree-switcher-wrapper" v-if="item.style.showSwitcher" @click.stop="toggleDirectoryState(item)">
@@ -89,39 +90,48 @@
                 </slot>
               </span>
               <span class="twtree-title-wrapper" :ref="'title-' + item.id">
-                <slot name="title" v-bind:node="item">
                   <template v-if="item.__.isEditing">
-                    <input
-                      type="text"
-                      v-model="item.title"
-                      class="twtree-title twtree-title-editing"
-                      :title="item.__.titleTip"
-                      :ref="'title-input-' + item.id"
-                      :style="{width: item.__.inputWidth}"
-                      @keydown="keydownEvent(item, $event)"
-                      @keyup="keyupEvent(item, $event)"
-                      @keypress="keypressEvent(item, $event)"
-                      @input="inputEvent(item, $event)"
-                      @focus="focusEvent(item, $event)"
-                      @blur="blurEvent(item)"
-                      @mouseenter="mouseenterEvent(item)"/>
-                    <span
-                      :ref="'title-hidden-' + item.id"
-                      class="twtree-title twtree-title-editing hidden">{{item.title}}</span>
+                    <slot name="input" v-bind:node="item">
+                      <input
+                        type="text"
+                        v-model="item.title"
+                        class="twtree-title twtree-title-editing"
+                        :title="item.__.titleTip"
+                        :ref="'title-input-' + item.id"
+                        :style="{width: item.__.inputWidth}"
+                        @keydown="keydownEvent(item, $event)"
+                        @keyup="keyupEvent(item, $event)"
+                        @keypress="keypressEvent(item, $event)"
+                        @input="inputEvent(item, $event)"
+                        @focus="focusEvent(item, $event)"
+                        @blur="blurEvent(item)"
+                        @mouseenter="mouseenterEvent(item)"/>
+                      <span
+                        :ref="'title-hidden-' + item.id"
+                        class="twtree-title twtree-title-editing twtree-title-hidden">{{item.title}}</span>
+                    </slot>
                   </template>
-                  <span
-                    v-else
-                    class="twtree-title"
-                    :title="item.__.titleTip"
-                  >{{item.title}}</span>
-                </slot>
+                  <template v-else>
+                  <slot name="title" v-bind:node="item">
+                    <span
+                      class="twtree-title"
+                      :title="item.__.titleTip"
+                    >{{item.title}}</span>
+                  </slot>
+                  </template>
               </span>
             </span>
             <span class="twtree-extra-wrapper">
               <slot name="extra" v-bind:node="item">
               </slot>
             </span>
-            <div class="twtree-contextmenu-wrapper" v-if="item.__.showContextMenu">
+            <div
+              v-if="item.__.showContextMenu"
+              class="twtree-contextmenu-wrapper"
+              :style="{
+                '--mousex': contextMenu.event.clientX + 'px',
+                '--mousey': contextMenu.event.clientY + 'px'
+              }">
               <slot name="contextmenu" v-bind:node="item">
               </slot>
             </div>
@@ -132,7 +142,13 @@
                 </svg>
               </slot>
             </div>
-            <div class="twtree-drag-image-wrapper" v-if="item.__.dragOverArea !== null && dragAndDrop.dragNode !== null">
+            <div 
+              v-if="dragAndDrop.dragNode === item && (enableDragNodeOut === true || dragAndDrop.status === DND_STATUS.INTERNAL) && dragAndDrop.clientX !== null"
+              class="twtree-drag-image-wrapper"
+              :style="{
+                '--mousex': dragAndDrop.clientX,
+                '--mousey': dragAndDrop.clientY
+              }"> 
               <slot name="drag-image" v-bind:node="item" v-bind:dnd="dragAndDrop">
                 <span class="twtree-drag-image">{{dragAndDrop.dragNode.title}}</span>
               </slot>
@@ -140,7 +156,6 @@
           </li>
         </template>
       </transition-group>
-    </ul>
   </div>
 </template>
 
@@ -159,6 +174,10 @@ export default {
       default: function() {
         return {}
       }
+    },
+    treeId: {
+      type: String,
+      default: 'default'
     },
     checkboxLinkage: {
       type: Boolean,
@@ -189,6 +208,22 @@ export default {
       default: true
     },
     autoHideContextMenu: {
+      type: Boolean,
+      default: true
+    },
+    enableDragNodeOut: {
+      type: Boolean,
+      default: false
+    },
+    enableDropExternalElement: {
+      type: Boolean,
+      default: false
+    },
+    useDefaultIsDroppable: {
+      type: Boolean,
+      default: true
+    },
+    useDefaultDrop: {
       type: Boolean,
       default: true
     },
@@ -248,17 +283,14 @@ export default {
       default: null
     }
   },
-  computed: {
-
-  },
   data() {
     return {
+      //-----basic----
       nodes: JSON.parse(JSON.stringify(this.tree)),
       items: this.getItems(),
       autoIdCounter: 0,
       treeWidth: 0,
       treeWidthInterval: null,
-      emptyImage: null,
       spareDefaultAttrs: {
         selected: false,
         directoryState: 'expanded',
@@ -300,14 +332,29 @@ export default {
           titleTip: ''
         }
       },
+
+      //---drag and drop----
+      emptyImage: null,
       dragAndDrop: {
+        status: 0,
         dragNode: null,
         overNode: null,
         overArea: null,
         isDroppable: false,
+        clientX: null,
+        clientY: null
       },
+      DND_STATUS: {    // enum values of dragAndDrop.status
+        NONE:     0,   // there is no drag and drop interaction currently
+        OUT_OF:   1,   // a node is being dragged outside the tree
+        INTERNAL: 2,   // a node is being dragged over the tree
+        INTO:     3    // an external element is being dragged over the tree
+      },
+
+      //---contextmenu---
       contextMenu: {
-        node: null
+        node: null,
+        event: null
       }
     }
   },
@@ -328,6 +375,7 @@ export default {
         fnDoSomething(node)
       }
     },
+    //generate a flat array which can be rendered easily.
     getItems() {
       if (!Array.isArray(this.nodes)) {
         return []
@@ -469,7 +517,7 @@ export default {
       this.refresh();
     },
     refresh() {
-      this.treeWidth = this.$refs.tree.offsetWidth
+      this.treeWidth = this.$refs.tree.$el.offsetWidth
       this.items = this.getItems()
       this.refreshAllDirectoryCheckboxState()
     },
@@ -650,7 +698,7 @@ export default {
       if (this.$refs.hasOwnProperty(hiddenRefId)) {
         let hiddenTitle = this.$refs[hiddenRefId][0]
         let width = hiddenTitle.clientWidth
-        return (width + 10) + 'px'
+        return (width + 5) + 'px'
       } else {
         return (node.title.length + 1) + 'ch'
       }
@@ -727,13 +775,9 @@ export default {
         this.hideContextMenuOnDisplay()
       }
 
-      let nodeOffset = this.getOffset(node)
-      let mousex = event.pageX - nodeOffset.left
-      let mousey = event.pageY - nodeOffset.top
-      this.setAttr(node, '__', 'mousex', mousex + 'px')
-      this.setAttr(node, '__', 'mousey', mousey + 'px')
       this.setAttr(node, '__', 'showContextMenu', true)
       this.contextMenu.node = node
+      this.contextMenu.event = event
       event.preventDefault()
     },
     hideContextMenuOnDisplay() {
@@ -989,7 +1033,9 @@ export default {
         top: offsetTop
       }
     },
-    isDroppable() {
+
+    //------------------------------ drag and drop --------------------------------------
+    defaultIsDroppable() {
       if (this.dragAndDrop.dragNode === this.dragAndDrop.overNode) {
         return false
       }
@@ -1013,6 +1059,15 @@ export default {
         }
       }
 
+      return true
+    },
+    isDroppable() {
+      if (this.dragAndDrop.status == this.DND_STATUS.INTERNAL && this.useDefaultIsDroppable === true) {
+        if (this.defaultIsDroppable() === false) {
+          return false
+        }
+      }
+
       if (typeof(this.fnIsDroppable) === 'function') {
         return this.fnIsDroppable(this.dragAndDrop)
       }
@@ -1025,24 +1080,56 @@ export default {
         return
       }
 
+      this.dragAndDrop.status = this.DND_STATUS.INTERNAL
       this.dragAndDrop.dragNode = node
-      event.dataTransfer.setData('twtree-node', node.id)
+      event.dataTransfer.setData('twtree', JSON.stringify({
+        'treeId': this.treeId,
+        'nodeId': node.id
+      }))
       event.dataTransfer.setDragImage(this.emptyImage, 0, 0)
       event.dataTransfer.dropEffect = 'move'
+      event.dataTransfer.effectAllowed = 'all'
 
-      this.$emit('dragstart', this.dragAndDrop)
+      this.$emit('dragstart', this.dragAndDrop, event)
+    },
+    globalDragOverEvent(event) {
+      event.preventDefault()
+      this.dragAndDrop.clientX = event.clientX + 'px'
+      this.dragAndDrop.clientY = event.clientY + 'px'
+
+      let treeRect = this.$refs.tree.$el.getBoundingClientRect()
+      if (event.clientX <= treeRect.left || event.clientX >= treeRect.right || event.clientY <= treeRect.top || event.clientY >= treeRect.bottom) {
+        this.dragAndDrop.status = this.dragAndDrop.dragNode !== null
+          ? this.DND_STATUS.OUT_OF
+          : this.DND_STATUS.NONE
+        if (this.dragAndDrop.overNode !== null) {
+          this.dragLeave(this.dragAndDrop.overNode)
+        }
+      } else {
+        this.dragAndDrop.status = this.dragAndDrop.dragNode !== null
+          ? this.DND_STATUS.INTERNAL
+          : this.DND_STATUS.INTO
+      }
     },
     dragOverEvent(node, event) {
+      if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
+        return
+      }
+
+      if (this.dragAndDrop.status === this.DND_STATUS.NONE) {
+        return
+      }
+
       if (this.dragAndDrop.overNode !== node) {
         this.dragLeave(this.dragAndDrop.overNode)
         this.dragEnter(node)
       }
 
       let nodeElement = this.getElement(node)
+      let nodeOffset  = this.getOffset(node)
       let nodeHeight = nodeElement.clientHeight
-      let offset = this.getOffset(node)
-      let x = event.pageX - offset.left
-      let y = event.pageY - offset.top
+      let x = event.pageX - nodeOffset.left
+      let y = event.pageY - nodeOffset.top
 
       this.setAttr(node, '__', 'mousex', x + 'px')
       this.setAttr(node, '__', 'mousey', y + 'px')
@@ -1056,12 +1143,16 @@ export default {
       }
 
       this.dragAndDrop.isDroppable = this.isDroppable()
+      event.preventDefault()
 
       this.setAttr(node, '__', 'dragOverArea', this.dragAndDrop.overArea)
       this.setAttr(node, '__', 'isDroppable',  this.dragAndDrop.isDroppable)
-      event.preventDefault()
 
       this.$emit('dragover', this.dragAndDrop)
+    },
+    //if there isn't this dragenter event handler, the cursor style will be changed when the mouse is over the edge of another node in chrome, hence the blink.
+    dragEnterEvent (event) {
+      event.preventDefault()
     },
     dragEnter(node) {
       this.dragAndDrop.overNode = node
@@ -1070,24 +1161,23 @@ export default {
     dragLeave(node) {
       if (node !== null) {
         this.setAttr(node, '__', 'dragOverArea', null)
+        this.dragAndDrop.overNode = null
       }
       this.$emit('dragleave', this.dragAndDrop, node)
     },
-    dragEndEvent() {
+    dragEndEvent(event) {
       if (this.dragAndDrop.overNode !== null) {
         this.dragLeave(this.dragAndDrop.overNode)
-        this.dragAndDrop.overNode = null
       }
       this.dragAndDrop.dragNode = null
       this.dragAndDrop.overArea = null
-      this.$emit('dragend', this.dragAndDrop)
+      this.dragAndDrop.clientX  = null
+      this.dragAndDrop.clientY  = null
+      this.dragAndDrop.status   = this.DND_STATUS.NONE
+      this.$emit('dragend', this.dragAndDrop, event)
     },
-    dropEvent() {
-      if (this.dragAndDrop.isDroppable === false) {
-        return
-      }
-
-      if (typeof(this.fnBeforeDrop) === 'function' && this.fnBeforeDrop(this.dragAndDrop) === false) {
+    dropToMove() {
+      if (this.dragAndDrop.status !== this.DND_STATUS.INTERNAL) {
         return
       }
 
@@ -1109,22 +1199,46 @@ export default {
           this.move(dragNode, dropNode)
           break
       }
-
-      this.dragAndDrop.dragNode = null
-      this.$emit('drop', this.dragAndDrop)
     },
-    dragLeaveTree(event) {
-      let treeElement = this.$refs.tree
-      let treeWidth = treeElement.clientWidth
-      let treeHeight = treeElement.clientHeight
+    dropEvent(event) {
+      if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
+        return
+      }
 
-      if (event.offsetX <= 0 || event.offsetX >= treeWidth || event.offsetY <= 0 || event.offsetY >= treeHeight) {
-        if (this.dragAndDrop.overNode !== null) {
+      if (this.dragAndDrop.status === this.DND_STATUS.NONE) {
+        return
+      }
+
+      if (this.dragAndDrop.isDroppable === false) {
+        return
+      }
+
+      if (typeof(this.fnBeforeDrop) === 'function' && this.fnBeforeDrop(this.dragAndDrop) === false) {
+        return
+      }
+
+      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL && this.useDefaultDrop === true) {
+        this.dropToMove()
+      } else {
+        this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
+        if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
           this.dragLeave(this.dragAndDrop.overNode)
-          this.dragAndDrop.overNode = null
         }
       }
     },
+    getShallowCopyOfDragAndDrop () {
+      return {
+        status:   this.dragAndDrop.status,
+        dragNode: this.dragAndDrop.dragNode,
+        overNode: this.dragAndDrop.overNode,
+        overArea: this.dragAndDrop.overArea
+      }
+    },
+
+
+    //---------------------------------------- checkbox -------------------------------------------
+
+
     setCheckboxState(node, state) {
       if (this.getAttr(node, 'checkbox', 'show') === false) {
         return
@@ -1310,16 +1424,24 @@ export default {
         }
     },
     resizeTree() {
-      this.treeWidth = this.$refs.tree.offsetWidth
+      this.treeWidth = this.$refs.tree.$el.offsetWidth
     }
   },
+
+
+  //------------------------------------  hooks ---------------------------------------------
+
   mounted() {
     this.refresh()
+
+    //drag and drop
+    document.body.addEventListener('dragover', this.globalDragOverEvent)
     this.emptyImage = new Image()
     this.emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
 
+    //calculate the tree's width
     this.treeWidthInterval = setInterval(function(){
-      let treeWidth = this.$refs.tree.offsetWidth
+      let treeWidth = this.$refs.tree.$el.offsetWidth
       if (this.treeWidth !== treeWidth) {
         this.treeWidth = treeWidth
       }
@@ -1410,8 +1532,9 @@ export default {
   text-overflow: clip;
   vertical-align: middle;
   border-radius: 0.16em;
+  font-size: var(--fontSize);
 }
-.twtree-node .twtree-title.twtree-title-editing.hidden {
+.twtree-node .twtree-title.twtree-title-editing.twtree-title-hidden {
   position: absolute;
   visibility: hidden;
 }
@@ -1513,7 +1636,7 @@ export default {
 }
 .twtree-node .twtree-drag-image-wrapper {
   display: block;
-  position: absolute;
+  position: fixed;
   z-index: 11;
   left: calc(var(--mousex) + var(--dragImageOffsetX));
   top: calc(var(--mousey) + var(--dragImageOffsetY));
@@ -1521,6 +1644,7 @@ export default {
 }
 .twtree-node .twtree-drag-image-wrapper .twtree-drag-image {
   text-indent: 0;
+  font-size: var(--fontSize);
   width: auto;
   height: 1.5em;
   line-height: 1.5em;
@@ -1603,7 +1727,7 @@ export default {
   background-color: #a6a6a6;
 }
 .twtree-node .twtree-contextmenu-wrapper {
-  position: absolute;
+  position: fixed;
   display: block;
   left: var(--mousex);
   top: var(--mousey);

@@ -20,6 +20,9 @@ import DragAndDropBasicExample from '../views/DragAndDropBasicExample.vue'
 import DragAndDropAdvancedExample from '../views/DragAndDropAdvancedExample.vue'
 import DragAndDropDisableExample from '../views/DragAndDropDisableExample.vue'
 import DragAndDropCustomAppearanceExample from '../views/DragAndDropCustomAppearanceExample.vue'
+import DragAndDropDragANodeOutExample from '../views/DragAndDropDragANodeOutExample.vue'
+import DragAndDropDropAnExternalElementExample from '../views/DragAndDropDropAnExternalElementExample.vue'
+import DragAndDropMultipleTreesExample from '../views/DragAndDropMultipleTreesExample.vue'
 
 import CheckboxWithLinkageExample from '../views/CheckboxWithLinkageExample.vue'
 import CheckboxWithoutLinkageExample from '../views/CheckboxWithoutLinkageExample.vue'
@@ -159,6 +162,22 @@ const routes = [
     name: 'drag-and-drop-custom-appearance-example',
     component: DragAndDropCustomAppearanceExample
   },
+  {
+    path: '/:lang/example/drag-and-drop/drag-a-node-out',
+    name: 'drag-and-drop-drag-a-node-out-example',
+    component: DragAndDropDragANodeOutExample
+  },
+  {
+    path: '/:lang/example/drag-and-drop/drop-an-external-element',
+    name: 'drag-and-drop-drop-an-external-element-example',
+    component: DragAndDropDropAnExternalElementExample
+  },
+  {
+    path: '/:lang/example/drag-and-drop/multiple-trees',
+    name: 'drag-and-drop-multiple-trees-example',
+    component: DragAndDropMultipleTreesExample
+  },
+
 
   {
     path: '/:lang/example/root-node/no-root-node',

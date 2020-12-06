@@ -1,3 +1,20 @@
+3.0.0
+- added:
+    - the enableDragNodeOut property
+    - the enableDropExternalElement property
+    - the useDefaultIsDroppable property
+    - the useDefaultDrop property
+    - the dragAndDrop.status property
+    - the treeId property
+    - the input slot
+- fixed:
+    - the cursor and the ghost image blinked when the user dragged a node over the edge of another node.
+    - the input box's width didn't fit its content well.
+    - the input box's content wasn't selected when a node's title was switched to edit mode.
+    - the contextmenu wasn't fully displayed if parts of it was outside the container with overflow:hidden.
+- security:
+    - upgraded some dependencies.
+
 2.14.0
 - added:
     - the autoHideContextMenu property
