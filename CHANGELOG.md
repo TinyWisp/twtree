@@ -1,3 +1,12 @@
+3.1.0
+- added:
+    - the dropToMove property
+- removed:
+    - the useDefaultDrop property
+    - the useDefaultIsDroppable property
+- fixed:
+    - the tree ref is undefined sometimes
+
 3.0.0
 - added:
     - the enableDragNodeOut property

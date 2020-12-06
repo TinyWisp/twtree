@@ -92,10 +92,6 @@ export default {
       this.draggedIdx = idx
     },
     drop (dragAndOver) {
-      if (dragAndOver.status !== 3) {
-        return
-      }
-
       let title = this.draggableElements[this.draggedIdx]
       let node  = {
         id: Date.now(),

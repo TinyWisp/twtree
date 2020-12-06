@@ -1,7 +1,7 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree :tree="tree"  ref="tree"  cass="tree" :enableDragNodeOut="true"/>
+      <TWTree :tree="tree"  ref="tree"  class="tree" :enableDragNodeOut="true"/>
       <div
         class="container"
         @dragover="dragOver"

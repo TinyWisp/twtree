@@ -1,3 +1,12 @@
+3.1.0
+- 添加:
+    - 属性 dropToMove
+- 删除:
+    - 属性 useDefaultDrop
+    - 属性 useDefaultIsDroppable
+- 修正:
+    - console中有时会报错，this.$refs.tree为undefined
+
 3.0.0
 - 添加:
     - 属性 enableDragNodeOut

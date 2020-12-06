@@ -192,23 +192,4 @@ export default {
   font-weight: bold;
   font-size: 18px;
 }
-.container {
-  padding: 0 2em;
-  width: 100px;
-  border: 0;
-  position: absolute;
-  left: 60%;
-  top: 100px;
-}
-.container .draggable-element {
-  border: 1px solid gray;
-  width: auto;
-  height: 1em;
-  padding: 0.2em;
-  margin-bottom: 1em;
-  font-size: 12px;
-}
-.container .draggable-element:hover {
-  background-color: lightgreen;
-}
 </style>

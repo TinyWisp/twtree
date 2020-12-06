@@ -219,11 +219,7 @@ export default {
       type: Boolean,
       default: false
     },
-    useDefaultIsDroppable: {
-      type: Boolean,
-      default: true
-    },
-    useDefaultDrop: {
+    dropToMove: {
       type: Boolean,
       default: true
     },
@@ -1062,7 +1058,7 @@ export default {
       return true
     },
     isDroppable() {
-      if (this.dragAndDrop.status == this.DND_STATUS.INTERNAL && this.useDefaultIsDroppable === true) {
+      if (this.dragAndDrop.status == this.DND_STATUS.INTERNAL && this.dropToMove === true) {
         if (this.defaultIsDroppable() === false) {
           return false
         }
@@ -1097,6 +1093,9 @@ export default {
       this.dragAndDrop.clientX = event.clientX + 'px'
       this.dragAndDrop.clientY = event.clientY + 'px'
 
+      if (this.$refs.tree === undefined) {
+        return
+      }
       let treeRect = this.$refs.tree.$el.getBoundingClientRect()
       if (event.clientX <= treeRect.left || event.clientX >= treeRect.right || event.clientY <= treeRect.top || event.clientY >= treeRect.bottom) {
         this.dragAndDrop.status = this.dragAndDrop.dragNode !== null
@@ -1176,7 +1175,7 @@ export default {
       this.dragAndDrop.status   = this.DND_STATUS.NONE
       this.$emit('dragend', this.dragAndDrop, event)
     },
-    dropToMove() {
+    moveOnDrop() {
       if (this.dragAndDrop.status !== this.DND_STATUS.INTERNAL) {
         return
       }
@@ -1217,8 +1216,8 @@ export default {
         return
       }
 
-      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL && this.useDefaultDrop === true) {
-        this.dropToMove()
+      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL && this.dropToMove === true) {
+        this.moveOnDrop()
       } else {
         this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
         if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
@@ -1435,7 +1434,7 @@ export default {
     this.refresh()
 
     //drag and drop
-    document.body.addEventListener('dragover', this.globalDragOverEvent)
+    document.body.addEventListener('dragover', this.globalDragOverEvent.bind(this))
     this.emptyImage = new Image()
     this.emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
 
