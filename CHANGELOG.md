@@ -1,3 +1,9 @@
+3.2.0
+- fixed:
+    - the input box's width didn't fit its content well.
+- changed:
+    - the createAndEdit(node, parentNode, pos) method will expand the parentNode if it is collapsed.
+
 3.1.0
 - added:
     - the dropToMove property

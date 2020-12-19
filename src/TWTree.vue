@@ -813,6 +813,7 @@ export default {
     },
     createAndEdit(node, parentNode, pos) {
       this.create(node, parentNode, pos)
+      this.expand(parentNode)
       this.$nextTick().then(() => {
         let createdNode = this.getById(node.id)
         this.edit(createdNode)
@@ -1532,6 +1533,9 @@ export default {
   vertical-align: middle;
   border-radius: 0.16em;
   font-size: var(--fontSize);
+}
+.twtree-node .twtree-title.twtree-title.twtree-title-editing input {
+  box-sizing: content-box;
 }
 .twtree-node .twtree-title.twtree-title-editing.twtree-title-hidden {
   position: absolute;

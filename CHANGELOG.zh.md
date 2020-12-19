@@ -1,3 +1,9 @@
+3.2.0
+- 修正：
+    - 编辑一个结点的标题时，输入框的宽度不能很好地适应内容的长度。
+- 变动:
+    - 方法createAndEdit(node, parentNode, pos)会展开parentNode，如果parentNode是折叠状态。
+
 3.1.0
 - 添加:
     - 属性 dropToMove
@@ -37,7 +43,7 @@
     - 属性 pressEnterToBlur
     - 方法 createAndEdit(node, parentNode, pos)
     - 方法 blur(node)
-- 修改:
+- 变动:
     - 编辑结点时，输入框由contenteditable的span变为input，用户可从node.title直接获取用户编辑的内容，不再需要getNewTitle方法
     - 输入框的边框颜色由黑色变为蓝色
 
