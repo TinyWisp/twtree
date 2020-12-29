@@ -1,3 +1,7 @@
+3.3.0
+- added:
+    - the expandAncestors(node) method
+
 3.2.0
 - fixed:
     - the input box's width didn't fit its content well.

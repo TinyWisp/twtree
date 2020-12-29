@@ -1005,6 +1005,11 @@ export default {
       this.refresh()
       this.$emit('collapse', node)
     },
+    expandAncestors(node) {
+      for (let ancestor of node.__.path) {
+        this.expand(ancestor)
+      }
+    },
     getElement(node) {
       let refId = 'node-' + node.id
       if (this.$refs.hasOwnProperty(refId)) {
