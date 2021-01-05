@@ -42,7 +42,7 @@
     "@vue/cli-plugin-eslint": "^4.5.9",
     "@vue/cli-service": "^4.5.9",
     "@vue/test-utils": "^1.1.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^26.6.3",
