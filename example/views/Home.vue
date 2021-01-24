@@ -1,7 +1,7 @@
 <template>
-  <div class="home">
+  <div :class="['home', isNarrow ? 'narrow' : 'wide']" @click="toggleAside($event)">
 
-    <div class="left">
+    <div class="aside" v-show="showAside">
       <div class="menu-tree-wrapper">
         <TWTree 
           ref="tree" 
@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div class="right">
+    <div class="main">
       <div class="demo">
         <span class="title">
           {{demo.title}}
@@ -52,6 +52,9 @@ export default {
   },
   data() {
     return {
+      isNarrow: false,
+      showAside: true,
+
       locale: 'en',
       text: {
         en: {
@@ -385,6 +388,9 @@ export default {
       }
     },
     init() {
+      const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+      this.isNarrow = (width < 1025)
+
       this.locale = this.$route.params.lang === 'zh'
         ? 'zh'
         : 'en'
@@ -408,6 +414,31 @@ export default {
       if (gotoNode !== null) {
         this.$refs.tree.select(gotoNode)
       }
+    },
+    noAction() {
+      return
+    },
+    toggleAside(event) {
+      if (!this.isNarrow) {
+        return
+      }
+
+      const ignoredTags = ['A', 'INPUT', 'BUTTON']
+      if (ignoredTags.includes(event.target.tagName)) {
+        return
+      }
+
+      let el = event.target
+      while (el !== null && el !== undefined) {
+        let classList = el.classList
+        if (classList.contains('twtree-node') || classList.contains('twtree')) {
+          return
+        }
+
+        el = el.parentElement
+      }
+
+      this.showAside = !this.showAside
     }
   },
   mounted() {
@@ -417,15 +448,15 @@ export default {
 </script>
 
 <style>
-@media only screen and (max-width: 800px) {
-  .example-wrapper {
-    width: 100% !important;
-  }
-}
-.example-wrapper {
+.home.wide .example-wrapper {
   width: 800px;
   margin-left: auto;
   margin-right: auto;
+}
+.home.narrow .example-wrapper {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 .panel {
   width: 100%;
@@ -447,31 +478,61 @@ export default {
 .title:lang(zh) {
   letter-spacing: 0.2em;
 }
-.home {
+
+.home.wide {
   display: flex;
   flex-direction: row;
   margin: 0;
-  height: auto;
+  height: 100vh;
   width: 100%;
-  min-height: 100vh;
   justify-content: flex-start;
   flex-wrap: nowrap;
 }
-.left {
+.home.wide .aside {
   flex-basis: 250px;
-  min-height: 100vh;
-  overflow: hidden;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   border-right: 1px solid black;
   flex-grow: 0;
+  display: block;
 }
-.right {
-  flex-basis: calc(100% - 250px);
+.home.wide .main {
+  flex: calc(100% - 250px);
   height: auto;
   min-height: 100vh;
   flex-grow: 1;
 }
-.menu-tree-wrapper {
+
+.home.narrow {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+.home.narrow .aside {
+  display: block;
   position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  overflow-y: scroll;
+  border-right: 1px solid black;
+  z-index: 100;
+  background-color: white;
+}
+.home.narrow .aside::-webkit-scrollbar {
+  width: 0;
+}
+.home.narrow .main {
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
+}
+
+.menu-tree-wrapper {
+  position: relative;
   width: 250px;
   left: 0;
   top: 0;
@@ -487,6 +548,7 @@ export default {
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 .title {
   text-align: center;
@@ -524,7 +586,7 @@ export default {
 }
 .note {
   display: block;
-  width: 800px;
+  width: min(100vw, 800px);
   text-align: left;
   min-height: 2em;
 }

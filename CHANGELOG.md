@@ -1,3 +1,7 @@
+3.4.0
+- security:
+    - upgraded some dependencies.
+
 3.3.0
 - added:
     - the expandAncestors(node) method
