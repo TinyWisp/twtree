@@ -19,7 +19,7 @@ A highly customizable tree component for vue.
 * [Document](https://github.com/TinyWisp/twtree/wiki/Document)
 * [Demos](https://tinywisp.github.io/twtree/#/en/)
 * [License](#license)
-* [vue 3](#vue 3)
+* [vue 3](<#vue 3>)
 
 ## 主要特色
  *  支持复选框
@@ -124,7 +124,7 @@ export default {
  * 无论个人还是公司，都可以免费自由使用
 
 ## vue3
-  [点击此处](https://github.com/TinyWisp/vue-tree)查看对vue3的支持
+ * [点击此处](https://github.com/TinyWisp/vue-tree)查看对vue3的支持
 
 
  ---
@@ -232,5 +232,5 @@ export default {
  * it is free for commercial use.
 
 ## vue 3
-  [click here](https://github.com/TinyWisp/vue-tree) for vue3 support
+ * [click here](https://github.com/TinyWisp/vue-tree) for vue3 support
 
