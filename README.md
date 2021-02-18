@@ -11,6 +11,7 @@
 * [文档](https://github.com/TinyWisp/twtree/wiki/%E6%96%87%E6%A1%A3)
 * [示例](https://tinywisp.gitee.io/twtree/#/zh/)
 * [开源协议](#开源协议)
+* [vue 3](#vue3)
 
 A highly customizable tree component for vue.
 * [Features](#features)
@@ -18,7 +19,7 @@ A highly customizable tree component for vue.
 * [Document](https://github.com/TinyWisp/twtree/wiki/Document)
 * [Demos](https://tinywisp.github.io/twtree/#/en/)
 * [License](#license)
-
+* [vue 3](#vue 3)
 
 ## 主要特色
  *  支持复选框
@@ -121,9 +122,12 @@ export default {
 ## 开源协议
  * MIT
  * 无论个人还是公司，都可以免费自由使用
- 
+
+## vue3
+  [点击此处](https://github.com/TinyWisp/vue-tree)查看对vue3的支持
+
+
  ---
- 
 
 ## Features
  *  checkbox
@@ -226,4 +230,7 @@ export default {
 ## License
  * MIT
  * it is free for commercial use.
- 
+
+## vue 3
+  [click here](https://github.com/TinyWisp/vue-tree) for vue3 support
+
