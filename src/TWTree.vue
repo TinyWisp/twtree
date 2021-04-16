@@ -742,13 +742,16 @@ export default {
           this.select(node)
         }
       } else {
-        let selected = this.getSelected()
-        for (let item of selected) {
-          if (item !== node ) {
-            this.deselect(item)
+        this.select(node)
+
+        if (this.getAttr(node, 'selected') === true) {
+          let selected = this.getSelected()
+          for (let item of selected) {
+            if (item !== node ) {
+              this.deselect(item)
+            }
           }
         }
-        this.select(node)
       }
 
       if (this.autoHideContextMenu === true) {

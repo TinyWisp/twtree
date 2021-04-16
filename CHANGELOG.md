@@ -1,3 +1,9 @@
+3.5.0
+- security:
+    - upgraded some dependencies.
+- fixed:
+    - the previously selected node will be deselected if the user clicks a node and then the fnBeforeSelect function returns false.
+
 3.4.0
 - security:
     - upgraded some dependencies.
