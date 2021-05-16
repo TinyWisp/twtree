@@ -509,8 +509,62 @@ export default {
       return items
     },
     reload() {
-      this.nodes = JSON.parse(JSON.stringify(this.tree)),
-      this.refresh();
+      let nodeMap = {}
+      for (const item of this.items) {
+        const id = item.id
+        nodeMap[id] = item
+      }
+
+      let nodes = []
+      let stack = []
+      stack.push({
+        srcNodes: this.tree,
+        desNodes: nodes
+      })
+
+      while (true) {
+        let pair = stack.pop()
+        if (pair === undefined) {
+          break
+        }
+        let srcNodes = pair.srcNodes
+        let desNodes = pair.desNodes
+
+        for (const srcNode of srcNodes) {
+          const id = srcNode.id
+          const desNode = nodeMap[id] !== undefined
+                        ? nodeMap[id]
+                        : {}
+
+          for (let key in srcNode) {
+            if (typeof srcNode[key] !== 'object') {
+              desNode[key] = srcNode[key]
+            } else if (key === 'style' || key === 'checkbox') {
+              if (desNode[key] === undefined) {
+                desNode[key] = {}
+              }
+              Object.assign(desNode[key], srcNode[key])
+            } else if (key === 'children') {
+              desNode[key] = []
+            }
+          }
+
+          if (srcNode.children === undefined && desNode.children !== undefined) {
+            delete  desNode.children
+          }
+
+          if (Array.isArray(srcNode.children)) {
+            stack.push({
+              srcNodes: srcNode.children,
+              desNodes: desNode.children
+            })
+          }
+          desNodes.push(desNode)
+        }
+      }
+
+      this.nodes = nodes
+      this.refresh()
     },
     refresh() {
       this.treeWidth = this.$refs.tree.$el.offsetWidth
@@ -694,7 +748,7 @@ export default {
       if (this.$refs.hasOwnProperty(hiddenRefId)) {
         let hiddenTitle = this.$refs[hiddenRefId][0]
         let width = hiddenTitle.clientWidth
-        return (width + 5) + 'px'
+        return `calc(${width}px + 2em)`
       } else {
         return (node.title.length + 1) + 'ch'
       }

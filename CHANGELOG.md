@@ -1,3 +1,10 @@
+3.6.0
+- fixed:
+    - the input box's width didn't fit its content well.
+    - the reload() method caused an animation playing.
+- security:
+    - upgraded some dependencies.
+
 3.5.0
 - security:
     - upgraded some dependencies.
