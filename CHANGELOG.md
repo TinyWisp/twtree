@@ -1,3 +1,7 @@
+3.7.0
+- added:
+    - the fnCustomClasses property
+
 3.6.0
 - fixed:
     - the input box's width didn't fit its content well.

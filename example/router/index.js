@@ -42,6 +42,7 @@ import CustomAppearanceStripesExample from '../views/CustomAppearanceStripesExam
 import CustomAppearanceDisableAnimationsExample from '../views/CustomAppearanceDisableAnimationsExample.vue'
 import CustomAppearanceExtraContentExample from '../views/CustomAppearanceExtraContentExample.vue'
 import CustomAppearanceLimitTitleWidthExample from '../views/CustomAppearanceLimitTitleWidthExample.vue'
+import CustomAppearanceCustomClassesExample from '../views/CustomAppearanceCustomClassesExample.vue'
 
 Vue.use(VueRouter)
 
@@ -244,6 +245,11 @@ const routes = [
     path: '/:lang/example/custom-appearance/limit-title-width',
     name: 'custom-appearance-limit-title-width-example',
     component: CustomAppearanceLimitTitleWidthExample
+  },
+  {
+    path: '/:lang/example/custom-appearance/custom-classes',
+    name: 'custom-appearance-custom-classes-example',
+    component: CustomAppearanceCustomClassesExample
   }
 ]
 

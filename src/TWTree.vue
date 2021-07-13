@@ -14,14 +14,15 @@
         <template v-for="item of items">
           <li
             v-if="item.__.isVisible"
-            :class="{
-              'twtree-node':                true, 
-              'twtree-node-selected':       item.selected,
-              'twtree-node-search-result':  item.__.isSearchResult,
-              'twtree-node-drag-over-prev': item.__.dragOverArea === 'prev' && item.__.isDroppable,
-              'twtree-node-drag-over-next': item.__.dragOverArea === 'next' && item.__.isDroppable,
-              'twtree-node-drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable
-            }"
+            :class="[
+              {'twtree-node':                true}, 
+              {'twtree-node-selected':       item.selected},
+              {'twtree-node-search-result':  item.__.isSearchResult},
+              {'twtree-node-drag-over-prev': item.__.dragOverArea === 'prev' && item.__.isDroppable},
+              {'twtree-node-drag-over-next': item.__.dragOverArea === 'next' && item.__.isDroppable},
+              {'twtree-node-drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable},
+              ...item.__.customClasses
+            ]"
             :style="{
               '--fullIndent':          item.__.fullIndent,
               '--height':              item.style.height,
@@ -277,6 +278,11 @@ export default {
       type: Function,
       required: false,
       default: null
+    },
+    fnCustomClasses: {
+      type: Function,
+      required: false,
+      default: null
     }
   },
   data() {
@@ -325,7 +331,8 @@ export default {
           mousex: 0,
           mousey: 0,
           titleMaxWidth: 'none',
-          titleTip: ''
+          titleTip: '',
+          customClasses: []
         }
       },
 
@@ -457,6 +464,11 @@ export default {
           titleMaxWidth = 'calc(' + (parseFloat(titleMaxWidth) / 100.0) + ' * var(--treeWidth))'
         }
 
+        let customClasses = this.getAttr(node, '__', 'customClasses')
+        if (typeof(this.fnCustomClasses) === 'function') {
+          customClasses = this.fnCustomClasses(node)
+        }
+
         this.setAttr(node, 'directoryState',  this.getDirectoryState(node))
         this.setAttr(node, 'selected',        this.getAttr(node, 'selected'))
 
@@ -496,6 +508,7 @@ export default {
         this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
+        this.setAttr(node, '__', 'customClasses',  customClasses)
 
         if (typeof(this.fnAfterCalculate) === 'function') {
           this.fnAfterCalculate(node)

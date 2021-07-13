@@ -362,6 +362,15 @@ export default {
               route:         '/example/custom-appearance/limit-title-width',
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/CustomAppearanceLimitTitleWidthExample.vue',
               codepenUrl:    'https://codepen.io/tinywisp/pen/yLexJQL'
+            },
+            {
+              title_en:      'custom classes',
+              title_zh:      '自定义样式类',
+              note_en:       'use the fnCustomClasses property to add custom classes to the nodes',
+              note_zh:       '使用fnCustomClasses为节点添加自定义样式类',
+              route:         '/example/custom-appearance/custom-classes',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/CustomAppearanceCustomClassesExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/NWjdjQM'
             }
           ]
         }
