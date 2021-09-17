@@ -1,4 +1,4 @@
-3.8.0
+3.8.1
 - fixed:
     - the properties of the node passed to the fnCustomClasses may not be the latest.
 - security:
