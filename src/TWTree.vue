@@ -464,11 +464,6 @@ export default {
           titleMaxWidth = 'calc(' + (parseFloat(titleMaxWidth) / 100.0) + ' * var(--treeWidth))'
         }
 
-        let customClasses = this.getAttr(node, '__', 'customClasses')
-        if (typeof(this.fnCustomClasses) === 'function') {
-          customClasses = this.fnCustomClasses(node)
-        }
-
         this.setAttr(node, 'directoryState',  this.getDirectoryState(node))
         this.setAttr(node, 'selected',        this.getAttr(node, 'selected'))
 
@@ -508,6 +503,12 @@ export default {
         this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
+
+
+        let customClasses = this.getAttr(node, '__', 'customClasses')
+        if (typeof(this.fnCustomClasses) === 'function') {
+          customClasses = this.fnCustomClasses(node)
+        }
         this.setAttr(node, '__', 'customClasses',  customClasses)
 
         if (typeof(this.fnAfterCalculate) === 'function') {

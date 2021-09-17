@@ -1,3 +1,10 @@
+3.8.0
+- fixed:
+    - the properties of the node passed to the fnCustomClasses may not be the latest.
+- security:
+    - upgraded some dependencies.
+
+
 3.7.0
 - added:
     - the fnCustomClasses property
