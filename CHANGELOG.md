@@ -1,3 +1,9 @@
+3.8.3
+- fixed:
+    - the input box cannot deselect the selection and move the cursor to the expected position when the user clicks in it in firefox.
+- security:
+    - upgraded some dependencies.
+
 3.8.2
 - security:
     - upgraded some dependencies.

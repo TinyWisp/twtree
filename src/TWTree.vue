@@ -43,7 +43,7 @@
               '--marginTop':           item.style.marginTop,
               '--marginBottom':        item.style.marginBottom
             }"
-            :draggable="true"
+            :draggable="!item.__.isEditing"
             @click = "clickEvent(item, $event)"
             @contextmenu = "contextMenuEvent(item, $event)"
             @dragstart="dragStartEvent(item, $event)"
@@ -401,7 +401,7 @@ export default {
         items.push(node)
 
         if (node.hasChild) {
-          if (!node.hasOwnProperty('children')) {
+          if (!Object.prototype.hasOwnProperty.call(node, 'children')) {
             this.$set(node, 'children', [])
           }
 
@@ -423,7 +423,7 @@ export default {
       for (let i=0; i<items.length; i++) {
         let node = items[i]
 
-        if (!node.hasOwnProperty('id')) {
+        if (!Object.prototype.hasOwnProperty.call(node, 'id')) {
           this.$set(node, 'id', this.generateId())
         }
 
@@ -619,7 +619,7 @@ export default {
         let subKey = arguments[2]
         let val = arguments[3]
 
-        if (!node.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(node, key)) {
           this.$set(node, key, {})
         }
 
@@ -631,15 +631,15 @@ export default {
         let node = arguments[0]
         let key = arguments[1]
 
-        if (node.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(node, key)) {
           return node[key]
         }
 
-        if (this.defaultAttrs.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(this.defaultAttrs, key)) {
           return this.defaultAttrs[key]
         }
 
-        if (this.spareDefaultAttrs.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(this.spareDefaultAttrs, key)) {
           return this.spareDefaultAttrs[key]
         }
       }
@@ -649,15 +649,15 @@ export default {
         let key = arguments[1]
         let subKey = arguments[2]
 
-        if (node.hasOwnProperty(key) && node[key].hasOwnProperty(subKey)) {
+        if (Object.prototype.hasOwnProperty.call(node, key) && Object.prototype.hasOwnProperty.call(node[key], subKey)) {
           return node[key][subKey]
         }
 
-        if (this.defaultAttrs.hasOwnProperty(key) && this.defaultAttrs[key].hasOwnProperty(subKey)) {
+        if (Object.prototype.hasOwnProperty.call(this.defaultAttrs, key) && Object.prototype.hasOwnProperty.call(this.defaultAttrs[key], subKey)) {
           return this.defaultAttrs[key][subKey]
         }
 
-        if (this.spareDefaultAttrs.hasOwnProperty(key) && this.spareDefaultAttrs[key].hasOwnProperty(subKey)) {
+        if (Object.prototype.hasOwnProperty.call(this.spareDefaultAttrs, key) && Object.prototype.hasOwnProperty.call(this.spareDefaultAttrs[key], subKey)) {
           return this.spareDefaultAttrs[key][subKey]
         }
       }
@@ -675,7 +675,7 @@ export default {
 
       let directoryState = this.getAttr(node, 'directoryState')
       if (directoryState === null) {
-        directoryState = (this.defaultAttrs.hasOwnProperty('directoryState') && this.defaultAttrs.directoryState !== null)
+        directoryState = (Object.prototype.hasOwnProperty.call(this.defaultAttrs, 'directoryState') && this.defaultAttrs.directoryState !== null)
           ? this.defaultAttrs.directoryState
           : 'expanded'
       }
@@ -709,7 +709,7 @@ export default {
     },
     getTitleElement(node) {
       let refId = 'title-' + node.id
-      if (this.$refs.hasOwnProperty(refId)) {
+      if (Object.prototype.hasOwnProperty.call(this.$refs, refId)) {
         return this.$refs[refId][0].childNodes[0]
       }
 
@@ -759,7 +759,7 @@ export default {
     },
     getHiddenTitleWidth(node) {
       let hiddenRefId = 'title-hidden-' + node.id
-      if (this.$refs.hasOwnProperty(hiddenRefId)) {
+      if (Object.prototype.hasOwnProperty.call(this.$refs, hiddenRefId)) {
         let hiddenTitle = this.$refs[hiddenRefId][0]
         let width = hiddenTitle.clientWidth
         return `calc(${width}px + 2em)`
@@ -868,7 +868,7 @@ export default {
 
       } else {
         this.$set(parentNode, 'hasChild', true)
-        if (!parentNode.hasOwnProperty('children')) {
+        if (!Object.prototype.hasOwnProperty.call(parentNode, 'children')) {
           this.$set(parentNode, 'children', [])
         }
         if (typeof(pos) === 'undefined') {
@@ -932,7 +932,7 @@ export default {
 
       } else {
         this.$set(toParent, 'hasChild', true)
-        if (!toParent.hasOwnProperty('children')) {
+        if (!Object.prototype.hasOwnProperty.call(toParent, 'children')) {
           this.$set(toParent, 'children', [])
         }
         if (typeof(toPos) === 'undefined') {
@@ -1083,7 +1083,7 @@ export default {
     },
     getElement(node) {
       let refId = 'node-' + node.id
-      if (this.$refs.hasOwnProperty(refId)) {
+      if (Object.prototype.hasOwnProperty.call(this.$refs, refId)) {
         return this.$refs[refId][0]
       }
 

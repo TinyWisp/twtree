@@ -8,11 +8,11 @@ export default {
         exports: 'named',
     },
     plugins: [
-        commonjs(),
         vue({
             css: true, // Dynamically inject css as a <style> tag
             compileTemplate: true, // Explicitly convert template to render function
         }),
         buble({transforms: { forOf: false }}), // Transpile to ES5
+        commonjs(),
     ],
 };

@@ -381,7 +381,7 @@ export default {
   },
   methods: {
     showDemo(node) {
-      if (node.hasOwnProperty('route')) {
+      if (Object.prototype.hasOwnProperty.call(node, 'route')) {
         this.demo = {
           sourceCodeUrl: node.sourceCodeUrl,
           codepenUrl:    node.codepenUrl,
@@ -408,7 +408,7 @@ export default {
         let titleKey = 'title_' + this.locale
         let noteKey  = 'note_' + this.locale
         node.title = node[titleKey]
-        node.note  = node.hasOwnProperty(noteKey)
+        node.note  = Object.prototype.hasOwnProperty.call(node, noteKey)
           ? node[noteKey]
           : ''
       }.bind(this))
@@ -416,7 +416,7 @@ export default {
       let routePath = this.$route.path.replace(/^\/[a-zA-Z]*/, '')
       let gotoNode = null
       this.$refs.tree.traverse(function (node) {
-        if (node.hasOwnProperty('route') && node.route === routePath) {
+        if (Object.prototype.hasOwnProperty.call(node, 'route') && node.route === routePath) {
           gotoNode = node
         }
       }.bind(this))
