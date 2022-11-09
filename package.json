@@ -52,7 +52,7 @@
     "jest": "^26.6.3",
     "postcss": "^8.4.13",
     "rollup": "^2.72.1",
-    "rollup-plugin-vue": "^5.1.9",
+    "rollup-plugin-vue": "^6.0.0",
     "vue-axios": "^2.1.5",
     "vue-jest": "^3.0.7",
     "vue-router": "^3.5.3",
