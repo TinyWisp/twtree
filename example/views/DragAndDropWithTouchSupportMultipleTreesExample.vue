@@ -8,7 +8,8 @@
         :tree="leftTree"
         :enableDragNodeOut="true"
         :enableDropExternalElement="true"
-        @drop="drop('leftTree', arguments[0], arguments[1])"/>
+        :enableTouchSupport="true"
+        @drop="drop('leftTree', arguments[0])"/>
       <TWTree
         ref="rightTree" 
         class="tree right"
@@ -16,7 +17,8 @@
         :tree="rightTree"
         :enableDragNodeOut="true"
         :enableDropExternalElement="true"
-        @drop="drop('rightTree', arguments[0], arguments[1])"/>
+        :enableTouchSupport="true"
+        @drop="drop('rightTree', arguments[0])"/>
     </div>
   </div>
 </template>
@@ -25,7 +27,7 @@
 import TWTree from '../../src/TWTree.vue'
 
 export default {
-  name: 'drag-and-drop-multiple-trees-example',
+  name: 'drag-and-drop-multiple-trees-with-touch-support-example',
   components: {
     TWTree
   },
@@ -134,23 +136,23 @@ export default {
     }
   },
   methods: {
-    drop (thisTreeId, dragAndDrop) {
-      if (dragAndDrop.status !== 3) {
+    drop (thisTreeId, dragAndOver) {
+      if (dragAndOver.status !== 3) {
         return
       }
 
-      let fromTree = this.$refs[dragAndDrop.from.treeId]
-      let dragNode = fromTree.getById(dragAndDrop.from.nodeId)
+      let fromTree = this.$refs[dragAndOver.from.treeId]
+      let dragNode = fromTree.getById(dragAndOver.from.nodeId)
       let toTree   = this.$refs[thisTreeId]
-      let overNode = dragAndDrop.overNode
+      let overNode = dragAndOver.overNode
 
       let node  = {
         id: Date.now(),
-        title: dragAndDrop.from.treeId + ' ' + dragNode.title,
+        title: fromTree.treeId + ' ' + dragNode.title,
         hasChild: false
       }
 
-      switch (dragAndDrop.overArea) {
+      switch (dragAndOver.overArea) {
         case 'prev':
           toTree.create(node, overNode.__.parent, overNode.__.pos)
           fromTree.remove(dragNode)
@@ -168,6 +170,10 @@ export default {
       }
     }
   },
+  mounted () {
+    this.$refs.leftTree.allowTouchOperationFromAnotherTree('rightTree')
+    this.$refs.rightTree.allowTouchOperationFromAnotherTree('leftTree')
+  }
 }
 </script>
 

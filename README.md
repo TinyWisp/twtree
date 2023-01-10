@@ -28,6 +28,7 @@ A highly customizable tree component for vue.
  *  右键菜单
  *  按钮
  *  自定义外观
+ *  触屏支持
 
 ## 文档
  *  [文档](https://github.com/TinyWisp/twtree/wiki/%E6%96%87%E6%A1%A3)
@@ -136,6 +137,7 @@ export default {
  *  context menu
  *  button
  *  customizable appearance
+ *  touch support
 
 ## Getting Started
 

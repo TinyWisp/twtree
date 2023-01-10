@@ -24,6 +24,12 @@ import DragAndDropDragANodeOutExample from '../views/DragAndDropDragANodeOutExam
 import DragAndDropDropAnExternalElementExample from '../views/DragAndDropDropAnExternalElementExample.vue'
 import DragAndDropMultipleTreesExample from '../views/DragAndDropMultipleTreesExample.vue'
 
+import DragAndDropWithTouchSupportBasicExample from '../views/DragAndDropWithTouchSupportBasicExample.vue'
+import DragAndDropWithTouchSupportAdvancedExample from '../views/DragAndDropWithTouchSupportAdvancedExample.vue'
+import DragAndDropWithTouchSupportDragANodeOutExample from '../views/DragAndDropWithTouchSupportDragANodeOutExample.vue'
+import DragAndDropWithTouchSupportDropAnExternalElementExample from '../views/DragAndDropWithTouchSupportDropAnExternalElementExample.vue'
+import DragAndDropWithTouchSupportMultipleTreesExample from '../views/DragAndDropWithTouchSupportMultipleTreesExample.vue'
+
 import CheckboxWithLinkageExample from '../views/CheckboxWithLinkageExample.vue'
 import CheckboxWithoutLinkageExample from '../views/CheckboxWithoutLinkageExample.vue'
 import CheckboxCustomAppearanceExample from '../views/CheckboxCustomAppearanceExample.vue'
@@ -177,6 +183,33 @@ const routes = [
     path: '/:lang/example/drag-and-drop/multiple-trees',
     name: 'drag-and-drop-multiple-trees-example',
     component: DragAndDropMultipleTreesExample
+  },
+
+
+  {
+    path: '/:lang/example/drag-and-drop-with-touch-support/basic',
+    name: 'drag-and-drop-with-touch-support-basic-example',
+    component: DragAndDropWithTouchSupportBasicExample
+  },
+  {
+    path: '/:lang/example/drag-and-drop-with-touch-support/advanced',
+    name: 'drag-and-drop-with-touch-support-advanced-example',
+    component: DragAndDropWithTouchSupportAdvancedExample
+  },
+  {
+    path: '/:lang/example/drag-and-drop-with-touch-support/drag-a-node-out',
+    name: 'drag-and-drop-with-touch-support-drag-a-node-out-example',
+    component: DragAndDropWithTouchSupportDragANodeOutExample
+  },
+  {
+    path: '/:lang/example/drag-and-drop-with-touch-support/drop-an-external-element',
+    name: 'drag-and-drop-with-touch-support-drop-an-external-element-example',
+    component: DragAndDropWithTouchSupportDropAnExternalElementExample
+  },
+  {
+    path: '/:lang/example/drag-and-drop-with-touch-support/multiple-trees',
+    name: 'drag-and-drop-with-touch-support-multiple-trees-example',
+    component: DragAndDropWithTouchSupportMultipleTreesExample
   },
 
 

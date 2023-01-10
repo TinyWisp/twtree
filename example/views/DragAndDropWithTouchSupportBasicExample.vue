@@ -1,14 +1,14 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree 
+      <TWTree
         :tree="tree"
         class="tree"
         @dragover="showInfo"
         @dragend="showInfo"
-        @dragentertree="showInfo"
         @dragleavetree="showInfo"
-      />
+        @dragentertree="showInfo"
+        :enableTouchSupport="true" />
     </div>
     <span class="info">
       <span class="key">dragNode:</span> <span class="val">{{dragNode}}</span> <br>
@@ -23,7 +23,7 @@
 import TWTree from '../../src/TWTree.vue'
 
 export default {
-  name: 'drag-and-drop-basic-example',
+  name: 'drag-and-drop-basic-touch-support-example',
   components: {
     TWTree
   },
@@ -32,7 +32,7 @@ export default {
       dragNode: '',
       overNode: '',
       overArea: '',
-      status: '',
+      status: 0,
       tree: [
         {
           id: 1,

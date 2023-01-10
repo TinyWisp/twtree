@@ -1,6 +1,20 @@
+4.0.0
+- 添加:
+    - 触屏拖拽支持。
+    - 属性 enableTouchSupport。
+    - 方法 allowTouchOperationFromAnotherTree。
+    - 方法 allowExternalTouchOperation。
+    - 方法 isTheTouchOperationFromTheTree。
+    - 事件 dragleavetree
+    - 事件 dragentertree
+- 安全性:
+    - 升级了一些依赖包。
+    - 包@rollup/plugin-buble 替换为 @rollup/plugin-babel。
+    - 包vue-jest 替换为 @vue/vue2-jest。
+
 3.8.3
 - 修正:
-    - firefox中，编辑一个节点时，鼠标点击输入框中，输入框不能取消全选状态且光标未能移到指定位置
+    - firefox中，编辑一个节点时，鼠标点击输入框中，输入框不能取消全选状态且光标未能移到指定位置。
 - 安全性:
     - 升级了一些依赖包。
 

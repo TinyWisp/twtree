@@ -5,7 +5,8 @@
       <div class="menu-tree-wrapper">
         <TWTree 
           ref="tree" 
-          class="menu-tree" 
+          class="menu-tree"
+          treeId="menuTree"
           :tree="menuTree"
           :defaultAttrs="{
             style: {
@@ -167,7 +168,49 @@ export default {
               sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropMultipleTreesExample.vue',
               codepenUrl:    'https://codepen.io/tinywisp/pen/NWRNzpp'
             },
+          ]
+        },
 
+        {
+          title_en:      'drag and drop with touch support',
+          title_zh:      '触屏设备上的拖拽操作',
+          hasChild:      true,
+          children:      [
+            {
+              title_en:      'basic',
+              title_zh:      '基础示例',
+              route:         '/example/drag-and-drop-with-touch-support/basic',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropWithTouchSupportBasicExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/gOjMrem'
+            },
+            {
+              title_en:      'advanced',
+              title_zh:      '高级',
+              route:         '/example/drag-and-drop-with-touch-support/advanced',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropWithTouchSupportAdvancedExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/oNMBONx'
+            },
+            {
+              title_en:      'dragging a node out',
+              title_zh:      '将结点拖动到树的外部',
+              route:         '/example/drag-and-drop-with-touch-support/drag-a-node-out',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropWithTouchSupportDragANodeOutExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/QWBdPWB'
+            },
+            {
+              title_en:      'dropping an external element',
+              title_zh:      '将外部元素拖动到树上',
+              route:         '/example/drag-and-drop-with-touch-support/drop-an-external-element',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropWithTouchSupportDropAnExternalElementExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/ZEjLZYZ'
+            },
+            {
+              title_en:      'multiple trees',
+              title_zh:      '多棵树',
+              route:         '/example/drag-and-drop-with-touch-support/multiple-trees',
+              sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/DragAndDropWithTouchSupportMultipleTreesExample.vue',
+              codepenUrl:    'https://codepen.io/tinywisp/pen/wvxgZam'
+            },
           ]
         },
 

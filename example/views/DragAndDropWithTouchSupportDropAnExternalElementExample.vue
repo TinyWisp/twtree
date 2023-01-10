@@ -6,17 +6,20 @@
         ref="tree" 
         class="tree"
         :enableDropExternalElement="true"
+        :enableTouchSupport="true"
         @drop="drop"/>
       <div class="container">
         <div 
           class="draggable-element"
-          :draggable="true"
-          @dragstart="dragStartHandler(i)"
+          @touchstart="touchStartHandler(i, $event)"
+          @touchmove="touchMoveHandler($event)"
+          @touchend="touchEndHandler()"
           :key = i
           v-for="(title, i) of draggableElements">
           {{title}}
         </div>
       </div>
+      <div class="ghost-image" v-show="ghostImage.show" :style="{left: ghostImage.x + 'px', top: ghostImage.y + 'px'}">{{ghostImage.text}}</div>
     </div>
   </div>
 </template>
@@ -25,7 +28,7 @@
 import TWTree from '../../src/TWTree.vue'
 
 export default {
-  name: 'drag-and-drop-drop-an-external-element-example',
+  name: 'drag-and-drop-with-touch-support-drop-an-external-element-example',
   components: {
     TWTree
   },
@@ -36,7 +39,13 @@ export default {
         'element 2',
         'element 3'
       ],
-      draggedIdx: null,
+      draggedIdx: -1,
+      ghostImage: {
+        show: false,
+        text: '',
+        x: 0,
+        y: 0,
+      },
       tree: [
         {
           id: 1,
@@ -88,8 +97,29 @@ export default {
     }
   },
   methods: {
-    dragStartHandler (idx) {
+    touchStartHandler (idx, event) {
       this.draggedIdx = idx
+      this.setGhostImage(event)
+      this.showGhostImage()
+      this.$refs.tree.allowExternalTouchOperation(event)
+    },
+    touchMoveHandler (event) {
+      this.setGhostImage(event)
+    },
+    touchEndHandler () {
+      this.hideGhostImage()
+    },
+    setGhostImage (event) {
+      this.ghostImage.text = this.draggableElements[this.draggedIdx]
+      let touch = event.touches.item(0)
+      this.ghostImage.x = touch.pageX + 10
+      this.ghostImage.y = touch.pageY + 10
+    },
+    showGhostImage () {
+      this.ghostImage.show = true
+    },
+    hideGhostImage () {
+      this.ghostImage.show = false
     },
     drop (dragAndDrop) {
       let title = this.draggableElements[this.draggedIdx]
@@ -113,6 +143,8 @@ export default {
           this.$refs.tree.create(node, overNode.__.parent, overNode.__.pos + 1)
           break
       }
+
+      this.draggedIdx = -1
     }
   }
 }
@@ -154,7 +186,13 @@ export default {
   margin-bottom: 1em;
   font-size: 12px;
 }
-.container .draggable-element:hover {
+.ghost-image {
+  position: fixed;
+  width: calc(100px - 2em);
+  height: 1em;
+  border: 1px solid gray;
+  padding: 0.2em;
+  font-size: 12px;
   background-color: #bae7ff;
 }
 </style>

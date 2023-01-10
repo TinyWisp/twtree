@@ -1,3 +1,18 @@
+4.0.0
+- added:
+    - touch support for drag and drop operations.
+    - the enableTouchSupport property.
+    - the allowTouchOperationFromAnotherTree method.
+    - the allowExternalTouchOperation method.
+    - the isTheTouchOperationFromTheTree method.
+    - the dragleavetree event.
+    - the dragentertree event.
+
+- security:
+    - upgraded some dependencies.
+    - replaced @rollup/plugin-buble with @rollup/plugin-babel.
+    - replaced vue-jest with @vue/vue2-jest.
+
 3.8.3
 - fixed:
     - the input box cannot deselect the selection and move the cursor to the expected position when the user clicks in it in firefox.

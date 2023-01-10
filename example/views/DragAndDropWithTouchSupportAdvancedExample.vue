@@ -1,20 +1,21 @@
 <template>
   <div class="example-wrapper">
     <div class="panel">
-      <TWTree 
-        :tree="tree"
+      <TWTree
+        ref="tree"
         class="tree"
+        :tree="tree"
+        :fnBeforeDrag="beforeDrag"
+        :fnIsDroppable="isDroppable"
+        :enableTouchSupport="true"
         @dragover="showInfo"
         @dragend="showInfo"
-        @dragentertree="showInfo"
-        @dragleavetree="showInfo"
       />
     </div>
     <span class="info">
       <span class="key">dragNode:</span> <span class="val">{{dragNode}}</span> <br>
       <span class="key">overNode:</span> <span class="val">{{overNode}}</span> <br>
-      <span class="key">overArea:</span> <span class="val">{{overArea}}</span> <br>
-      <span class="key">status:</span> <span class="val">{{status}}</span>
+      <span class="key">overArea:</span> <span class="val">{{overArea}}</span>
     </span>
   </div>
 </template>
@@ -23,7 +24,7 @@
 import TWTree from '../../src/TWTree.vue'
 
 export default {
-  name: 'drag-and-drop-basic-example',
+  name: 'drag-and-drop-with-touch-support-advanced-example',
   components: {
     TWTree
   },
@@ -32,7 +33,6 @@ export default {
       dragNode: '',
       overNode: '',
       overArea: '',
-      status: '',
       tree: [
         {
           id: 1,
@@ -50,7 +50,8 @@ export default {
               children: [
                 {
                   id: 4,
-                  title: 'child 2-1'
+                  title: 'not draggable',
+                  draggable: false
                 },
                 {
                   id: 5,
@@ -68,15 +69,15 @@ export default {
             },
             {
               id: 8,
-              title: 'child 4'
+              title: 'cannot drop before this node'
             },
             {
               id: 9,
-              title: 'child 5'
+              title: 'annot drop after this node'
             },
             {
               id: 10,
-              title: 'child 6'
+              title: 'cannot be parent'
             }
           ]
         }
@@ -84,17 +85,47 @@ export default {
     }
   },
   methods: {
-    showInfo(dragAndDrop) {
-      this.dragNode = dragAndDrop.dragNode !== null
-        ? dragAndDrop.dragNode.title
+    beforeDrag(node) {
+      return node.draggable !== false
+    },
+    isDroppable(dragAndDrop) {
+      //cannot drop before node 8
+      if (dragAndDrop.overNode.id === 8 && dragAndDrop.overArea === 'prev') {
+        return false
+      }
+
+      if (dragAndDrop.overNode.id === 7 && dragAndDrop.overArea === 'next') {
+        return false
+      }
+
+      //cannot drop after node 9
+      if (dragAndDrop.overNode.id === 9 && dragAndDrop.overArea === 'next') {
+        return false
+      }
+
+      if (dragAndDrop.overNode.id === 10 && dragAndDrop.overArea === 'prev') {
+        return false
+      }
+
+      //node 10 cannot be parent
+      if (dragAndDrop.overNode.id === 10 && dragAndDrop.overArea === 'self') {
+        return false
+      }
+
+      return true
+    },
+    showInfo() {
+      let tree = this.$refs.tree
+
+      this.dragNode = tree.dragAndDrop.dragNode !== null
+        ? tree.dragAndDrop.dragNode.title
         : ''
-      this.overNode = dragAndDrop.overNode !== null
-        ? dragAndDrop.overNode.title
+      this.overNode = tree.dragAndDrop.overNode !== null
+        ? tree.dragAndDrop.overNode.title
         : ''
-      this.overArea = dragAndDrop.overArea !== null
-        ? dragAndDrop.overArea
+      this.overArea = tree.dragAndDrop.overArea !== null
+        ? tree.dragAndDrop.overArea
         : ''
-      this.status = dragAndDrop.status
     }
   }
 }

@@ -51,6 +51,7 @@
             @dragend="dragEndEvent($event)"
             @drop="dropEvent($event)"
             @dragenter="dragEnterEvent($event)"
+            @touchstart="touchStartEvent(item, $event)"
             :ref="'node-' + item.id"
             :key="item.id">
             <span class="twtree-switcher-wrapper" v-if="item.style.showSwitcher" @click.stop="toggleDirectoryState(item)">
@@ -224,6 +225,10 @@ export default {
       type: Boolean,
       default: true
     },
+    enableTouchSupport: {
+      type: Boolean,
+      default: false
+    },
     fnLoadData: {
       type: Function,
       required: false,
@@ -345,7 +350,9 @@ export default {
         overArea: null,
         isDroppable: false,
         clientX: null,
-        clientY: null
+        clientY: null,
+        isTouch: false,
+        from: null,
       },
       DND_STATUS: {    // enum values of dragAndDrop.status
         NONE:     0,   // there is no drag and drop interaction currently
@@ -353,6 +360,9 @@ export default {
         INTERNAL: 2,   // a node is being dragged over the tree
         INTO:     3    // an external element is being dragged over the tree
       },
+      allowedExternalTouchTarget: null,
+      allowedTreeIdMap: {},
+      touchStartTarget: null,
 
       //---contextmenu---
       contextMenu: {
@@ -372,12 +382,6 @@ export default {
     }
   },
   methods: {
-    traverse (fnDoSomething) {
-      for (let i=0; i<this.items.length; i++) {
-        let node = this.items[i]
-        fnDoSomething(node)
-      }
-    },
     //generate a flat array which can be rendered easily.
     getItems() {
       if (!Array.isArray(this.nodes)) {
@@ -668,44 +672,9 @@ export default {
       }
       this.$set(node, 'title', title)
     },
-    getDirectoryState(node) {
-      if (!node.hasChild) {
-        return null
-      }
-
-      let directoryState = this.getAttr(node, 'directoryState')
-      if (directoryState === null) {
-        directoryState = (Object.prototype.hasOwnProperty.call(this.defaultAttrs, 'directoryState') && this.defaultAttrs.directoryState !== null)
-          ? this.defaultAttrs.directoryState
-          : 'expanded'
-      }
-
-      return directoryState
-    },
     generateId() {
       this.autoIdCounter += 1
       return 'twtree-node-' + this.autoIdCounter
-    },
-    edit(node) {
-      this.setAttr(node, '__', 'inputWidth', (node.title.length + 1) + 'em')
-      this.setAttr(node, '__', 'isEditing', true)
-      this.$emit('edit', node)
-
-      this.$nextTick().then(function(){
-        this.setAttr(node, '__', 'inputWidth', this.getHiddenTitleWidth(node))
-        let input = this.getTitleElement(node)
-        input.select()
-        input.focus()
-      }.bind(this))
-    },
-    quitEdit(node) {
-      this.setAttr(node, '__', 'isEditing', false)
-
-      this.$nextTick().then(function(){
-        let titleElement = this.getTitleElement(node)
-        titleElement.scrollLeft = 0
-      }.bind(this))
-      this.$emit('quitedit', node)
     },
     getTitleElement(node) {
       let refId = 'title-' + node.id
@@ -715,41 +684,6 @@ export default {
 
       return null
     },
-    focus(node) {
-      if (this.getAttr(node, '__', 'isEditing') === true) {
-        let titleElement = this.getTitleElement(node)
-        titleElement.focus()
-      }
-    },
-    blur(node) {
-      if (this.getAttr(node, '__', 'isEditing') === true) {
-        let titleElement = this.getTitleElement(node)
-        titleElement.blur()
-      }
-    },
-    focusEvent(node, event) {
-      this.$emit('focus', node, event)
-    },
-    blurEvent(node, event) {
-      this.$emit('blur', node, event)
-    },
-    inputEvent(node, event) {
-      this.$emit('input', node, event)
-    },
-    keydownEvent(node, event) {
-      if (this.pressEnterToBlur && event.keyCode === 13) {
-        this.blur(node)
-      }
-      this.$emit('keydown', node, event)
-    },
-    keyupEvent(node, event) {
-      this.setAttr(node, '__', 'inputWidth', this.getHiddenTitleWidth(node))
-
-      this.$emit('keyup', node, event)
-    },
-    keypressEvent(node, event) {
-      this.$emit('keypress', node, event)
-    },
     mouseenterEvent(node) {
       let titleElement = this.getTitleElement(node)
       let tip = (titleElement.offsetWidth < titleElement.scrollWidth)
@@ -757,19 +691,68 @@ export default {
         : ''
       this.setAttr(node, '__', 'titleTip', tip)
     },
-    getHiddenTitleWidth(node) {
-      let hiddenRefId = 'title-hidden-' + node.id
-      if (Object.prototype.hasOwnProperty.call(this.$refs, hiddenRefId)) {
-        let hiddenTitle = this.$refs[hiddenRefId][0]
-        let width = hiddenTitle.clientWidth
-        return `calc(${width}px + 2em)`
+    clickEvent(node, event) {
+      this.$emit('click', node, event)
+
+      if (this.multiSelect) {
+        if (node.selected) {
+          this.deselect(node)
+        } else {
+          this.select(node)
+        }
       } else {
-        return (node.title.length + 1) + 'ch'
+        this.select(node)
+
+        if (this.getAttr(node, 'selected') === true) {
+          let selected = this.getSelected()
+          for (let item of selected) {
+            if (item !== node ) {
+              this.deselect(item)
+            }
+          }
+        }
+      }
+
+      if (this.autoHideContextMenu === true) {
+        this.hideContextMenuOnDisplay()
       }
     },
-    getNewTitle(node) {
-      return node.title
+    treeBlurEvent(e) {
+      let relatedTarget = e.relatedTarget
+      if (this.contextMenu.node !== null && this.autoHideContextMenu === true && !this.getElement(this.contextMenu.node).contains(relatedTarget)) {
+        this.hideContextMenuOnDisplay()
+      }
     },
+    getElement(node) {
+      let refId = 'node-' + node.id
+      if (Object.prototype.hasOwnProperty.call(this.$refs, refId)) {
+        return this.$refs[refId][0]
+      }
+
+      return null
+    },
+    getOffset(node) {
+      let nodeElement = this.getElement(node)
+      let offsetLeft  = nodeElement.offsetLeft
+      let offsetTop   = nodeElement.offsetTop
+
+      let reference = nodeElement.offsetParent
+      while(reference){
+        offsetLeft += reference.offsetLeft
+        offsetTop  += reference.offsetTop
+        reference   = reference.offsetParent
+      }
+
+      return {
+        left: offsetLeft,
+        top: offsetTop
+      }
+    },
+
+
+
+
+    //---------------------------------- select ----------------------------------------
     getSelected() {
       let selected = []
 
@@ -800,64 +783,8 @@ export default {
       this.setAttr(node, 'selected', true)
       this.$emit('select', node)
     },
-    clickEvent(node, event) {
-      this.$emit('click', node, event)
 
-      if (this.multiSelect) {
-        if (node.selected) {
-          this.deselect(node)
-        } else {
-          this.select(node)
-        }
-      } else {
-        this.select(node)
-
-        if (this.getAttr(node, 'selected') === true) {
-          let selected = this.getSelected()
-          for (let item of selected) {
-            if (item !== node ) {
-              this.deselect(item)
-            }
-          }
-        }
-      }
-
-      if (this.autoHideContextMenu === true) {
-        this.hideContextMenuOnDisplay()
-      }
-    },
-    contextMenuEvent(node, event) {
-      if (typeof(this.fnBeforeContextMenu) === 'function' && this.fnBeforeContextMenu(node, event) === false) {
-        return
-      }
-
-      if (this.contextMenu.node !== node) {
-        let selected = this.getSelected()
-        for (let item of selected) {
-          if (item !== node ) {
-            this.deselect(item)
-          }
-        }
-        this.select(node)
-        this.hideContextMenuOnDisplay()
-      }
-
-      this.setAttr(node, '__', 'showContextMenu', true)
-      this.contextMenu.node = node
-      this.contextMenu.event = event
-      event.preventDefault()
-    },
-    hideContextMenuOnDisplay() {
-      if (this.contextMenu.node !== null) {
-        this.setAttr(this.contextMenu.node, '__', 'showContextMenu', false)
-      }
-    },
-    treeBlurEvent(e) {
-      let relatedTarget = e.relatedTarget
-      if (this.contextMenu.node !== null && this.autoHideContextMenu === true && !this.getElement(this.contextMenu.node).contains(relatedTarget)) {
-        this.hideContextMenuOnDisplay()
-      }
-    },
+    //--------------------------- create, remove, move ---------------------------------
     create(node, parentNode, pos) {
       if (parentNode === null) {
         if (typeof(pos) === 'undefined') {
@@ -946,6 +873,15 @@ export default {
       this.refresh()
       this.$emit('move', node, fromParent, fromPos, toParent, toPos)
     },
+
+
+    //--------------------------- search, sort, traverse -------------------------------
+    traverse (fnDoSomething) {
+      for (let i=0; i<this.items.length; i++) {
+        let node = this.items[i]
+        fnDoSomething(node)
+      }
+    },
     search(keyword, fnMatch) {
       let matches = []
 
@@ -1006,6 +942,22 @@ export default {
       }
 
       this.refresh()
+    },
+
+    //-------------------------------- directory ---------------------------------------
+    getDirectoryState(node) {
+      if (!node.hasChild) {
+        return null
+      }
+
+      let directoryState = this.getAttr(node, 'directoryState')
+      if (directoryState === null) {
+        directoryState = (Object.prototype.hasOwnProperty.call(this.defaultAttrs, 'directoryState') && this.defaultAttrs.directoryState !== null)
+          ? this.defaultAttrs.directoryState
+          : 'expanded'
+      }
+
+      return directoryState
     },
     expand(node) {
       if (!node.hasChild) {
@@ -1081,34 +1033,134 @@ export default {
         this.expand(ancestor)
       }
     },
-    getElement(node) {
-      let refId = 'node-' + node.id
-      if (Object.prototype.hasOwnProperty.call(this.$refs, refId)) {
-        return this.$refs[refId][0]
+
+
+
+    //------------------------------ context menu --------------------------------------
+    contextMenuEvent(node, event) {
+      if (typeof(this.fnBeforeContextMenu) === 'function' && this.fnBeforeContextMenu(node, event) === false) {
+        return
       }
 
-      return null
+      if (this.contextMenu.node !== node) {
+        let selected = this.getSelected()
+        for (let item of selected) {
+          if (item !== node ) {
+            this.deselect(item)
+          }
+        }
+        this.select(node)
+        this.hideContextMenuOnDisplay()
+      }
+
+      this.setAttr(node, '__', 'showContextMenu', true)
+      this.contextMenu.node = node
+      this.contextMenu.event = event
+      event.preventDefault()
     },
-    getOffset(node) {
-      let nodeElement = this.getElement(node)
-      let offsetLeft  = nodeElement.offsetLeft
-      let offsetTop   = nodeElement.offsetTop
-
-      let reference = nodeElement.offsetParent
-      while(reference){
-        offsetLeft += reference.offsetLeft
-        offsetTop  += reference.offsetTop
-        reference   = reference.offsetParent
-      }
-
-      return {
-        left: offsetLeft,
-        top: offsetTop
+    hideContextMenuOnDisplay() {
+      if (this.contextMenu.node !== null) {
+        this.setAttr(this.contextMenu.node, '__', 'showContextMenu', false)
       }
     },
+
+    //---------------------------------- edit ------------------------------------------
+    getHiddenTitleWidth(node) {
+      let hiddenRefId = 'title-hidden-' + node.id
+      if (Object.prototype.hasOwnProperty.call(this.$refs, hiddenRefId)) {
+        let hiddenTitle = this.$refs[hiddenRefId][0]
+        let width = hiddenTitle.clientWidth
+        return `calc(${width}px + 2em)`
+      } else {
+        return (node.title.length + 1) + 'ch'
+      }
+    },
+    getNewTitle(node) {
+      return node.title
+    },
+    edit(node) {
+      this.setAttr(node, '__', 'inputWidth', (node.title.length + 1) + 'em')
+      this.setAttr(node, '__', 'isEditing', true)
+      this.$emit('edit', node)
+
+      this.$nextTick().then(function(){
+        this.setAttr(node, '__', 'inputWidth', this.getHiddenTitleWidth(node))
+        let input = this.getTitleElement(node)
+        input.select()
+        input.focus()
+      }.bind(this))
+    },
+    quitEdit(node) {
+      this.setAttr(node, '__', 'isEditing', false)
+
+      this.$nextTick().then(function(){
+        let titleElement = this.getTitleElement(node)
+        titleElement.scrollLeft = 0
+      }.bind(this))
+      this.$emit('quitedit', node)
+    },
+    focus(node) {
+      if (this.getAttr(node, '__', 'isEditing') === true) {
+        let titleElement = this.getTitleElement(node)
+        titleElement.focus()
+      }
+    },
+    blur(node) {
+      if (this.getAttr(node, '__', 'isEditing') === true) {
+        let titleElement = this.getTitleElement(node)
+        titleElement.blur()
+      }
+    },
+    focusEvent(node, event) {
+      this.$emit('focus', node, event)
+    },
+    blurEvent(node, event) {
+      this.$emit('blur', node, event)
+    },
+    inputEvent(node, event) {
+      this.$emit('input', node, event)
+    },
+    keydownEvent(node, event) {
+      if (this.pressEnterToBlur && event.keyCode === 13) {
+        this.blur(node)
+      }
+      this.$emit('keydown', node, event)
+    },
+    keyupEvent(node, event) {
+      this.setAttr(node, '__', 'inputWidth', this.getHiddenTitleWidth(node))
+
+      this.$emit('keyup', node, event)
+    },
+    keypressEvent(node, event) {
+      this.$emit('keypress', node, event)
+    },
+
+
+
+    //------------------------------ global cache --------------------------------------
+    setGlobalCache(key, val) {
+      if (Object.prototype.hasOwnProperty.call(window, 'twtreeCache') === false) {
+        window.twtreeCache = {}
+      }
+      window.twtreeCache[key] = val
+    },
+    getGlobalCache(key) {
+      if (Object.prototype.hasOwnProperty.call(window, 'twtreeCache') === false
+        || Object.prototype.hasOwnProperty.call(window.twtreeCache, key) === false) {
+        return null
+      }
+      return window.twtreeCache[key]
+    },
+
 
     //------------------------------ drag and drop --------------------------------------
     defaultIsDroppable() {
+      /*
+      if (this.dragAndDrop.status === this.DND_STATUS.OUT_OF && this.enableDragNodeOut === false) {
+        return false
+      }
+      */
+
       if (this.dragAndDrop.dragNode === this.dragAndDrop.overNode) {
         return false
       }
@@ -1135,7 +1187,7 @@ export default {
       return true
     },
     isDroppable() {
-      if (this.dragAndDrop.status == this.DND_STATUS.INTERNAL && this.dropToMove === true) {
+      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL && this.dropToMove === true) {
         if (this.defaultIsDroppable() === false) {
           return false
         }
@@ -1162,30 +1214,65 @@ export default {
       event.dataTransfer.setDragImage(this.emptyImage, 0, 0)
       event.dataTransfer.dropEffect = 'move'
       event.dataTransfer.effectAllowed = 'all'
+      this.setGlobalCache('from', {
+        treeId: this.treeId,
+        nodeId: node.id,
+      })
 
       this.$emit('dragstart', this.dragAndDrop, event)
+    },
+    calcDragAndDropStatus(clientX, clientY) {
+      if (this.$refs.tree === undefined) {
+        return
+      }
+
+      let treeRect = this.$refs.tree.$el.getBoundingClientRect()
+      let isInTreeArea = clientX > treeRect.left && clientX < treeRect.right && clientY > treeRect.top && clientY < treeRect.bottom
+      let prevStatus = this.dragAndDrop.status
+
+      if (isInTreeArea === false && this.dragAndDrop.dragNode !== null) {
+        this.dragAndDrop.status = this.DND_STATUS.OUT_OF
+        if (this.dragAndDrop.overNode !== null) {
+          this.dragLeave(this.dragAndDrop.overNode)
+        }
+        if (prevStatus === this.DND_STATUS.INTERNAL) {
+          this.$emit('dragleavetree', this.dragAndDrop)
+        }
+
+      } else if (isInTreeArea === true && this.dragAndDrop.dragNode !== null) {
+        this.dragAndDrop.status = this.DND_STATUS.INTERNAL
+        this.dragAndDrop.from = null
+        if (prevStatus === this.DND_STATUS.OUT_OF) {
+          this.$emit('dragentertree', this.dragAndDrop)
+        }
+
+      } else if (isInTreeArea === true && this.dragAndDrop.dragNode === null) {
+        this.dragAndDrop.status = this.DND_STATUS.INTO
+        this.dragAndDrop.from = null
+        if (prevStatus === this.DND_STATUS.NONE) {
+          this.$emit('dragentertree', this.dragAndDrop)
+        }
+
+      } else if (isInTreeArea === false && this.dragAndDrop.dragNode === null) {
+        this.dragAndDrop.status = this.DND_STATUS.NONE
+        this.dragAndDrop.from = null
+        if (prevStatus === this.DND_STATUS.INTO) {
+          this.$emit('dragleavetree', this.dragAndDrop)
+        }
+      }
+
     },
     globalDragOverEvent(event) {
       event.preventDefault()
       this.dragAndDrop.clientX = event.clientX + 'px'
       this.dragAndDrop.clientY = event.clientY + 'px'
 
-      if (this.$refs.tree === undefined) {
-        return
+      this.calcDragAndDropStatus(event.clientX, event.clientY)
+
+      if (this.dragAndDrop.from === null && this.dragAndDrop.status === this.DND_STATUS.INTO) {
+        this.dragAndDrop.from = this.getGlobalCache('from')
       }
-      let treeRect = this.$refs.tree.$el.getBoundingClientRect()
-      if (event.clientX <= treeRect.left || event.clientX >= treeRect.right || event.clientY <= treeRect.top || event.clientY >= treeRect.bottom) {
-        this.dragAndDrop.status = this.dragAndDrop.dragNode !== null
-          ? this.DND_STATUS.OUT_OF
-          : this.DND_STATUS.NONE
-        if (this.dragAndDrop.overNode !== null) {
-          this.dragLeave(this.dragAndDrop.overNode)
-        }
-      } else {
-        this.dragAndDrop.status = this.dragAndDrop.dragNode !== null
-          ? this.DND_STATUS.INTERNAL
-          : this.DND_STATUS.INTO
-      }
+
     },
     dragOverEvent(node, event) {
       if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
@@ -1250,6 +1337,11 @@ export default {
       this.dragAndDrop.clientX  = null
       this.dragAndDrop.clientY  = null
       this.dragAndDrop.status   = this.DND_STATUS.NONE
+      this.dragAndDrop.isTouch  = false
+      this.dragAndDrop.from     = null
+      this.allowedExternalTouchTarget = null
+      this.setGlobalCache('from', null)
+      this.setGlobalCache('touchStartTarget', null)
       this.$emit('dragend', this.dragAndDrop, event)
     },
     moveOnDrop() {
@@ -1304,13 +1396,199 @@ export default {
     },
     getShallowCopyOfDragAndDrop () {
       return {
+        isTouch:  this.dragAndDrop.isTouch,
         status:   this.dragAndDrop.status,
         dragNode: this.dragAndDrop.dragNode,
         overNode: this.dragAndDrop.overNode,
-        overArea: this.dragAndDrop.overArea
+        overArea: this.dragAndDrop.overArea,
+        from:     this.dragAndDrop.from
       }
     },
 
+
+    //-------------------------------------- touch support-------------------------------------------
+    touchStartEvent(node, event) {
+      if (this.enableTouchSupport === false) {
+        return
+      }
+
+      if (event.touches.length > 1) {
+        return
+      }
+
+      if (typeof(this.fnBeforeDrag) === 'function' && this.fnBeforeDrag(node) === false) {
+        event.preventDefault()
+        return
+      }
+
+      this.touchStartTarget = event.touches.item(0).target
+      this.dragAndDrop.status = this.DND_STATUS.INTERNAL
+      this.dragAndDrop.dragNode = node
+      this.dragAndDrop.overNode = node
+      this.dragAndDrop.isTouch = true
+      this.dragAndDrop.from = null
+      this.dragEnter(node)
+
+      this.setGlobalCache('from', {
+        treeId: this.treeId,
+        nodeId: node.id,
+      })
+      this.setGlobalCache('touchStartTarget', event.touches.item(0).target)
+
+      this.$emit('dragstart', this.dragAndDrop, event)
+    },
+    globalTouchEndEvent(event) {
+      if (this.enableTouchSupport === false) {
+        this.dragEndEvent(event)
+        return
+      }
+
+      if (event.changedTouches.length > 1) {
+        this.dragEndEvent(event)
+        return
+      }
+
+      if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
+        this.dragEndEvent(event)
+        return
+      }
+
+      if (this.dragAndDrop.status === this.DND_STATUS.NONE) {
+        this.dragEndEvent(event)
+        return
+      }
+
+      if (this.dragAndDrop.isDroppable === false) {
+        this.dragEndEvent(event)
+        return
+      }
+
+      if (typeof(this.fnBeforeDrop) === 'function' && this.fnBeforeDrop(this.dragAndDrop) === false) {
+        this.dragEndEvent(event)
+        return
+      }
+
+      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL && this.dropToMove === true) {
+        this.moveOnDrop()
+        this.dragEndEvent(event)
+
+      } else if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
+        this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
+        this.dragLeave(this.dragAndDrop.overNode)
+        this.dragEndEvent(event)
+
+      } else if (this.dragAndDrop.status === this.DND_STATUS.OUT_OF) {
+        this.dragEndEvent(event)
+
+      } else {
+        this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
+        if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
+          this.dragLeave(this.dragAndDrop.overNode)
+        }
+        this.dragEndEvent(event)
+      }
+    },
+    globalTouchCancelEvent(event) {
+      this.dragEndEvent(event)
+    },
+    globalTouchMoveEvent(event) {
+      if (this.enableTouchSupport === false) {
+        return
+      }
+
+      if (event.touches.length > 1) {
+        return
+      }
+
+      let from = this.getGlobalCache('from')
+      let touchStartTarget = this.getGlobalCache('touchStartTarget')
+      let touchMoveTarget = event.touches.item(0).target
+      if (touchMoveTarget !== touchStartTarget
+          && touchMoveTarget !== this.allowedExternalTouchTarget
+          && this.allowedTreeIdMap[from?.treeId] !== 1) {
+            return
+      }
+
+      if (this.dragAndDrop.dragNode !== null) {
+        event.preventDefault()
+      }
+
+      let touch = event.touches.item(0)
+      this.dragAndDrop.clientX = touch.clientX + 'px'
+      this.dragAndDrop.clientY = touch.clientY + 'px'
+
+      this.calcDragAndDropStatus(touch.clientX, touch.clientY)
+      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL) {
+        this.whichNodeIsBeingTouchedOver(event)
+      } else if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
+        this.whichNodeIsBeingTouchedOver(event)
+        this.dragAndDrop.from = this.getGlobalCache('from')
+      }
+    },
+    whichNodeIsBeingTouchedOver(event) {
+      if (this.dragAndDrop.status !== this.DND_STATUS.INTERNAL
+          && this.dragAndDrop.status !== this.DND_STATUS.INTO) {
+        return
+      }
+
+      let touch = event.touches.item(0)
+      let step = 1
+      let from = 0
+
+      if (this.dragAndDrop.overNode !== null) {
+        from = this.getAttr(this.dragAndDrop.overNode, '__', 'gpos')
+        let nodeElement = this.getElement(this.dragAndDrop.overNode)
+        let nodeOffset  = this.getOffset(this.dragAndDrop.overNode)
+        let nodeHeight = nodeElement.clientHeight
+
+        if (touch.pageY < nodeOffset.top) {
+          step = -1
+        } else if (touch.pageY > nodeOffset.top + nodeHeight) {
+          step = 1
+        }
+      } 
+
+      let cur = from
+      while (cur >=0 && cur < this.items.length) {
+        let cnode = this.getByGpos(cur)
+        let cnodeElement = this.getElement(cnode)
+        let cnodeOffset = this.getOffset(cnode)
+        let cnodeHeight = cnodeElement.clientHeight
+        let y = touch.pageY - cnodeOffset.top
+
+        if ( y < 0 || y > cnodeHeight) {
+          cur += step
+          continue
+        }
+
+        event.pageX = touch.pageX
+        event.pageY = touch.pageY
+        this.dragOverEvent(cnode, event)
+        break
+      }
+    },
+    allowExternalTouchOperation(event) {
+      if (this.enableTouchSupport === true && this.enableDropExternalElement === true) {
+        this.allowedExternalTouchTarget = event.touches.item(0).target
+      }
+    },
+    allowTouchOperationFromAnotherTree(treeId) {
+      if (this.enableTouchSupport === true && this.enableDropExternalElement === true) {
+        this.$set(this.allowedTreeIdMap, treeId, 1)
+      }
+    },
+    forbidTouchOperationFromAnotherTree(treeId) {
+      this.$delete(this.allowedTreeIdMap, treeId)
+    },
+    isTheTouchOperationFromTheTree(event) {
+      if ((event.type === 'touchend' && event.changedTouches.item(0).target === this.touchStartTarget)
+          || (event.type === 'touchmove' && event.touches.item(0).target === this.touchStartTarget)
+          || (event.type === 'touchcancel' && event.changedTouches.item(0).target === this.touchStartTarget)) {
+        return true
+      }
+ 
+      return false
+    },
 
     //---------------------------------------- checkbox -------------------------------------------
 
@@ -1515,6 +1793,11 @@ export default {
     this.emptyImage = new Image()
     this.emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
 
+    //touch devices
+    document.body.addEventListener('touchcancel', this.globalTouchCancelEvent.bind(this))
+    document.body.addEventListener('touchmove', this.globalTouchMoveEvent.bind(this), {passive: false})
+    document.body.addEventListener('touchend', this.globalTouchEndEvent.bind(this), {passive: false})
+
     //calculate the tree's width
     this.treeWidthInterval = setInterval(function(){
       let treeWidth = this.$refs.tree.$el.offsetWidth
@@ -1525,6 +1808,9 @@ export default {
   },
   beforeDestroy() {
     clearInterval(this.treeWidthInterval)
+    document.removeEventListener('touchend', this.globalTouchEndEvent.bind(this))
+    document.removeEventListener('touchmove', this.globalTouchMoveEvent.bind(this))
+    document.removeEventListener('touchcancel', this.globalTouchCancelEvent.bind(this))
   }
 }
 </script>
