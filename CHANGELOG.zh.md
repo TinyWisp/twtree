@@ -1,4 +1,4 @@
-4.0.0
+4.0.1
 - 添加:
     - 触屏拖拽支持。
     - 属性 enableTouchSupport。
