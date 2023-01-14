@@ -1,8 +1,17 @@
+4.1.0
+- 删除:
+    - 方法 allowTouchOperationFromAnotherTree。
+    - 方法 forbidTouchOperationFromAnotherTree。
+- 添加:
+    - 属性 allowedTouchFromTreeIds。
+    - 方法 getDragFrom。
+
 4.0.1
 - 添加:
     - 触屏拖拽支持。
     - 属性 enableTouchSupport。
     - 方法 allowTouchOperationFromAnotherTree。
+    - 方法 forbidTouchOperationFromAnotherTree。
     - 方法 allowExternalTouchOperation。
     - 方法 isTheTouchOperationFromTheTree。
     - 事件 dragleavetree

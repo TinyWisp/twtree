@@ -6,8 +6,7 @@
         class="tree"
         :tree="tree"
         :enableDragNodeOut="true"
-        :enableTouchSupport="true"
-        @dragstart="dragStartHandler"/>
+        :enableTouchSupport="true"/>
       <div
         :class="['container', isHover ? 'container-hover' : '']"
         ref="container"
@@ -29,8 +28,6 @@ export default {
   data() {
     return {
       containerTitle: 'Drag a node here!',
-      dragNodeTitle: '',
-      dragNodeId: null,
       isHover: false,
       tree: [
         {
@@ -83,9 +80,6 @@ export default {
     }
   },
   methods: {
-    dragStartHandler(dragAndDrop) {
-      this.dragNodeId = dragAndDrop.dragNode.id
-    },
     isInDropArea(touch) {
       if (!this.$refs.container) {
         return false
@@ -100,7 +94,8 @@ export default {
     },
     touchEndHandler (event) {
       if (this.isInDropArea(event.changedTouches.item(0)) && this.$refs.tree.isTheTouchOperationFromTheTree(event)) {
-        const dragNode = this.$refs.tree.getById(this.dragNodeId)
+        const from = this.$refs.tree.getDragFrom(event)
+        const dragNode = this.$refs.tree.getById(from.nodeId)
         this.containerTitle = dragNode.title
         this.$refs.tree.remove(dragNode)
       }

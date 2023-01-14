@@ -78,8 +78,8 @@ export default {
       event.preventDefault()
     },
     dropNode (event) {
-      let obj = JSON.parse(event.dataTransfer.getData('twtree'))
-      let node = this.$refs.tree.getById(obj.nodeId)
+      let from = this.$refs.tree.getDragFrom(event)
+      let node = this.$refs.tree.getById(from.nodeId)
       this.containerTitle = node.title
       this.$refs.tree.remove(node)
     }

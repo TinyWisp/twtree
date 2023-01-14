@@ -1,8 +1,17 @@
+4.1.0
+- deleted:
+    - the allowTouchOperationFromAnotherTree method.
+    - the forbidTouchOperationFromAnotherTree method.
+- added:
+    - the allowedTouchFromTreeIds property.
+    - the getDragFrom method.
+
 4.0.1
 - added:
     - touch support for drag and drop operations.
     - the enableTouchSupport property.
     - the allowTouchOperationFromAnotherTree method.
+    - the forbidTouchOperationFromAnotherTree method.
     - the allowExternalTouchOperation method.
     - the isTheTouchOperationFromTheTree method.
     - the dragleavetree event.

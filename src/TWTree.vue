@@ -48,7 +48,6 @@
             @contextmenu = "contextMenuEvent(item, $event)"
             @dragstart="dragStartEvent(item, $event)"
             @dragover="dragOverEvent(item, $event)"
-            @dragend="dragEndEvent($event)"
             @drop="dropEvent($event)"
             @dragenter="dragEnterEvent($event)"
             @touchstart="touchStartEvent(item, $event)"
@@ -229,6 +228,12 @@ export default {
       type: Boolean,
       default: false
     },
+    allowedTouchFromTreeIds: {
+      type: Array,
+      default: function () {
+        return []
+      }
+    },
     fnLoadData: {
       type: Function,
       required: false,
@@ -361,7 +366,6 @@ export default {
         INTO:     3    // an external element is being dragged over the tree
       },
       allowedExternalTouchTarget: null,
-      allowedTreeIdMap: {},
       touchStartTarget: null,
 
       //---contextmenu---
@@ -1138,18 +1142,34 @@ export default {
 
 
     //------------------------------ global cache --------------------------------------
-    setGlobalCache(key, val) {
+    setGlobalCache() {
       if (Object.prototype.hasOwnProperty.call(window, 'twtreeCache') === false) {
         window.twtreeCache = {}
       }
-      window.twtreeCache[key] = val
-    },
-    getGlobalCache(key) {
-      if (Object.prototype.hasOwnProperty.call(window, 'twtreeCache') === false
-        || Object.prototype.hasOwnProperty.call(window.twtreeCache, key) === false) {
-        return null
+
+      if (arguments.length === 2) {
+        let key = arguments[0]
+        let val = arguments[1]
+        window.twtreeCache[key] = val
+      } else if (arguments.length === 3) {
+        let key = arguments[0]
+        let subKey = arguments[1]
+        let val = arguments[2]
+        if (Object.prototype.hasOwnProperty.call(window.twtreeCache, key) === false) {
+          window.twtreeCache[key] = {}
+        }
+        window.twtreeCache[key][subKey] = val
       }
-      return window.twtreeCache[key]
+    },
+    getGlobalCache() {
+      if (arguments.length === 1) {
+        let key = arguments[0]
+        return window?.twtreeCache?.[key]
+      } else if (arguments.length === 2) {
+        let key = arguments[0]
+        let subKey = arguments[1]
+        return window?.twtreeCache?.[key]?.[subKey]
+      }
     },
 
 
@@ -1214,9 +1234,11 @@ export default {
       event.dataTransfer.setDragImage(this.emptyImage, 0, 0)
       event.dataTransfer.dropEffect = 'move'
       event.dataTransfer.effectAllowed = 'all'
-      this.setGlobalCache('from', {
-        treeId: this.treeId,
-        nodeId: node.id,
+      this.setGlobalCache('currentDragAndDrop', {
+        isTouch: false,
+        fromTreeId: this.treeId,
+        fromNodeId: node.id,
+        beginTimestamp: Date.now(),
       })
 
       this.$emit('dragstart', this.dragAndDrop, event)
@@ -1270,7 +1292,10 @@ export default {
       this.calcDragAndDropStatus(event.clientX, event.clientY)
 
       if (this.dragAndDrop.from === null && this.dragAndDrop.status === this.DND_STATUS.INTO) {
-        this.dragAndDrop.from = this.getGlobalCache('from')
+        this.dragAndDrop.from = {
+          treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId'),
+          nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId'),
+        }
       }
 
     },
@@ -1328,10 +1353,20 @@ export default {
       }
       this.$emit('dragleave', this.dragAndDrop, node)
     },
-    dragEndEvent(event) {
+    globalDragEndEvent(event) {
+      this.$emit('dragend', this.getShallowCopyOfDragAndDrop(), event)
       if (this.dragAndDrop.overNode !== null) {
         this.dragLeave(this.dragAndDrop.overNode)
       }
+
+      // only the tree, one of whose node is being dragged, is allowed to mutate the global cache, or
+      // it will cause critical problems when there are multiple trees in the page.
+      if (this.dragAndDrop.dragNode !== null) {
+        this.setGlobalCache('currentDragAndDrop', 'endTimestamp', Date.now())
+        this.setGlobalCache('prevDragAndDrop', this.getGlobalCache('currentDragAndDrop'))
+        this.setGlobalCache('currentDragAndDrop', {})
+      }
+
       this.dragAndDrop.dragNode = null
       this.dragAndDrop.overArea = null
       this.dragAndDrop.clientX  = null
@@ -1340,9 +1375,6 @@ export default {
       this.dragAndDrop.isTouch  = false
       this.dragAndDrop.from     = null
       this.allowedExternalTouchTarget = null
-      this.setGlobalCache('from', null)
-      this.setGlobalCache('touchStartTarget', null)
-      this.$emit('dragend', this.dragAndDrop, event)
     },
     moveOnDrop() {
       if (this.dragAndDrop.status !== this.DND_STATUS.INTERNAL) {
@@ -1404,7 +1436,55 @@ export default {
         from:     this.dragAndDrop.from
       }
     },
+    getDragFrom(event) {
+      switch (event.type) {
+        case 'dragstart':
+        case 'dragend':
+        case 'dragover':
+        case 'dragenter':
+        case 'dragleave':
+        case 'drop':
+          try {
+            let data = event.dataTransfer.getData('twtree')
+            let obj = JSON.parse(data)
+            return {
+              treeId: obj?.treeId,
+              nodeId: obj?.nodeId,
+            }
+          } catch (e) {
+            return null
+          }
+          
+        case 'touchmove':
+          if (event.touches.length > 1) {
+            return null
+          }
+          if (event.touches.item(0).target !== this.getGlobalCache('currentDragAndDrop', 'touchStartTarget')) {
+            return null
+          }
+          return {
+            treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId'),
+            nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId'),
+          }
 
+        case 'touchend':
+        case 'touchcancel':
+          if (event.changedTouches.length > 1) {
+            return null
+          }
+          if (event.changedTouches.item(0).target !== this.getGlobalCache('currentDragAndDrop', 'touchStartTarget')
+              && event.changedTouches.item(0).target !== this.getGlobalCache('prevDragAndDrop', 'touchStartTarget')) {
+            return null
+          }
+          return {
+            treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId') | this.getGlobalCache('prevDragAndDrop', 'fromTreeId'),
+            nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId') | this.getGlobalCache('prevDragAndDrop', 'fromNodeId'),
+          }
+
+        default:
+          return null
+      }
+    },
 
     //-------------------------------------- touch support-------------------------------------------
     touchStartEvent(node, event) {
@@ -1429,67 +1509,69 @@ export default {
       this.dragAndDrop.from = null
       this.dragEnter(node)
 
-      this.setGlobalCache('from', {
-        treeId: this.treeId,
-        nodeId: node.id,
+      this.setGlobalCache('currentDragAndDrop', {
+        isTouch: true,
+        fromTreeId: this.treeId,
+        fromNodeId: node.id,
+        touchStartTarget: event.touches.item(0).target,
+        beginTimestamp: Date.now(),
       })
-      this.setGlobalCache('touchStartTarget', event.touches.item(0).target)
 
       this.$emit('dragstart', this.dragAndDrop, event)
     },
     globalTouchEndEvent(event) {
       if (this.enableTouchSupport === false) {
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
         return
       }
 
       if (event.changedTouches.length > 1) {
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
         return
       }
 
       if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
         return
       }
 
       if (this.dragAndDrop.status === this.DND_STATUS.NONE) {
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
         return
       }
 
       if (this.dragAndDrop.isDroppable === false) {
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
         return
       }
 
       if (typeof(this.fnBeforeDrop) === 'function' && this.fnBeforeDrop(this.dragAndDrop) === false) {
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
         return
       }
 
       if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL && this.dropToMove === true) {
         this.moveOnDrop()
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
 
       } else if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
         this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
         this.dragLeave(this.dragAndDrop.overNode)
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
 
       } else if (this.dragAndDrop.status === this.DND_STATUS.OUT_OF) {
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
 
       } else {
         this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
         if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
           this.dragLeave(this.dragAndDrop.overNode)
         }
-        this.dragEndEvent(event)
+        this.globalDragEndEvent(event)
       }
     },
     globalTouchCancelEvent(event) {
-      this.dragEndEvent(event)
+      this.globalDragEndEvent(event)
     },
     globalTouchMoveEvent(event) {
       if (this.enableTouchSupport === false) {
@@ -1500,12 +1582,11 @@ export default {
         return
       }
 
-      let from = this.getGlobalCache('from')
-      let touchStartTarget = this.getGlobalCache('touchStartTarget')
+      let fromTreeId = this.getGlobalCache('currentDragAndDrop', 'fromTreeId')
       let touchMoveTarget = event.touches.item(0).target
-      if (touchMoveTarget !== touchStartTarget
+      if (this.dragAndDrop.dragNode === null
           && touchMoveTarget !== this.allowedExternalTouchTarget
-          && this.allowedTreeIdMap[from?.treeId] !== 1) {
+          && this.allowedTouchFromTreeIds.indexOf(fromTreeId) === -1) {
             return
       }
 
@@ -1522,7 +1603,10 @@ export default {
         this.whichNodeIsBeingTouchedOver(event)
       } else if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
         this.whichNodeIsBeingTouchedOver(event)
-        this.dragAndDrop.from = this.getGlobalCache('from')
+        this.dragAndDrop.from = {
+          treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId'),
+          nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId'),
+        }
       }
     },
     whichNodeIsBeingTouchedOver(event) {
@@ -1571,14 +1655,6 @@ export default {
       if (this.enableTouchSupport === true && this.enableDropExternalElement === true) {
         this.allowedExternalTouchTarget = event.touches.item(0).target
       }
-    },
-    allowTouchOperationFromAnotherTree(treeId) {
-      if (this.enableTouchSupport === true && this.enableDropExternalElement === true) {
-        this.$set(this.allowedTreeIdMap, treeId, 1)
-      }
-    },
-    forbidTouchOperationFromAnotherTree(treeId) {
-      this.$delete(this.allowedTreeIdMap, treeId)
     },
     isTheTouchOperationFromTheTree(event) {
       if ((event.type === 'touchend' && event.changedTouches.item(0).target === this.touchStartTarget)
@@ -1790,6 +1866,7 @@ export default {
 
     //drag and drop
     document.body.addEventListener('dragover', this.globalDragOverEvent.bind(this))
+    document.body.addEventListener('dragend', this.globalDragEndEvent.bind(this))
     this.emptyImage = new Image()
     this.emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
 
@@ -1808,6 +1885,8 @@ export default {
   },
   beforeDestroy() {
     clearInterval(this.treeWidthInterval)
+    document.removeEventListener('dragover', this.globalDragOverEvent.bind(this))
+    document.removeEventListener('dragend', this.globalDragEndEvent.bind(this))
     document.removeEventListener('touchend', this.globalTouchEndEvent.bind(this))
     document.removeEventListener('touchmove', this.globalTouchMoveEvent.bind(this))
     document.removeEventListener('touchcancel', this.globalTouchCancelEvent.bind(this))

@@ -98,12 +98,14 @@ export default {
   },
   methods: {
     touchStartHandler (idx, event) {
+      event.preventDefault()
       this.draggedIdx = idx
       this.setGhostImage(event)
       this.showGhostImage()
       this.$refs.tree.allowExternalTouchOperation(event)
     },
     touchMoveHandler (event) {
+      event.preventDefault()
       this.setGhostImage(event)
     },
     touchEndHandler () {

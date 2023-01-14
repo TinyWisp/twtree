@@ -1427,7 +1427,7 @@ describe('drag and drop', ()=>{
         }
     })
 
-    it('event: dragstart, dragover, dragend', async ()=>{
+    it('event: dragstart, dragover', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
                 tree: dndTree
@@ -1460,9 +1460,6 @@ describe('drag and drop', ()=>{
         })
         expect(wrapper.vm.dragAndDrop.overNode).toBe(node4)
         expect(wrapper.vm.dragAndDrop.isDroppable).toBeTruthy()
-
-        await wrapper.findComponent({ref: 'node-' + node6.id}).trigger('dragend')
-        expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
     })
 })
 
