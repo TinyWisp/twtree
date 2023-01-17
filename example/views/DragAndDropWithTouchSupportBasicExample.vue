@@ -6,8 +6,6 @@
         class="tree"
         @dragover="showInfo"
         @dragend="showInfo"
-        @dragleavetree="showInfo"
-        @dragentertree="showInfo"
         :enableTouchSupport="true" />
     </div>
     <span class="info">
@@ -94,7 +92,6 @@ export default {
       this.overArea = dragAndDrop.overArea !== null
         ? dragAndDrop.overArea
         : ''
-      this.status = dragAndDrop.status
     }
   }
 }

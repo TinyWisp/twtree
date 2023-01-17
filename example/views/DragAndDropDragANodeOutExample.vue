@@ -4,7 +4,6 @@
       <TWTree :tree="tree"  ref="tree"  class="tree" :enableDragNodeOut="true"/>
       <div
         class="container"
-        @dragover="dragOver"
         @drop="dropNode">
         {{containerTitle}}
       </div>
@@ -77,8 +76,8 @@ export default {
     dragOver (event) {
       event.preventDefault()
     },
-    dropNode (event) {
-      let from = this.$refs.tree.getDragFrom(event)
+    dropNode () {
+      let from = this.$refs.tree.getDragFrom()
       let node = this.$refs.tree.getById(from.nodeId)
       this.containerTitle = node.title
       this.$refs.tree.remove(node)

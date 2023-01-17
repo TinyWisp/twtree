@@ -8,7 +8,7 @@
         :tree="leftTree"
         :enableDragNodeOut="true"
         :enableDropExternalElement="true"
-        @drop="drop('leftTree', arguments[0], arguments[1])"/>
+        @drop="drop('leftTree', arguments[0])"/>
       <TWTree
         ref="rightTree" 
         class="tree right"
@@ -16,7 +16,7 @@
         :tree="rightTree"
         :enableDragNodeOut="true"
         :enableDropExternalElement="true"
-        @drop="drop('rightTree', arguments[0], arguments[1])"/>
+        @drop="drop('rightTree', arguments[0])"/>
     </div>
   </div>
 </template>

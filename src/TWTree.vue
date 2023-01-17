@@ -50,6 +50,7 @@
             @dragover="dragOverEvent(item, $event)"
             @drop="dropEvent($event)"
             @dragenter="dragEnterEvent($event)"
+            @dragend="dragEndEvent($event)"
             @touchstart="touchStartEvent(item, $event)"
             :ref="'node-' + item.id"
             :key="item.id">
@@ -228,12 +229,6 @@ export default {
       type: Boolean,
       default: false
     },
-    allowedTouchFromTreeIds: {
-      type: Array,
-      default: function () {
-        return []
-      }
-    },
     fnLoadData: {
       type: Function,
       required: false,
@@ -365,7 +360,6 @@ export default {
         INTERNAL: 2,   // a node is being dragged over the tree
         INTO:     3    // an external element is being dragged over the tree
       },
-      allowedExternalTouchTarget: null,
       touchStartTarget: null,
 
       //---contextmenu---
@@ -1227,6 +1221,9 @@ export default {
 
       this.dragAndDrop.status = this.DND_STATUS.INTERNAL
       this.dragAndDrop.dragNode = node
+      this.dragAndDrop.overNode = node
+      this.dragAndDrop.isTouch = false
+      this.dragAndDrop.from = null
       event.dataTransfer.setData('twtree', JSON.stringify({
         'treeId': this.treeId,
         'nodeId': node.id
@@ -1263,23 +1260,25 @@ export default {
 
       } else if (isInTreeArea === true && this.dragAndDrop.dragNode !== null) {
         this.dragAndDrop.status = this.DND_STATUS.INTERNAL
-        this.dragAndDrop.from = null
         if (prevStatus === this.DND_STATUS.OUT_OF) {
           this.$emit('dragentertree', this.dragAndDrop)
         }
 
       } else if (isInTreeArea === true && this.dragAndDrop.dragNode === null) {
         this.dragAndDrop.status = this.DND_STATUS.INTO
-        this.dragAndDrop.from = null
         if (prevStatus === this.DND_STATUS.NONE) {
+          this.dragAndDrop.from = {
+            treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId'),
+            nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId'),
+          }
           this.$emit('dragentertree', this.dragAndDrop)
         }
 
       } else if (isInTreeArea === false && this.dragAndDrop.dragNode === null) {
         this.dragAndDrop.status = this.DND_STATUS.NONE
-        this.dragAndDrop.from = null
         if (prevStatus === this.DND_STATUS.INTO) {
           this.$emit('dragleavetree', this.dragAndDrop)
+          this.dragAndDrop.from = null
         }
       }
 
@@ -1290,14 +1289,6 @@ export default {
       this.dragAndDrop.clientY = event.clientY + 'px'
 
       this.calcDragAndDropStatus(event.clientX, event.clientY)
-
-      if (this.dragAndDrop.from === null && this.dragAndDrop.status === this.DND_STATUS.INTO) {
-        this.dragAndDrop.from = {
-          treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId'),
-          nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId'),
-        }
-      }
-
     },
     dragOverEvent(node, event) {
       if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
@@ -1353,8 +1344,7 @@ export default {
       }
       this.$emit('dragleave', this.dragAndDrop, node)
     },
-    globalDragEndEvent(event) {
-      this.$emit('dragend', this.getShallowCopyOfDragAndDrop(), event)
+    dragEndEvent(event) {
       if (this.dragAndDrop.overNode !== null) {
         this.dragLeave(this.dragAndDrop.overNode)
       }
@@ -1374,7 +1364,8 @@ export default {
       this.dragAndDrop.status   = this.DND_STATUS.NONE
       this.dragAndDrop.isTouch  = false
       this.dragAndDrop.from     = null
-      this.allowedExternalTouchTarget = null
+
+      this.$emit('dragend', this.dragAndDrop, event)
     },
     moveOnDrop() {
       if (this.dragAndDrop.status !== this.DND_STATUS.INTERNAL) {
@@ -1436,7 +1427,13 @@ export default {
         from:     this.dragAndDrop.from
       }
     },
-    getDragFrom(event) {
+    getDragFrom() {
+      return {
+        treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId') | this.getGlobalCache('prevDragAndDrop', 'fromTreeId'),
+        nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId') | this.getGlobalCache('prevDragAndDrop', 'fromNodeId'),
+      }
+
+      /*
       switch (event.type) {
         case 'dragstart':
         case 'dragend':
@@ -1484,6 +1481,7 @@ export default {
         default:
           return null
       }
+      */
     },
 
     //-------------------------------------- touch support-------------------------------------------
@@ -1521,57 +1519,20 @@ export default {
     },
     globalTouchEndEvent(event) {
       if (this.enableTouchSupport === false) {
-        this.globalDragEndEvent(event)
+        this.dragEndEvent(event)
         return
       }
 
       if (event.changedTouches.length > 1) {
-        this.globalDragEndEvent(event)
+        this.dragEndEvent(event)
         return
       }
 
-      if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
-        this.globalDragEndEvent(event)
-        return
-      }
-
-      if (this.dragAndDrop.status === this.DND_STATUS.NONE) {
-        this.globalDragEndEvent(event)
-        return
-      }
-
-      if (this.dragAndDrop.isDroppable === false) {
-        this.globalDragEndEvent(event)
-        return
-      }
-
-      if (typeof(this.fnBeforeDrop) === 'function' && this.fnBeforeDrop(this.dragAndDrop) === false) {
-        this.globalDragEndEvent(event)
-        return
-      }
-
-      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL && this.dropToMove === true) {
-        this.moveOnDrop()
-        this.globalDragEndEvent(event)
-
-      } else if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
-        this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
-        this.dragLeave(this.dragAndDrop.overNode)
-        this.globalDragEndEvent(event)
-
-      } else if (this.dragAndDrop.status === this.DND_STATUS.OUT_OF) {
-        this.globalDragEndEvent(event)
-
-      } else {
-        this.$emit('drop', this.getShallowCopyOfDragAndDrop(), event)
-        if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
-          this.dragLeave(this.dragAndDrop.overNode)
-        }
-        this.globalDragEndEvent(event)
-      }
+      this.dropEvent(event)
+      this.dragEndEvent(event)
     },
     globalTouchCancelEvent(event) {
-      this.globalDragEndEvent(event)
+      this.dragEndEvent(event)
     },
     globalTouchMoveEvent(event) {
       if (this.enableTouchSupport === false) {
@@ -1582,14 +1543,6 @@ export default {
         return
       }
 
-      let fromTreeId = this.getGlobalCache('currentDragAndDrop', 'fromTreeId')
-      let touchMoveTarget = event.touches.item(0).target
-      if (this.dragAndDrop.dragNode === null
-          && touchMoveTarget !== this.allowedExternalTouchTarget
-          && this.allowedTouchFromTreeIds.indexOf(fromTreeId) === -1) {
-            return
-      }
-
       if (this.dragAndDrop.dragNode !== null) {
         event.preventDefault()
       }
@@ -1597,16 +1550,14 @@ export default {
       let touch = event.touches.item(0)
       this.dragAndDrop.clientX = touch.clientX + 'px'
       this.dragAndDrop.clientY = touch.clientY + 'px'
+      this.dragAndDrop.isTouch = true
 
       this.calcDragAndDropStatus(touch.clientX, touch.clientY)
-      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL) {
+      if (this.dragAndDrop.status === this.DND_STATUS.INTO && this.enableDropExternalElement === false) {
+        return
+      }
+      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL || this.dragAndDrop.status === this.DND_STATUS.INTO) {
         this.whichNodeIsBeingTouchedOver(event)
-      } else if (this.dragAndDrop.status === this.DND_STATUS.INTO) {
-        this.whichNodeIsBeingTouchedOver(event)
-        this.dragAndDrop.from = {
-          treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId'),
-          nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId'),
-        }
       }
     },
     whichNodeIsBeingTouchedOver(event) {
@@ -1649,11 +1600,6 @@ export default {
         event.pageY = touch.pageY
         this.dragOverEvent(cnode, event)
         break
-      }
-    },
-    allowExternalTouchOperation(event) {
-      if (this.enableTouchSupport === true && this.enableDropExternalElement === true) {
-        this.allowedExternalTouchTarget = event.touches.item(0).target
       }
     },
     isTheTouchOperationFromTheTree(event) {
@@ -1865,15 +1811,14 @@ export default {
     this.refresh()
 
     //drag and drop
-    document.body.addEventListener('dragover', this.globalDragOverEvent.bind(this))
-    document.body.addEventListener('dragend', this.globalDragEndEvent.bind(this))
+    document.body.addEventListener('dragover', this.globalDragOverEvent.bind(this), {capture: true})
     this.emptyImage = new Image()
     this.emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
 
     //touch devices
-    document.body.addEventListener('touchcancel', this.globalTouchCancelEvent.bind(this))
-    document.body.addEventListener('touchmove', this.globalTouchMoveEvent.bind(this), {passive: false})
-    document.body.addEventListener('touchend', this.globalTouchEndEvent.bind(this), {passive: false})
+    document.body.addEventListener('touchcancel', this.globalTouchCancelEvent.bind(this), {capture: true})
+    document.body.addEventListener('touchmove', this.globalTouchMoveEvent.bind(this), {capture:true, passive: false})
+    document.body.addEventListener('touchend', this.globalTouchEndEvent.bind(this), {capture:true, passive: false})
 
     //calculate the tree's width
     this.treeWidthInterval = setInterval(function(){
@@ -1885,11 +1830,10 @@ export default {
   },
   beforeDestroy() {
     clearInterval(this.treeWidthInterval)
-    document.removeEventListener('dragover', this.globalDragOverEvent.bind(this))
-    document.removeEventListener('dragend', this.globalDragEndEvent.bind(this))
-    document.removeEventListener('touchend', this.globalTouchEndEvent.bind(this))
-    document.removeEventListener('touchmove', this.globalTouchMoveEvent.bind(this))
-    document.removeEventListener('touchcancel', this.globalTouchCancelEvent.bind(this))
+    document.removeEventListener('dragover', this.globalDragOverEvent.bind(this), {capture: true})
+    document.removeEventListener('touchend', this.globalTouchEndEvent.bind(this), {capture: true})
+    document.removeEventListener('touchmove', this.globalTouchMoveEvent.bind(this), {capture: true})
+    document.removeEventListener('touchcancel', this.globalTouchCancelEvent.bind(this), {capture: true})
   }
 }
 </script>

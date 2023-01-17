@@ -94,7 +94,7 @@ export default {
     },
     touchEndHandler (event) {
       if (this.isInDropArea(event.changedTouches.item(0)) && this.$refs.tree.isTheTouchOperationFromTheTree(event)) {
-        const from = this.$refs.tree.getDragFrom(event)
+        const from = this.$refs.tree.getDragFrom()
         const dragNode = this.$refs.tree.getById(from.nodeId)
         this.containerTitle = dragNode.title
         this.$refs.tree.remove(dragNode)

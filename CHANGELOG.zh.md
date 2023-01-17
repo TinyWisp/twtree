@@ -1,3 +1,8 @@
+4.2.0
+- 删除:
+    - 属性 allowedDragFromTreeIds.
+    - 方法 allowExternalTouchOperation.
+
 4.1.0
 - 删除:
     - 方法 allowTouchOperationFromAnotherTree。

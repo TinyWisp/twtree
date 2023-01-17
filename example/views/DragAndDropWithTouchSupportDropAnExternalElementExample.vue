@@ -102,7 +102,6 @@ export default {
       this.draggedIdx = idx
       this.setGhostImage(event)
       this.showGhostImage()
-      this.$refs.tree.allowExternalTouchOperation(event)
     },
     touchMoveHandler (event) {
       event.preventDefault()

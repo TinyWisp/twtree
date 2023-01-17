@@ -1,3 +1,8 @@
+4.2.0
+- deleted:
+    - the allowedDragFromTreeIds property.
+    - the allowExternalTouchOperation method.
+
 4.1.0
 - deleted:
     - the allowTouchOperationFromAnotherTree method.

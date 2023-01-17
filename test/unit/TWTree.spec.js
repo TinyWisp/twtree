@@ -1427,7 +1427,7 @@ describe('drag and drop', ()=>{
         }
     })
 
-    it('event: dragstart, dragover', async ()=>{
+    it('event: dragstart, dragover, dragend', async ()=>{
         let wrapper = mount(TWTree, {
             propsData: {
                 tree: dndTree
@@ -1437,6 +1437,9 @@ describe('drag and drop', ()=>{
 
         let node6 = wrapper.vm.getById(6)
         expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
+        expect(wrapper.vm.dragAndDrop.overNode).toBeNull()
+        expect(wrapper.vm.dragAndDrop.status).toBe(0)
+        expect(wrapper.vm.dragAndDrop.isTouch).toBeFalsy()
         await wrapper.findComponent({ref: 'node-' + node6.id}).trigger('dragstart', {
             dataTransfer: {
                 setData: function(){},
@@ -1445,21 +1448,30 @@ describe('drag and drop', ()=>{
             }
         })
         expect(wrapper.vm.dragAndDrop.dragNode).toBe(node6)
+        expect(wrapper.vm.dragAndDrop.overNode).toBe(node6)
+        expect(wrapper.vm.dragAndDrop.status).toBe(2)
 
         await wrapper.findComponent({ref: 'node-' + node6.id}).trigger('dragover', {
             pageX: 100,
-            pageY: 50
+            pageY: 130
         })
         expect(wrapper.vm.dragAndDrop.overNode).toBe(node6)
         expect(wrapper.vm.dragAndDrop.isDroppable).toBeFalsy()
+        expect(wrapper.vm.dragAndDrop.status).toBe(2)
 
         let node4 = wrapper.vm.getById(4)
         await wrapper.findComponent({ref: 'node-' + node4.id}).trigger('dragover', {
             pageX: 100,
-            pageY: 50
+            pageY: 85
         })
         expect(wrapper.vm.dragAndDrop.overNode).toBe(node4)
         expect(wrapper.vm.dragAndDrop.isDroppable).toBeTruthy()
+        expect(wrapper.vm.dragAndDrop.status).toBe(2)
+
+        await wrapper.findComponent({ref: 'node-' + node6.id}).trigger('dragend')
+        expect(wrapper.vm.dragAndDrop.dragNode).toBeNull()
+        expect(wrapper.vm.dragAndDrop.overNode).toBeNull()
+        expect(wrapper.vm.dragAndDrop.status).toBe(0)
     })
 })
 

@@ -9,7 +9,6 @@
         :enableDragNodeOut="true"
         :enableDropExternalElement="true"
         :enableTouchSupport="true"
-        :allowedTouchFromTreeIds="['rightTree']"
         @drop="drop('leftTree', arguments[0])"/>
       <TWTree
         ref="rightTree" 
@@ -19,7 +18,6 @@
         :enableDragNodeOut="true"
         :enableDropExternalElement="true"
         :enableTouchSupport="true"
-        :allowedTouchFromTreeIds="['leftTree']"
         @drop="drop('rightTree', arguments[0])"/>
     </div>
   </div>

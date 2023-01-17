@@ -6,15 +6,12 @@
         class="tree"
         @dragover="showInfo"
         @dragend="showInfo"
-        @dragentertree="showInfo"
-        @dragleavetree="showInfo"
       />
     </div>
     <span class="info">
       <span class="key">dragNode:</span> <span class="val">{{dragNode}}</span> <br>
       <span class="key">overNode:</span> <span class="val">{{overNode}}</span> <br>
       <span class="key">overArea:</span> <span class="val">{{overArea}}</span> <br>
-      <span class="key">status:</span> <span class="val">{{status}}</span>
     </span>
   </div>
 </template>
@@ -32,7 +29,6 @@ export default {
       dragNode: '',
       overNode: '',
       overArea: '',
-      status: '',
       tree: [
         {
           id: 1,
@@ -94,7 +90,6 @@ export default {
       this.overArea = dragAndDrop.overArea !== null
         ? dragAndDrop.overArea
         : ''
-      this.status = dragAndDrop.status
     }
   }
 }
