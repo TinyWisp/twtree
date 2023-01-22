@@ -136,15 +136,15 @@ export default {
     }
   },
   methods: {
-    drop (thisTreeId, dragAndOver) {
-      if (dragAndOver.status !== 3) {
+    drop (thisTreeId, dragAndDrop) {
+      if (dragAndDrop.status !== 3) {
         return
       }
 
-      let fromTree = this.$refs[dragAndOver.from.treeId]
-      let dragNode = fromTree.getById(dragAndOver.from.nodeId)
+      let fromTree = this.$refs[dragAndDrop.from.treeId]
+      let dragNode = fromTree.getById(dragAndDrop.from.nodeId)
       let toTree   = this.$refs[thisTreeId]
-      let overNode = dragAndOver.overNode
+      let overNode = dragAndDrop.overNode
 
       let node  = {
         id: Date.now(),
@@ -152,7 +152,7 @@ export default {
         hasChild: false
       }
 
-      switch (dragAndOver.overArea) {
+      switch (dragAndDrop.overArea) {
         case 'prev':
           toTree.create(node, overNode.__.parent, overNode.__.pos)
           fromTree.remove(dragNode)

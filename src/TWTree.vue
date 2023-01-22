@@ -443,8 +443,8 @@ export default {
           fullIndent = this.getAttr(node, 'style', 'indent')
         } else if (path.length > 1) {
           let indents = []
-          for (let i=1; i<path.length; i++) {
-            let indent = this.getAttr(path[i], 'style', 'indent')
+          for (let j=1; j<path.length; j++) {
+            let indent = this.getAttr(path[j], 'style', 'indent')
             indents.push(indent)
           }
           let indent = this.getAttr(node, 'style', 'indent')
@@ -1428,60 +1428,20 @@ export default {
       }
     },
     getDragFrom() {
+      let fromTreeId = this.getGlobalCache('currentDragAndDrop', 'fromTreeId')
+      if (fromTreeId === null || fromTreeId === undefined) {
+        fromTreeId = this.getGlobalCache('prevDragAndDrop', 'fromTreeId')
+      }
+
+      let fromNodeId = this.getGlobalCache('currentDragAndDrop', 'fromNodeId')
+      if (fromNodeId === null || fromNodeId === undefined) {
+        fromNodeId = this.getGlobalCache('prevDragAndDrop', 'fromNodeId')
+      }
+
       return {
-        treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId') | this.getGlobalCache('prevDragAndDrop', 'fromTreeId'),
-        nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId') | this.getGlobalCache('prevDragAndDrop', 'fromNodeId'),
+        treeId: fromTreeId,
+        nodeId: fromNodeId,
       }
-
-      /*
-      switch (event.type) {
-        case 'dragstart':
-        case 'dragend':
-        case 'dragover':
-        case 'dragenter':
-        case 'dragleave':
-        case 'drop':
-          try {
-            let data = event.dataTransfer.getData('twtree')
-            let obj = JSON.parse(data)
-            return {
-              treeId: obj?.treeId,
-              nodeId: obj?.nodeId,
-            }
-          } catch (e) {
-            return null
-          }
-          
-        case 'touchmove':
-          if (event.touches.length > 1) {
-            return null
-          }
-          if (event.touches.item(0).target !== this.getGlobalCache('currentDragAndDrop', 'touchStartTarget')) {
-            return null
-          }
-          return {
-            treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId'),
-            nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId'),
-          }
-
-        case 'touchend':
-        case 'touchcancel':
-          if (event.changedTouches.length > 1) {
-            return null
-          }
-          if (event.changedTouches.item(0).target !== this.getGlobalCache('currentDragAndDrop', 'touchStartTarget')
-              && event.changedTouches.item(0).target !== this.getGlobalCache('prevDragAndDrop', 'touchStartTarget')) {
-            return null
-          }
-          return {
-            treeId: this.getGlobalCache('currentDragAndDrop', 'fromTreeId') | this.getGlobalCache('prevDragAndDrop', 'fromTreeId'),
-            nodeId: this.getGlobalCache('currentDragAndDrop', 'fromNodeId') | this.getGlobalCache('prevDragAndDrop', 'fromNodeId'),
-          }
-
-        default:
-          return null
-      }
-      */
     },
 
     //-------------------------------------- touch support-------------------------------------------
@@ -1528,7 +1488,9 @@ export default {
         return
       }
 
-      this.dropEvent(event)
+      if (this.dragAndDrop.status === this.DND_STATUS.INTERNAL || this.dragAndDrop.status === this.DND_STATUS.INTO) {
+        this.dropEvent(event)
+      }
       this.dragEndEvent(event)
     },
     globalTouchCancelEvent(event) {

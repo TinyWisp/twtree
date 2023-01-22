@@ -1,3 +1,8 @@
+4.2.1
+- fixed:
+    - when the user dropped a node from another tree, two drop events were emitted.
+    - the getDragFrom method might return a wrong result.
+
 4.2.0
 - deleted:
     - the allowedDragFromTreeIds property.

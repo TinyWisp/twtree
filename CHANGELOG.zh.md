@@ -1,3 +1,8 @@
+4.2.1
+- 修正:
+    - 拖动A树的结点在B树中放下时，两棵树都会产生drop事件。
+    - getDragFrom有时会返回错误数据。
+
 4.2.0
 - 删除:
     - 属性 allowedDragFromTreeIds.
