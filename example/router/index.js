@@ -49,6 +49,7 @@ import CustomAppearanceDisableAnimationsExample from '../views/CustomAppearanceD
 import CustomAppearanceExtraContentExample from '../views/CustomAppearanceExtraContentExample.vue'
 import CustomAppearanceLimitTitleWidthExample from '../views/CustomAppearanceLimitTitleWidthExample.vue'
 import CustomAppearanceCustomClassesExample from '../views/CustomAppearanceCustomClassesExample.vue'
+import ALotOfNodesExample from '../views/ALotOfNodesExample.vue'
 
 Vue.use(VueRouter)
 
@@ -283,6 +284,11 @@ const routes = [
     path: '/:lang/example/custom-appearance/custom-classes',
     name: 'custom-appearance-custom-classes-example',
     component: CustomAppearanceCustomClassesExample
+  },
+  {
+    path: '/:lang/example/a-lot-of-nodes',
+    name: 'a-lot-of-nodes',
+    component: ALotOfNodesExample
   }
 ]
 

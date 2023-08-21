@@ -3,7 +3,7 @@
     <div class="panel">
         <TWTree :tree="tree" ref="dndtree" class="tree">
         <template v-slot:drag-image="{dnd}">
-          <svg class="drag-image-icon droppable" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" v-if="dnd.overNode.__.isDroppable">
+          <svg class="drag-image-icon droppable" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" v-if="dnd.isDroppable">
             <path d="M2 20 L12 28 30 4" />
           </svg>
           <svg class="drag-image-icon notDroppable" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" v-else>

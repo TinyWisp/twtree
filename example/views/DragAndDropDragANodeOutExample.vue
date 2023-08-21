@@ -73,9 +73,6 @@ export default {
     }
   },
   methods: {
-    dragOver (event) {
-      event.preventDefault()
-    },
     dropNode () {
       let from = this.$refs.tree.getDragFrom()
       let node = this.$refs.tree.getById(from.nodeId)

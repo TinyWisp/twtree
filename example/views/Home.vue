@@ -300,6 +300,14 @@ export default {
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/SortExample.vue',
           codepenUrl:    'https://codepen.io/tinywisp/pen/NWxBBGO'
         },
+        {
+          title_en:      'a lot of nodes',
+          title_zh:      '大量节点',
+          route:         '/example/a-lot-of-nodes',
+          sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/ALotOfNodesExample.vue',
+          codepenUrl:    'https://codepen.io/tinywisp/pen/NWxBBGO'
+        },
+
 
         {
           title_en:      'root node',

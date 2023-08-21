@@ -66,9 +66,11 @@ export default {
   },
   methods: {
     fnCustomClasses(node) {
-      if (node.type !== undefined) {
+      if (node.type) {
         return ['twtree-node-' + node.type]
       }
+
+      return []
     }
   }
 }

@@ -5,7 +5,7 @@
     <button class="btn" @click="edit()" >edit</button>
     <input type="text" v-model="keyword" placeholder="search" @input="search()">
     <div class="panel">
-      <TWTree :tree="tree" ref="tree" @blur="blur" class="tree" />
+      <TWTree :tree="tree" ref="tree" @blur="blur" class="tree" :autoReload="false" />
     </div>
   </div>
 </template>

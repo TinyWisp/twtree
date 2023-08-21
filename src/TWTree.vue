@@ -1,16 +1,20 @@
 <template>
-  <div class="twtree-wrapper" tabindex="1" @blur="treeBlurEvent">
+  <div
+    class="twtree-wrapper"
+    tabindex="1"
+    @blur="treeBlurEvent"
+    @dragend="dragEndEvent($event)"
+    :style="{
+    '--dragImageOffsetX': dragImageOffsetX,
+    '--dragImageOffsetY': dragImageOffsetY,
+    '--animationDuration': animationDuration,
+    '--treeWidth': treeWidth + 'px'
+  }">
       <transition-group
         tag="ul" 
         name="twtree-node"
         class="twtree"
-        ref="tree"
-        :style="{
-          '--dragImageOffsetX': dragImageOffsetX,
-          '--dragImageOffsetY': dragImageOffsetY,
-          '--animationDuration': animationDuration,
-          '--treeWidth': treeWidth + 'px'
-        }">
+        ref="tree">
         <template v-for="item of items">
           <li
             v-if="item.__.isVisible"
@@ -18,9 +22,9 @@
               {'twtree-node':                true}, 
               {'twtree-node-selected':       item.selected},
               {'twtree-node-search-result':  item.__.isSearchResult},
-              {'twtree-node-drag-over-prev': item.__.dragOverArea === 'prev' && item.__.isDroppable},
-              {'twtree-node-drag-over-next': item.__.dragOverArea === 'next' && item.__.isDroppable},
-              {'twtree-node-drag-over-self': item.__.dragOverArea === 'self' && item.__.isDroppable},
+              {'twtree-node-drag-over-prev': item.__.isDragOver && dragAndDrop.isDroppable && dragAndDrop.overArea === 'prev'},
+              {'twtree-node-drag-over-next': item.__.isDragOver && dragAndDrop.isDroppable && dragAndDrop.overArea === 'next'},
+              {'twtree-node-drag-over-self': item.__.isDragOver && dragAndDrop.isDroppable && dragAndDrop.overArea === 'self'},
               ...item.__.customClasses
             ]"
             :style="{
@@ -38,8 +42,6 @@
               '--extraDisplay':        item.style.extraAlwaysVisible ? 'inline-block' : 'none',
               '--titleMaxWidth':       item.__.titleMaxWidth,
               '--titleOverflow':       item.style.titleOverflow,
-              '--mousex':              item.__.mousex,
-              '--mousey':              item.__.mousey,
               '--marginTop':           item.style.marginTop,
               '--marginBottom':        item.style.marginBottom
             }"
@@ -50,7 +52,6 @@
             @dragover="dragOverEvent(item, $event)"
             @drop="dropEvent($event)"
             @dragenter="dragEnterEvent($event)"
-            @dragend="dragEndEvent($event)"
             @touchstart="touchStartEvent(item, $event)"
             :ref="'node-' + item.id"
             :key="item.id">
@@ -137,27 +138,39 @@
               <slot name="contextmenu" v-bind:node="item">
               </slot>
             </div>
-            <div class="twtree-drag-arrow-wrapper" v-if="item.__.dragOverArea !== null">
-              <slot name="drag-arrow" v-bind:node="item">
-                <svg class="twtree-arrow" viewBox="0 0 24 24">
-                  <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
-                </svg>
-              </slot>
-            </div>
-            <div 
-              v-if="dragAndDrop.dragNode === item && (enableDragNodeOut === true || dragAndDrop.status === DND_STATUS.INTERNAL) && dragAndDrop.clientX !== null"
-              class="twtree-drag-image-wrapper"
-              :style="{
-                '--mousex': dragAndDrop.clientX,
-                '--mousey': dragAndDrop.clientY
-              }"> 
-              <slot name="drag-image" v-bind:node="item" v-bind:dnd="dragAndDrop">
-                <span class="twtree-drag-image">{{dragAndDrop.dragNode.title}}</span>
-              </slot>
-            </div>
           </li>
         </template>
       </transition-group>
+      <div 
+        v-if="dragAndDrop.dragNode !== null && (enableDragNodeOut === true || dragAndDrop.status === DND_STATUS.INTERNAL) && dragAndDrop.clientX !== null"
+        class="twtree-drag-image-wrapper"
+        :style="{
+          '--mousex': dragAndDrop.clientX,
+          '--mousey': dragAndDrop.clientY,
+          '--dragNodeFontSize': dragAndDrop.dragNode.style.fontSize,
+        }"> 
+        <slot name="drag-image" v-bind:node="dragAndDrop.dragNode" v-bind:dnd="dragAndDrop">
+          <span class="twtree-drag-image">{{dragAndDrop.dragNode.title}}</span>
+        </slot>
+      </div>
+      <div 
+        v-if="dragAndDrop.isDroppable && dragAndDrop.overNode !== null && dragAndDrop.overArea !== null"
+        :class="[
+          'twtree-drag-arrow-wrapper',
+          `twtree-drag-arrow-${dragAndDrop.overArea}`
+        ]"
+        :style="{
+          '--overNodeX': dragAndDrop.overRect.left + 'px',
+          '--overNodeY': dragAndDrop.overRect.top + 'px',
+          '--overNodeHeight': dragAndDrop.overRect.height + 'px',
+          '--overNodeFullIndent': dragAndDrop.overNode.__.fullIndent,
+        }">
+        <slot name="drag-arrow" v-bind:node="dragAndDrop.overNode" v-bind:dnd="dragAndDrop">
+          <svg class="twtree-drag-arrow" viewBox="0 0 24 24">
+            <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
+          </svg>
+        </slot>
+      </div>
   </div>
 </template>
 
@@ -348,6 +361,12 @@ export default {
         dragNode: null,
         overNode: null,
         overArea: null,
+        overRect: {
+          left: null,
+          top: null,
+          width: null,
+          height: null,
+        },
         isDroppable: false,
         clientX: null,
         clientY: null,
@@ -497,11 +516,8 @@ export default {
         this.setAttr(node, '__', 'isVisible',      isVisible)
         this.setAttr(node, '__', 'isEditing',      this.getAttr(node, '__', 'isEditing'))
         this.setAttr(node, '__', 'isSearchResult', this.getAttr(node, '__', 'isSearchResult'))
-        this.setAttr(node, '__', 'isDroppable',    this.getAttr(node, '__', 'isDroppable'))
-        this.setAttr(node, '__', 'dragOverArea',   this.getAttr(node, '__', 'dragOverArea'))
+        this.setAttr(node, '__', 'isDragOver',     this.getAttr(node, '__', 'isDragOver'))
         this.setAttr(node, '__', 'height',         this.getAttr(node, '__', 'height'))
-        this.setAttr(node, '__', 'mousex',         this.getAttr(node, '__', 'mousex'))
-        this.setAttr(node, '__', 'mousey',         this.getAttr(node, '__', 'mousey'))
         this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
@@ -510,6 +526,9 @@ export default {
         let customClasses = this.getAttr(node, '__', 'customClasses')
         if (typeof(this.fnCustomClasses) === 'function') {
           customClasses = this.fnCustomClasses(node)
+          if (!Array.isArray(customClasses)) {
+            customClasses = []
+          }
         }
         this.setAttr(node, '__', 'customClasses',  customClasses)
 
@@ -1238,6 +1257,7 @@ export default {
         beginTimestamp: Date.now(),
       })
 
+      this.dragEnter(node)
       this.$emit('dragstart', this.dragAndDrop, event)
     },
     calcDragAndDropStatus(clientX, clientY) {
@@ -1285,8 +1305,8 @@ export default {
     },
     globalDragOverEvent(event) {
       event.preventDefault()
-      this.dragAndDrop.clientX = event.clientX + 'px'
-      this.dragAndDrop.clientY = event.clientY + 'px'
+      this.dragAndDrop.clientX = Math.floor(event.clientX) + 'px'
+      this.dragAndDrop.clientY = Math.floor(event.clientY) + 'px'
 
       this.calcDragAndDropStatus(event.clientX, event.clientY)
     },
@@ -1304,15 +1324,8 @@ export default {
         this.dragEnter(node)
       }
 
-      let nodeElement = this.getElement(node)
-      let nodeOffset  = this.getOffset(node)
-      let nodeHeight = nodeElement.clientHeight
-      let x = event.pageX - nodeOffset.left
-      let y = event.pageY - nodeOffset.top
-
-      this.setAttr(node, '__', 'mousex', x + 'px')
-      this.setAttr(node, '__', 'mousey', y + 'px')
-
+      const y = event.clientY - this.dragAndDrop.overRect.top
+      const nodeHeight = this.dragAndDrop.overRect.height
       if (y < nodeHeight * 0.33) {
         this.dragAndDrop.overArea = 'prev'
       } else if (nodeHeight - y < nodeHeight * 0.33) {
@@ -1324,8 +1337,10 @@ export default {
       this.dragAndDrop.isDroppable = this.isDroppable()
       event.preventDefault()
 
+      /*
       this.setAttr(node, '__', 'dragOverArea', this.dragAndDrop.overArea)
       this.setAttr(node, '__', 'isDroppable',  this.dragAndDrop.isDroppable)
+      */
 
       this.$emit('dragover', this.dragAndDrop)
     },
@@ -1335,15 +1350,27 @@ export default {
     },
     dragEnter(node) {
       this.dragAndDrop.overNode = node
+      const el = this.getElement(node)
+      const rect = el.getBoundingClientRect()
+      this.dragAndDrop.overRect = {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height
+      }
+      this.setAttr(node, '__', 'isDragOver', true)
       this.$emit('dragenter', this.dragAndDrop, node)
     },
     dragLeave(node) {
       if (node !== null) {
-        this.setAttr(node, '__', 'dragOverArea', null)
         this.dragAndDrop.overNode = null
       }
+      this.setAttr(node, '__', 'isDragOver', false)
       this.$emit('dragleave', this.dragAndDrop, node)
     },
+    // this event is not bound on the nodes like other drag events.
+    // sometimes the user may remove the dragged node in the drop event, which may cause the dragend
+    // event to not be fired if the dragend event is bound on the deleted node.
     dragEndEvent(event) {
       if (this.dragAndDrop.overNode !== null) {
         this.dragLeave(this.dragAndDrop.overNode)
@@ -1359,6 +1386,7 @@ export default {
 
       this.dragAndDrop.dragNode = null
       this.dragAndDrop.overArea = null
+      this.dragAndDrop.overRect = {left: null, top: null, width: null, height: null}
       this.dragAndDrop.clientX  = null
       this.dragAndDrop.clientY  = null
       this.dragAndDrop.status   = this.DND_STATUS.NONE
@@ -1423,6 +1451,7 @@ export default {
         status:   this.dragAndDrop.status,
         dragNode: this.dragAndDrop.dragNode,
         overNode: this.dragAndDrop.overNode,
+        overRect: this.dragAndDrop.overRect,
         overArea: this.dragAndDrop.overArea,
         from:     this.dragAndDrop.from
       }
@@ -1937,60 +1966,12 @@ export default {
 .twtree-node:hover .twtree-extra-wrapper {
   display: inline-block;
 }
-.twtree-node .twtree-drag-arrow-wrapper {
-  height: 0;
-  width: 0;
-  border: 0;
-  text-indent: 0;
-  position: absolute;
-  left: calc(var(--fullIndent) + 1em);
-  display: none;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-end;
-  align-items: center;
-  overflow: hidden;
-  z-index: 10;
-}
-.twtree-node .twtree-drag-arrow-wrapper .twtree-arrow {
-  width: 1.7em;
-  height: 2.6em;
-  stroke: #5cb85c;
-  fill: #5cb85c;
-  overflow: visible;
-}
-.twtree-node.twtree-node-drag-over-prev .twtree-drag-arrow-wrapper {
-  display: flex;
-  overflow: visible;
-  top: 0;
-}
-.twtree-node.twtree-node-drag-over-next .twtree-drag-arrow-wrapper {
-  display: flex;
-  overflow: visible;
-  bottom: 0;
-}
-.twtree-node.twtree-node-drag-over-self .twtree-drag-arrow-wrapper {
-  display: flex;
-  overflow: visible;
-  top: 50%;
-}
-.twtree-node.twtree-node-drag-over-self .twtree-icon-and-title {
-  background-color: var(--dragOverBgColor);
-}
 .twtree-node.twtree-not-droppable .twtree-not-droppable-sign {
   text-indent: 0;
   position: absolute;
   left: var(--mousex);
   top: calc(var(--mousey) + 0.5em);
   z-index: 10;
-}
-.twtree-node .twtree-drag-image-wrapper {
-  display: block;
-  position: fixed;
-  z-index: 11;
-  left: calc(var(--mousex) + var(--dragImageOffsetX));
-  top: calc(var(--mousey) + var(--dragImageOffsetY));
-  text-indent: 0;
 }
 .twtree-node .twtree-drag-image-wrapper .twtree-drag-image {
   text-indent: 0;
@@ -2082,6 +2063,61 @@ export default {
   left: var(--mousex);
   top: var(--mousey);
   z-index: 100;
+  text-indent: 0;
+}
+.twtree-wrapper .twtree-drag-arrow-wrapper {
+  height: var(--overNodeHeight);
+  width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-indent: 0;
+  position: fixed;
+  left: calc(var(--overNodeX) + var(--overNodeFullIndent) + 1em);
+  top: var(--overNodeY);
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  overflow: visible;
+  z-index: 10;
+  font-size: 12px;
+}
+.twtree-wrapper .twtree-drag-arrow-wrapper .twtree-drag-arrow {
+  width: 1.7em;
+  height: 2.6em;
+  stroke: #5cb85c;
+  fill: #5cb85c;
+  overflow: visible;
+}
+.twtree-wrapper .twtree-drag-arrow-prev {
+  justify-content: flex-start;
+}
+.twtree-wrapper .twtree-drag-arrow-prev > :first-child {
+  transform: translateY(-50%);
+}
+.twtree-wrapper .twtree-drag-arrow-next {
+  justify-content: flex-end;
+}
+.twtree-wrapper .twtree-drag-arrow-next > :first-child {
+  transform: translateY(50%);
+}
+.twtree-wrapper .twtree-drag-arrow-self {
+  justify-content: center;
+}
+.twtree-wrapper .twtree-drag-arrow-self > :first-child {
+  transform: translateY(0);
+}
+.twtree-wrapper .twtree-node-drag-over-self .twtree-icon-and-title {
+  background-color: var(--dragOverBgColor);
+}
+.twtree-wrapper .twtree-drag-image-wrapper {
+  display: block;
+  position: fixed;
+  z-index: 11;
+  left: calc(var(--mousex) + var(--dragImageOffsetX));
+  top: calc(var(--mousey) + var(--dragImageOffsetY));
+  font-size: var(--dragNodeFontSize);
   text-indent: 0;
 }
 </style>
