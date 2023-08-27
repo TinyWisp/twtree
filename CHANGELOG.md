@@ -1,6 +1,13 @@
+4.3.1
+- deleted:
+    - the touchMoveEvent method. (This method was just added for testing purposes in the development of version 4.3.0)
+
 4.3.0
 - changed:
-    - improve the performance of drag and drop operations
+    - improve the performance of drag and drop operations.
+- deleted:
+    - the node.__.mousex property.
+    - the node.__.mousey property.
 
 4.2.1
 - fixed:
