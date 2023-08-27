@@ -1,3 +1,7 @@
+4.3.0
+- changed:
+    - improve the performance of drag and drop operations
+
 4.2.1
 - fixed:
     - when the user dropped a node from another tree, two drop events were emitted.

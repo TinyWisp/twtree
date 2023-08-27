@@ -22,13 +22,11 @@
               {'twtree-node':                true}, 
               {'twtree-node-selected':       item.selected},
               {'twtree-node-search-result':  item.__.isSearchResult},
-              {'twtree-node-drag-over-prev': item.__.isDragOver && dragAndDrop.isDroppable && dragAndDrop.overArea === 'prev'},
-              {'twtree-node-drag-over-next': item.__.isDragOver && dragAndDrop.isDroppable && dragAndDrop.overArea === 'next'},
-              {'twtree-node-drag-over-self': item.__.isDragOver && dragAndDrop.isDroppable && dragAndDrop.overArea === 'self'},
               ...item.__.customClasses
             ]"
             :style="{
               '--fullIndent':          item.__.fullIndent,
+              '--titleMaxWidth':       item.__.titleMaxWidth,
               '--height':              item.style.height,
               '--fontSize':            item.style.fontSize,
               '--bgColor':             item.style.bgColor,
@@ -40,7 +38,6 @@
               '--checkboxMarginRight': item.style.checkboxMarginRight,
               '--extraFloat':          item.style.extraFloatRight ? 'right' : 'none',
               '--extraDisplay':        item.style.extraAlwaysVisible ? 'inline-block' : 'none',
-              '--titleMaxWidth':       item.__.titleMaxWidth,
               '--titleOverflow':       item.style.titleOverflow,
               '--marginTop':           item.style.marginTop,
               '--marginBottom':        item.style.marginBottom
@@ -115,12 +112,12 @@
                     </slot>
                   </template>
                   <template v-else>
-                  <slot name="title" v-bind:node="item">
-                    <span
-                      class="twtree-title"
-                      :title="item.__.titleTip"
-                    >{{item.title}}</span>
-                  </slot>
+                    <slot name="title" v-bind:node="item">
+                      <span
+                        class="twtree-title"
+                        :title="item.__.titleTip"
+                      >{{item.title}}</span>
+                    </slot>
                   </template>
               </span>
             </span>
@@ -141,42 +138,36 @@
           </li>
         </template>
       </transition-group>
-      <div 
-        v-if="dragAndDrop.dragNode !== null && (enableDragNodeOut === true || dragAndDrop.status === DND_STATUS.INTERNAL) && dragAndDrop.clientX !== null"
-        class="twtree-drag-image-wrapper"
-        :style="{
-          '--mousex': dragAndDrop.clientX,
-          '--mousey': dragAndDrop.clientY,
-          '--dragNodeFontSize': dragAndDrop.dragNode.style.fontSize,
-        }"> 
-        <slot name="drag-image" v-bind:node="dragAndDrop.dragNode" v-bind:dnd="dragAndDrop">
-          <span class="twtree-drag-image">{{dragAndDrop.dragNode.title}}</span>
-        </slot>
-      </div>
-      <div 
-        v-if="dragAndDrop.isDroppable && dragAndDrop.overNode !== null && dragAndDrop.overArea !== null"
-        :class="[
-          'twtree-drag-arrow-wrapper',
-          `twtree-drag-arrow-${dragAndDrop.overArea}`
-        ]"
-        :style="{
-          '--overNodeX': dragAndDrop.overRect.left + 'px',
-          '--overNodeY': dragAndDrop.overRect.top + 'px',
-          '--overNodeHeight': dragAndDrop.overRect.height + 'px',
-          '--overNodeFullIndent': dragAndDrop.overNode.__.fullIndent,
-        }">
-        <slot name="drag-arrow" v-bind:node="dragAndDrop.overNode" v-bind:dnd="dragAndDrop">
-          <svg class="twtree-drag-arrow" viewBox="0 0 24 24">
-            <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
-          </svg>
-        </slot>
-      </div>
+      <drag-image
+        :dragAndDrop="dragAndDrop"
+        :DND_STATUS="DND_STATUS"
+        :enableDragNodeOut="enableDragNodeOut">
+        <template v-slot:default>
+          <slot name="drag-image" v-bind:node="dragAndDrop.dragNode" v-bind:dnd="dragAndDrop">
+            <span class="twtree-drag-image">{{dragAndDrop.dragNode.title}}</span>
+          </slot>
+        </template>
+      </drag-image>
+      <drag-arrow
+        :dragAndDrop="dragAndDrop">
+        <template v-slot:default>
+          <slot name="drag-arrow" v-bind:node="dragAndDrop.overNode" v-bind:dnd="dragAndDrop">
+            <svg class="twtree-drag-arrow" viewBox="0 0 24 24">
+              <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
+            </svg>
+          </slot>
+        </template>
+      </drag-arrow>
   </div>
 </template>
 
 <script>
+import DragImage from './DragImage.vue'
+import DragArrow from './DragArrow.vue'
+
 export default {
   name: 'TWTree',
+  components: { DragImage, DragArrow },
   props: {
     tree: {
       type: Array,
@@ -344,8 +335,6 @@ export default {
           isSearchResult: false,
           isDroppable: true,
           dragOverArea: null,
-          indent: '20px',
-          height: '2em',
           mousex: 0,
           mousey: 0,
           titleMaxWidth: 'none',
@@ -440,35 +429,35 @@ export default {
       }
 
       let dpos = 0;
+      let prevCollapsedDirectoryDepth = 99999
 
       for (let i=0; i<items.length; i++) {
-        let node = items[i]
+        const node = items[i]
 
         if (!Object.prototype.hasOwnProperty.call(node, 'id')) {
           this.$set(node, 'id', this.generateId())
         }
 
-        let path = this.getAttr(node, '__', 'path')
-        let isVisible = true
-        for (let tnode of path) {
-          if (this.getDirectoryState(tnode) === 'collapsed') {
-            isVisible = false
-            break
-          }
+        const depth = this.getAttr(node, '__', 'depth')
+        const isVisible = depth <= prevCollapsedDirectoryDepth
+        if (isVisible) {
+          const dirState = this.getDirectoryState(node)
+          prevCollapsedDirectoryDepth = dirState === 'collapsed'
+            ? depth
+            : 99999
         }
 
+        const path = this.getAttr(node, '__', 'path')
+        const indent = this.getAttr(node, 'style', 'indent')
         let fullIndent = 0
         if (path.length === 1) {
-          fullIndent = this.getAttr(node, 'style', 'indent')
-        } else if (path.length > 1) {
-          let indents = []
-          for (let j=1; j<path.length; j++) {
-            let indent = this.getAttr(path[j], 'style', 'indent')
-            indents.push(indent)
-          }
-          let indent = this.getAttr(node, 'style', 'indent')
-          indents.push(indent)
-          fullIndent = 'calc(' + indents.join(' + ') + ')'
+          fullIndent = indent
+        } else if (path.length === 2) {
+          const parentIndent = this.getAttr(path[path.length - 1], 'style', 'indent')
+          fullIndent = `calc(${indent} + ${parentIndent})`
+        } else if (path.length > 2) {
+          const parentFullIndent = this.getAttr(path[path.length - 1], '__', 'fullIndent')
+          fullIndent = 'calc(' + indent + ' + ' + parentFullIndent.substring(5)
         }
 
         let titleMaxWidth = this.getAttr(node, 'style', 'titleMaxWidth')
@@ -485,42 +474,44 @@ export default {
           titleMaxWidth = 'calc(' + (parseFloat(titleMaxWidth) / 100.0) + ' * var(--treeWidth))'
         }
 
-        this.setAttr(node, 'directoryState',  this.getDirectoryState(node))
-        this.setAttr(node, 'selected',        this.getAttr(node, 'selected'))
-
-        this.setAttr(node, 'checkbox', 'show',    this.getAttr(node, 'checkbox', 'show'))
-        this.setAttr(node, 'checkbox', 'disable', this.getAttr(node, 'checkbox', 'disable'))
-        this.setAttr(node, 'checkbox', 'state',   this.getAttr(node, 'checkbox', 'state'))
-
-        this.setAttr(node, 'style', 'height',              this.getAttr(node, 'style', 'height'))
-        this.setAttr(node, 'style', 'indent',              this.getAttr(node, 'style', 'indent'))
-        this.setAttr(node, 'style', 'fontSize',            this.getAttr(node, 'style', 'fontSize'))
-        this.setAttr(node, 'style', 'bgColor',             this.getAttr(node, 'style', 'bgColor'))
-        this.setAttr(node, 'style', 'hoverBgColor',        this.getAttr(node, 'style', 'hoverBgColor'))
-        this.setAttr(node, 'style', 'selectedBgColor',     this.getAttr(node, 'style', 'selectedBgColor'))
-        this.setAttr(node, 'style', 'dragOverBgColor',     this.getAttr(node, 'style', 'dragOverBgColor'))
-        this.setAttr(node, 'style', 'switcherMarginRight', this.getAttr(node, 'style', 'switcherMarginRight'))
-        this.setAttr(node, 'style', 'iconMarginRight',     this.getAttr(node, 'style', 'iconMarginRight'))
-        this.setAttr(node, 'style', 'checkboxMarginRight', this.getAttr(node, 'style', 'checkboxMarginRight'))
-        this.setAttr(node, 'style', 'extraFloatRight',     this.getAttr(node, 'style', 'extraFloatRight'))
-        this.setAttr(node, 'style', 'extraAlwaysVisible',  this.getAttr(node, 'style', 'extraAlwaysVisible'))
-        this.setAttr(node, 'style', 'titleMaxWidth',       this.getAttr(node, 'style', 'titleMaxWidth'))
-        this.setAttr(node, 'style', 'titleOverflow',       this.getAttr(node, 'style', 'titleOverflow'))
-        this.setAttr(node, 'style', 'marginTop',           this.getAttr(node, 'style', 'marginTop'))
-        this.setAttr(node, 'style', 'marginBottom',        this.getAttr(node, 'style', 'marginBottom'))
-        this.setAttr(node, 'style', 'showSwitcher',        this.getAttr(node, 'style', 'showSwitcher'))
-        this.setAttr(node, 'style', 'showIcon',            this.getAttr(node, 'style', 'showIcon'))
-
+        this.setAttr(node, 'directoryState',       this.getDirectoryState(node))
         this.setAttr(node, '__', 'dpos',           isVisible ? dpos : -1)
         this.setAttr(node, '__', 'gpos',           i)
         this.setAttr(node, '__', 'isVisible',      isVisible)
-        this.setAttr(node, '__', 'isEditing',      this.getAttr(node, '__', 'isEditing'))
-        this.setAttr(node, '__', 'isSearchResult', this.getAttr(node, '__', 'isSearchResult'))
-        this.setAttr(node, '__', 'isDragOver',     this.getAttr(node, '__', 'isDragOver'))
-        this.setAttr(node, '__', 'height',         this.getAttr(node, '__', 'height'))
-        this.setAttr(node, '__', 'titleTip',       this.getAttr(node, '__', 'titleTip'))
         this.setAttr(node, '__', 'fullIndent',     fullIndent)
         this.setAttr(node, '__', 'titleMaxWidth',  titleMaxWidth)
+
+        if (!this.getAttr(node, '__', 'isInited')) {
+          this.setAttr(node, 'selected',                          this.getAttr(node, 'selected'))
+          this.setAttr(node, 'checkbox',  'show',                 this.getAttr(node, 'checkbox', 'show'))
+          this.setAttr(node, 'checkbox',  'disable',              this.getAttr(node, 'checkbox', 'disable'))
+          this.setAttr(node, 'checkbox',  'state',                this.getAttr(node, 'checkbox', 'state'))
+          this.setAttr(node, 'style',     'height',               this.getAttr(node, 'style', 'height'))
+          this.setAttr(node, 'style',     'indent',               this.getAttr(node, 'style', 'indent'))
+          this.setAttr(node, 'style',     'fontSize',             this.getAttr(node, 'style', 'fontSize'))
+          this.setAttr(node, 'style',     'bgColor',              this.getAttr(node, 'style', 'bgColor'))
+          this.setAttr(node, 'style',     'hoverBgColor',         this.getAttr(node, 'style', 'hoverBgColor'))
+          this.setAttr(node, 'style',     'selectedBgColor',      this.getAttr(node, 'style', 'selectedBgColor'))
+          this.setAttr(node, 'style',     'dragOverBgColor',      this.getAttr(node, 'style', 'dragOverBgColor'))
+          this.setAttr(node, 'style',     'switcherMarginRight',  this.getAttr(node, 'style', 'switcherMarginRight'))
+          this.setAttr(node, 'style',     'iconMarginRight',      this.getAttr(node, 'style', 'iconMarginRight'))
+          this.setAttr(node, 'style',     'checkboxMarginRight',  this.getAttr(node, 'style', 'checkboxMarginRight'))
+          this.setAttr(node, 'style',     'extraFloatRight',      this.getAttr(node, 'style', 'extraFloatRight'))
+          this.setAttr(node, 'style',     'extraAlwaysVisible',   this.getAttr(node, 'style', 'extraAlwaysVisible'))
+          this.setAttr(node, 'style',     'titleMaxWidth',        this.getAttr(node, 'style', 'titleMaxWidth'))
+          this.setAttr(node, 'style',     'titleOverflow',        this.getAttr(node, 'style', 'titleOverflow'))
+          this.setAttr(node, 'style',     'marginTop',            this.getAttr(node, 'style', 'marginTop'))
+          this.setAttr(node, 'style',     'marginBottom',         this.getAttr(node, 'style', 'marginBottom'))
+          this.setAttr(node, 'style',     'showSwitcher',         this.getAttr(node, 'style', 'showSwitcher'))
+          this.setAttr(node, 'style',     'showIcon',             this.getAttr(node, 'style', 'showIcon'))
+          this.setAttr(node, '__',        'isEditing',            this.getAttr(node, '__', 'isEditing'))
+          this.setAttr(node, '__',        'isSearchResult',       this.getAttr(node, '__', 'isSearchResult'))
+          this.setAttr(node, '__',        'dragOverArea',         this.getAttr(node, '__', 'dragOverArea'))
+          this.setAttr(node, '__',        'isDroppable',          this.getAttr(node, '__', 'isDroppable'))
+          this.setAttr(node, '__',        'titleTip',             this.getAttr(node, '__', 'titleTip'))
+
+          this.setAttr(node, '__',        'isInited',            true)
+        }
 
 
         let customClasses = this.getAttr(node, '__', 'customClasses')
@@ -628,17 +619,17 @@ export default {
     },
     setAttr() {
       if (arguments.length === 3) {
-        let node = arguments[0]
-        let key = arguments[1]
-        let val = arguments[2]
+        const node = arguments[0]
+        const key = arguments[1]
+        const val = arguments[2]
         this.$set(node, key, val) 
       }
 
       if (arguments.length === 4) {
-        let node = arguments[0]
-        let key = arguments[1]
-        let subKey = arguments[2]
-        let val = arguments[3]
+        const node = arguments[0]
+        const key = arguments[1]
+        const subKey = arguments[2]
+        const val = arguments[3]
 
         if (!Object.prototype.hasOwnProperty.call(node, key)) {
           this.$set(node, key, {})
@@ -649,8 +640,8 @@ export default {
     },
     getAttr() {
       if (arguments.length === 2) {
-        let node = arguments[0]
-        let key = arguments[1]
+        const node = arguments[0]
+        const key = arguments[1]
 
         if (Object.prototype.hasOwnProperty.call(node, key)) {
           return node[key]
@@ -663,12 +654,14 @@ export default {
         if (Object.prototype.hasOwnProperty.call(this.spareDefaultAttrs, key)) {
           return this.spareDefaultAttrs[key]
         }
+
+        return undefined
       }
 
       if (arguments.length === 3) {
-        let node = arguments[0]
-        let key = arguments[1]
-        let subKey = arguments[2]
+        const node = arguments[0]
+        const key = arguments[1]
+        const subKey = arguments[2]
 
         if (Object.prototype.hasOwnProperty.call(node, key) && Object.prototype.hasOwnProperty.call(node[key], subKey)) {
           return node[key][subKey]
@@ -681,6 +674,8 @@ export default {
         if (Object.prototype.hasOwnProperty.call(this.spareDefaultAttrs, key) && Object.prototype.hasOwnProperty.call(this.spareDefaultAttrs[key], subKey)) {
           return this.spareDefaultAttrs[key][subKey]
         }
+
+        return undefined
       }
     },
     setTitle(node, title) {
@@ -1305,8 +1300,8 @@ export default {
     },
     globalDragOverEvent(event) {
       event.preventDefault()
-      this.dragAndDrop.clientX = Math.floor(event.clientX) + 'px'
-      this.dragAndDrop.clientY = Math.floor(event.clientY) + 'px'
+      this.dragAndDrop.clientX = Math.floor(event.clientX)
+      this.dragAndDrop.clientY = Math.floor(event.clientY)
 
       this.calcDragAndDropStatus(event.clientX, event.clientY)
     },
@@ -1319,28 +1314,39 @@ export default {
         return
       }
 
+      let needToCalcIsDroppable = false
       if (this.dragAndDrop.overNode !== node) {
+        needToCalcIsDroppable = true
         this.dragLeave(this.dragAndDrop.overNode)
         this.dragEnter(node)
       }
 
       const y = event.clientY - this.dragAndDrop.overRect.top
       const nodeHeight = this.dragAndDrop.overRect.height
+      let overArea = ''
       if (y < nodeHeight * 0.33) {
-        this.dragAndDrop.overArea = 'prev'
+        overArea = 'prev'
       } else if (nodeHeight - y < nodeHeight * 0.33) {
-        this.dragAndDrop.overArea = 'next'
+        overArea = 'next'
       } else {
-        this.dragAndDrop.overArea = 'self'
+        overArea = 'self'
+      }
+      if (overArea && overArea !== this.dragAndDrop.overArea) {
+        this.dragAndDrop.overArea = overArea
+        needToCalcIsDroppable = true
       }
 
-      this.dragAndDrop.isDroppable = this.isDroppable()
+      if (needToCalcIsDroppable) {
+        this.dragAndDrop.isDroppable = this.isDroppable()
+        if (this.dragAndDrop.isDroppable) {
+          const el = this.getElement(node)
+          el.classList.add(`twtree-node-drag-over-${overArea}`)
+        }
+      }
       event.preventDefault()
 
-      /*
       this.setAttr(node, '__', 'dragOverArea', this.dragAndDrop.overArea)
       this.setAttr(node, '__', 'isDroppable',  this.dragAndDrop.isDroppable)
-      */
 
       this.$emit('dragover', this.dragAndDrop)
     },
@@ -1358,14 +1364,16 @@ export default {
         width: rect.width,
         height: rect.height
       }
-      this.setAttr(node, '__', 'isDragOver', true)
       this.$emit('dragenter', this.dragAndDrop, node)
     },
     dragLeave(node) {
       if (node !== null) {
         this.dragAndDrop.overNode = null
+        const el = this.getElement(node)
+        el.classList.remove('twtree-node-drag-over-prev')
+        el.classList.remove('twtree-node-drag-over-next')
+        el.classList.remove('twtree-node-drag-over-self')
       }
-      this.setAttr(node, '__', 'isDragOver', false)
       this.$emit('dragleave', this.dragAndDrop, node)
     },
     // this event is not bound on the nodes like other drag events.
@@ -1830,7 +1838,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style >
 .twtree-wrapper .twtree {
   position: relative;
   padding-inline-start: 0;
@@ -1855,20 +1863,19 @@ export default {
   margin-bottom: var(--marginBottom);
   text-indent: var(--fullIndent);
   background-color: var(--bgColor);
+  transition: var(--animationDuration);
  }
 .twtree-node-enter-to, .twtree-node-leave {
   height: var(--height);
   opacity: 1;
 }
-.twtree-node-enter, .twtree-node-leave-to {
-  height: 0;
+.twtree-node-enter {
+  height: 3px;
   opacity: 0;
 }
-.twtree-node-enter-active, .twtree-node-leave-active {
-  transition: height var(--animationDuration), opacity var(--animationDuration);
-}
-.twtree-node-move {
-  transition: transform (--animationDuration);
+.twtree-node-leave-to {
+  height: 0;
+  opacity: 0;
 }
 .twtree-node:hover {
   background-color: var(--hoverBgColor);
@@ -1973,17 +1980,6 @@ export default {
   top: calc(var(--mousey) + 0.5em);
   z-index: 10;
 }
-.twtree-node .twtree-drag-image-wrapper .twtree-drag-image {
-  text-indent: 0;
-  font-size: var(--fontSize);
-  width: auto;
-  height: 1.5em;
-  line-height: 1.5em;
-  padding: 0.3em 0.5em;
-  border: 0;
-  border-radius: 5px;
-  background-color: #bae7ff;
-}
 .twtree-node .twtree-checkbox-wrapper {
   display: inline-block;
   text-indent: 0;
@@ -2065,59 +2061,18 @@ export default {
   z-index: 100;
   text-indent: 0;
 }
-.twtree-wrapper .twtree-drag-arrow-wrapper {
-  height: var(--overNodeHeight);
-  width: 0;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  text-indent: 0;
-  position: fixed;
-  left: calc(var(--overNodeX) + var(--overNodeFullIndent) + 1em);
-  top: var(--overNodeY);
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: flex-end;
-  overflow: visible;
-  z-index: 10;
-  font-size: 12px;
-}
-.twtree-wrapper .twtree-drag-arrow-wrapper .twtree-drag-arrow {
-  width: 1.7em;
-  height: 2.6em;
-  stroke: #5cb85c;
-  fill: #5cb85c;
-  overflow: visible;
-}
-.twtree-wrapper .twtree-drag-arrow-prev {
-  justify-content: flex-start;
-}
-.twtree-wrapper .twtree-drag-arrow-prev > :first-child {
-  transform: translateY(-50%);
-}
-.twtree-wrapper .twtree-drag-arrow-next {
-  justify-content: flex-end;
-}
-.twtree-wrapper .twtree-drag-arrow-next > :first-child {
-  transform: translateY(50%);
-}
-.twtree-wrapper .twtree-drag-arrow-self {
-  justify-content: center;
-}
-.twtree-wrapper .twtree-drag-arrow-self > :first-child {
-  transform: translateY(0);
-}
 .twtree-wrapper .twtree-node-drag-over-self .twtree-icon-and-title {
   background-color: var(--dragOverBgColor);
 }
-.twtree-wrapper .twtree-drag-image-wrapper {
-  display: block;
-  position: fixed;
-  z-index: 11;
-  left: calc(var(--mousex) + var(--dragImageOffsetX));
-  top: calc(var(--mousey) + var(--dragImageOffsetY));
-  font-size: var(--dragNodeFontSize);
+.twtree-wrapper .twtree-drag-image {
   text-indent: 0;
+  font-size: var(--fontSize);
+  width: auto;
+  height: 1.5em;
+  line-height: 1.5em;
+  padding: 0.3em 0.5em;
+  border: 0;
+  border-radius: 5px;
+  background-color: #bae7ff;
 }
 </style>
