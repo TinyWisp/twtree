@@ -310,7 +310,7 @@ export default {
                          '当节点较多时，建议使用animationDuration="0"禁用动画效果。',
           route:         '/example/a-lot-of-nodes',
           sourceCodeUrl: 'https://github.com/TinyWisp/twtree/blob/master/example/views/ALotOfNodesExample.vue',
-          codepenUrl:    'https://codepen.io/tinywisp/pen/NWxBBGO'
+          codepenUrl:    'https://codepen.io/tinywisp/pen/xxmZbjd'
         },
 
 
