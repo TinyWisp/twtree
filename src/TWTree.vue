@@ -50,6 +50,7 @@
             @drop="dropEvent($event)"
             @dragenter="dragEnterEvent($event)"
             @touchstart="touchStartEvent(item, $event)"
+            @touchmove="touchMoveEvent(item, $event)"
             :ref="'node-' + item.id"
             :key="item.id">
             <span class="twtree-switcher-wrapper" v-if="item.style.showSwitcher" @click.stop="toggleDirectoryState(item)">
@@ -1533,6 +1534,9 @@ export default {
     globalTouchCancelEvent(event) {
       this.dragEndEvent(event)
     },
+    touchMoveEvent(node) {
+      console.log('---touch-move-event-' + node.title)
+    },
     globalTouchMoveEvent(event) {
       if (this.enableTouchSupport === false) {
         return
@@ -1547,8 +1551,8 @@ export default {
       }
 
       let touch = event.touches.item(0)
-      this.dragAndDrop.clientX = touch.clientX + 'px'
-      this.dragAndDrop.clientY = touch.clientY + 'px'
+      this.dragAndDrop.clientX = touch.clientX
+      this.dragAndDrop.clientY = touch.clientY
       this.dragAndDrop.isTouch = true
 
       this.calcDragAndDropStatus(touch.clientX, touch.clientY)
@@ -1595,8 +1599,8 @@ export default {
           continue
         }
 
-        event.pageX = touch.pageX
-        event.pageY = touch.pageY
+        event.clientX = touch.clientX
+        event.clientY = touch.clientY
         this.dragOverEvent(cnode, event)
         break
       }
